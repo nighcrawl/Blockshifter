@@ -1,6 +1,6 @@
 # Issue tracker: GitHub
 
-> **À configurer** : ce dossier n'est pas encore un dépôt git (pas de `.git`, pas de remote). Avant que les commandes `gh` ci-dessous fonctionnent, il faut soit `git init` + `gh repo create` pour un nouveau repo, soit `git remote add origin <url>` pour lier un repo GitHub existant.
+Repo: `nighcrawl/Blocktopus` (remote `origin`).
 
 Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 

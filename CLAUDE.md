@@ -2,7 +2,11 @@
 
 ### Issue tracker
 
-Issues suivies sur GitHub via `gh` CLI — repo à configurer (pas encore de remote git). See `docs/agents/issue-tracker.md`.
+Issues suivies sur GitHub (`nighcrawl/Blocktopus`) via `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Labels par défaut (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix). See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
