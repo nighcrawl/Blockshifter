@@ -25,6 +25,16 @@ jest.mock( '@wordpress/components', () => ( {
 			/>
 		</label>
 	),
+	RangeControl: ( { label, value, onChange } ) => (
+		<label>
+			{ label }
+			<input
+				type="number"
+				value={ value }
+				onChange={ ( event ) => onChange( Number( event.target.value ) ) }
+			/>
+		</label>
+	),
 } ) );
 
 function DummyBlockEdit() {
@@ -81,5 +91,73 @@ describe( 'withCarouselControls', () => {
 		fireEvent.click( screen.getByLabelText( 'Activer le mode Carousel' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { blocktopusTransform: '' } );
+	} );
+
+	it( 'hides the secondary controls when carousel is disabled', () => {
+		render( <WrappedEdit name="core/gallery" attributes={ {} } setAttributes={ jest.fn() } /> );
+
+		expect( screen.queryByLabelText( 'Slides visibles par page' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Autoplay' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Boucle infinie' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the secondary controls with current config when enabled', () => {
+		render(
+			<WrappedEdit
+				name="core/gallery"
+				attributes={ {
+					blocktopusTransform: 'carousel',
+					blocktopusConfig: { carousel: { perPage: 3, autoplay: true, loop: false } },
+				} }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getByLabelText( 'Slides visibles par page' ) ).toHaveValue( 3 );
+		expect( screen.getByLabelText( 'Autoplay' ) ).toBeChecked();
+		expect( screen.getByLabelText( 'Boucle infinie' ) ).not.toBeChecked();
+	} );
+
+	it( 'updates only perPage in blocktopusConfig.carousel when changed', () => {
+		const setAttributes = jest.fn();
+		render(
+			<WrappedEdit
+				name="core/gallery"
+				attributes={ {
+					blocktopusTransform: 'carousel',
+					blocktopusConfig: { carousel: { perPage: 1, autoplay: true, loop: false } },
+				} }
+				setAttributes={ setAttributes }
+			/>
+		);
+
+		fireEvent.change( screen.getByLabelText( 'Slides visibles par page' ), { target: { value: '4' } } );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			blocktopusConfig: { carousel: { perPage: 4, autoplay: true, loop: false } },
+		} );
+	} );
+
+	it( 'preserves other modules\' config when toggling autoplay', () => {
+		const setAttributes = jest.fn();
+		render(
+			<WrappedEdit
+				name="core/gallery"
+				attributes={ {
+					blocktopusTransform: 'carousel',
+					blocktopusConfig: { accordion: { openFirst: true }, carousel: { perPage: 1, autoplay: false, loop: false } },
+				} }
+				setAttributes={ setAttributes }
+			/>
+		);
+
+		fireEvent.click( screen.getByLabelText( 'Autoplay' ) );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			blocktopusConfig: {
+				accordion: { openFirst: true },
+				carousel: { perPage: 1, autoplay: true, loop: false },
+			},
+		} );
 	} );
 } );

@@ -57,7 +57,9 @@ final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
 			return $block_content;
 		}
 
-		return $this->wrap_as_splide( $this->mark_direct_children_as_slides( $block_content ) );
+		$config = $block['attrs']['blocktopusConfig']['carousel'] ?? array();
+
+		return $this->wrap_as_splide( $this->mark_direct_children_as_slides( $block_content ), $config );
 	}
 
 	/**
@@ -99,12 +101,42 @@ final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
 		return $processor->get_updated_html();
 	}
 
-	private function wrap_as_splide( string $inner_html ): string {
-		return '<div class="splide">'
+	/**
+	 * @param array{perPage?: int, autoplay?: bool, loop?: bool} $config
+	 */
+	private function wrap_as_splide( string $inner_html, array $config ): string {
+		$options_json = wp_json_encode( $this->build_splide_options( $config ) );
+
+		return '<div class="splide" data-splide="' . esc_attr( $options_json ) . '">'
 			. '<div class="splide__track">'
 			. '<div class="splide__list">' . $inner_html . '</div>'
 			. '</div>'
 			. '</div>';
+	}
+
+	/**
+	 * Map Blocktopus's own config shape to Splide's own option names —
+	 * consumed automatically by Splide's `data-splide` JSON attribute, so
+	 * the front-end init script needs no changes to honour these settings.
+	 *
+	 * @param array{perPage?: int, autoplay?: bool, loop?: bool} $config
+	 */
+	private function build_splide_options( array $config ): array {
+		$options = array(
+			'perPage' => max( 1, (int) ( $config['perPage'] ?? 1 ) ),
+		);
+
+		if ( ! empty( $config['autoplay'] ) ) {
+			$options['autoplay'] = true;
+		}
+
+		if ( ! empty( $config['loop'] ) ) {
+			// Splide has no plain boolean "loop" option — infinite looping
+			// is enabled via its `type: 'loop'` slider mode instead.
+			$options['type'] = 'loop';
+		}
+
+		return $options;
 	}
 
 	private function is_void_element( ?string $tag_name ): bool {

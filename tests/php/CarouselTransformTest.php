@@ -19,6 +19,7 @@ final class CarouselTransformTest extends TestCase {
 		Monkey\Functions\when( '__' )->returnArg( 1 );
 		Monkey\Functions\when( '_doing_it_wrong' )->justReturn( null );
 		Monkey\Functions\when( 'esc_attr' )->returnArg( 1 );
+		Monkey\Functions\when( 'wp_json_encode' )->alias( 'json_encode' );
 		$this->transform = new Blocktopus_Carousel_Transform();
 	}
 
@@ -75,6 +76,36 @@ final class CarouselTransformTest extends TestCase {
 		$result = $this->transform->render( '', array() );
 
 		$this->assertSame( '', $result );
+	}
+
+	public function test_defaults_to_per_page_one_with_no_config(): void {
+		$result = $this->transform->render( '<ul><li>one</li></ul>', array() );
+
+		$this->assertStringContainsString( 'data-splide="{"perPage":1}"', $result );
+	}
+
+	public function test_passes_per_page_from_block_config(): void {
+		$block = array( 'attrs' => array( 'blocktopusConfig' => array( 'carousel' => array( 'perPage' => 3 ) ) ) );
+
+		$result = $this->transform->render( '<ul><li>one</li></ul>', $block );
+
+		$this->assertStringContainsString( 'data-splide="{"perPage":3}"', $result );
+	}
+
+	public function test_omits_autoplay_when_disabled_and_includes_it_when_enabled(): void {
+		$disabled = array( 'attrs' => array( 'blocktopusConfig' => array( 'carousel' => array( 'autoplay' => false ) ) ) );
+		$enabled  = array( 'attrs' => array( 'blocktopusConfig' => array( 'carousel' => array( 'autoplay' => true ) ) ) );
+
+		$this->assertStringNotContainsString( 'autoplay', $this->transform->render( '<ul><li>one</li></ul>', $disabled ) );
+		$this->assertStringContainsString( '"autoplay":true', $this->transform->render( '<ul><li>one</li></ul>', $enabled ) );
+	}
+
+	public function test_maps_loop_to_splides_loop_type_when_enabled(): void {
+		$looping     = array( 'attrs' => array( 'blocktopusConfig' => array( 'carousel' => array( 'loop' => true ) ) ) );
+		$not_looping = array( 'attrs' => array( 'blocktopusConfig' => array( 'carousel' => array( 'loop' => false ) ) ) );
+
+		$this->assertStringContainsString( '"type":"loop"', $this->transform->render( '<ul><li>one</li></ul>', $looping ) );
+		$this->assertStringNotContainsString( '"type"', $this->transform->render( '<ul><li>one</li></ul>', $not_looping ) );
 	}
 
 	public function test_asset_handles_are_scoped_to_the_carousel_frontend_bundle(): void {
