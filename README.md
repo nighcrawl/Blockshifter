@@ -54,7 +54,7 @@ Si vous téléchargez le code via le bouton "Code → Download ZIP" de GitHub, l
 
 1. Dans l'éditeur, sélectionnez un bloc **Galerie** ou **Groupe**
 2. Dans l'Inspector (panneau latéral), ouvrez le panneau **Blocktopus Carousel**
-3. Activez le toggle "Activer le mode Carousel"
+3. Activez le toggle "Enable Carousel mode" (le texte de l'UI suit la langue de votre WordPress — anglais par défaut, tant qu'aucune traduction française n'est fournie)
 4. Réglez le nombre de slides visibles, l'autoplay et la boucle infinie selon vos besoins
 
 Le rendu carousel ne s'applique qu'au front — l'édition du bloc dans l'éditeur reste inchangée.

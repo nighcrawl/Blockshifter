@@ -48,13 +48,13 @@ describe( 'withCarouselControls', () => {
 		render( <WrappedEdit name="core/paragraph" attributes={ {} } setAttributes={ jest.fn() } /> );
 
 		expect( screen.getByTestId( 'dummy-block-edit' ) ).toBeInTheDocument();
-		expect( screen.queryByLabelText( 'Activer le mode Carousel' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Enable Carousel mode' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the toggle for core/gallery, unchecked by default', () => {
 		render( <WrappedEdit name="core/gallery" attributes={ {} } setAttributes={ jest.fn() } /> );
 
-		expect( screen.getByLabelText( 'Activer le mode Carousel' ) ).not.toBeChecked();
+		expect( screen.getByLabelText( 'Enable Carousel mode' ) ).not.toBeChecked();
 	} );
 
 	it( 'shows the toggle checked when blocktopusTransform is carousel', () => {
@@ -66,14 +66,14 @@ describe( 'withCarouselControls', () => {
 			/>
 		);
 
-		expect( screen.getByLabelText( 'Activer le mode Carousel' ) ).toBeChecked();
+		expect( screen.getByLabelText( 'Enable Carousel mode' ) ).toBeChecked();
 	} );
 
 	it( 'sets blocktopusTransform to carousel when toggled on', () => {
 		const setAttributes = jest.fn();
 		render( <WrappedEdit name="core/gallery" attributes={ {} } setAttributes={ setAttributes } /> );
 
-		fireEvent.click( screen.getByLabelText( 'Activer le mode Carousel' ) );
+		fireEvent.click( screen.getByLabelText( 'Enable Carousel mode' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { blocktopusTransform: 'carousel' } );
 	} );
@@ -88,7 +88,7 @@ describe( 'withCarouselControls', () => {
 			/>
 		);
 
-		fireEvent.click( screen.getByLabelText( 'Activer le mode Carousel' ) );
+		fireEvent.click( screen.getByLabelText( 'Enable Carousel mode' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { blocktopusTransform: '' } );
 	} );
@@ -96,9 +96,9 @@ describe( 'withCarouselControls', () => {
 	it( 'hides the secondary controls when carousel is disabled', () => {
 		render( <WrappedEdit name="core/gallery" attributes={ {} } setAttributes={ jest.fn() } /> );
 
-		expect( screen.queryByLabelText( 'Slides visibles par page' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Visible slides per page' ) ).not.toBeInTheDocument();
 		expect( screen.queryByLabelText( 'Autoplay' ) ).not.toBeInTheDocument();
-		expect( screen.queryByLabelText( 'Boucle infinie' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Infinite loop' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the secondary controls with current config when enabled', () => {
@@ -113,9 +113,9 @@ describe( 'withCarouselControls', () => {
 			/>
 		);
 
-		expect( screen.getByLabelText( 'Slides visibles par page' ) ).toHaveValue( 3 );
+		expect( screen.getByLabelText( 'Visible slides per page' ) ).toHaveValue( 3 );
 		expect( screen.getByLabelText( 'Autoplay' ) ).toBeChecked();
-		expect( screen.getByLabelText( 'Boucle infinie' ) ).not.toBeChecked();
+		expect( screen.getByLabelText( 'Infinite loop' ) ).not.toBeChecked();
 	} );
 
 	it( 'updates only perPage in blocktopusConfig.carousel when changed', () => {
@@ -131,7 +131,7 @@ describe( 'withCarouselControls', () => {
 			/>
 		);
 
-		fireEvent.change( screen.getByLabelText( 'Slides visibles par page' ), { target: { value: '4' } } );
+		fireEvent.change( screen.getByLabelText( 'Visible slides per page' ), { target: { value: '4' } } );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			blocktopusConfig: { carousel: { perPage: 4, autoplay: true, loop: false } },

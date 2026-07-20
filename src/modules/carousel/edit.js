@@ -38,14 +38,14 @@ export const withCarouselControls = createHigherOrderComponent(
 				<InspectorControls>
 					<PanelBody title={ __( 'Blocktopus Carousel', 'blocktopus' ) }>
 						<ToggleControl
-							label={ __( 'Activer le mode Carousel', 'blocktopus' ) }
+							label={ __( 'Enable Carousel mode', 'blocktopus' ) }
 							checked={ enabled }
 							onChange={ onToggle }
 						/>
 						{ enabled && (
 							<>
 								<RangeControl
-									label={ __( 'Slides visibles par page', 'blocktopus' ) }
+									label={ __( 'Visible slides per page', 'blocktopus' ) }
 									min={ 1 }
 									max={ 6 }
 									value={ config.perPage }
@@ -57,7 +57,7 @@ export const withCarouselControls = createHigherOrderComponent(
 									onChange={ onConfigChange( 'autoplay' ) }
 								/>
 								<ToggleControl
-									label={ __( 'Boucle infinie', 'blocktopus' ) }
+									label={ __( 'Infinite loop', 'blocktopus' ) }
 									checked={ config.loop }
 									onChange={ onConfigChange( 'loop' ) }
 								/>
