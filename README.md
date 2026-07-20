@@ -1,18 +1,20 @@
 # Blocktopus
 
-Blocktopus transforme des blocs Gutenberg natifs (`core/gallery`, `core/group`) en variantes d'affichage alternatives — sans créer de nouveaux types de bloc, et sans sortir de l'éditeur natif.
+Blocktopus est une boîte à outils grandissante de modes d'affichage pour les blocs Gutenberg natifs (`core/gallery`, `core/group`) — pas de nouveau type de bloc, pas besoin de sortir de l'éditeur natif, aucune courbe d'apprentissage.
 
 ## Concept
 
-Plutôt que d'ajouter ses propres blocs (comme le font la plupart des plugins de carousel), Blocktopus ajoute un mode d'affichage optionnel directement dans l'Inspector des blocs Galerie et Groupe existants. Le bloc reste 100% natif et éditable normalement ; seule sa sortie en front est transformée.
+La plupart des plugins de carousel/slider ajoutent leur propre bloc custom, qui vit maladroitement à côté du contenu existant, avec son JS lourd et un design qui jure avec le thème. Blocktopus fait l'inverse : on prend un bloc qu'on utilise déjà — Galerie, Groupe — on bascule un toggle dans son Inspector, et sa sortie front se transforme. Le bloc lui-même reste 100% natif et éditable ; rien ne change dans la façon d'écrire le contenu.
 
-**Module 1 (MVP) : Carousel** — transforme un bloc Galerie ou Groupe en carousel (via [Splide.js](https://splidejs.com/)), avec réglages :
+Blocktopus, c'est une pieuvre qui fait grandir de nouveaux bras avec le temps : aujourd'hui c'est Carousel, demain d'autres modes d'affichage rejoindront la même boîte à outils, chacun tout aussi simple à activer.
+
+**Carousel, disponible aujourd'hui** — transforme un bloc Galerie ou Groupe en carousel propre et minimaliste (via [Splide.js](https://splidejs.com/)), avec réglages :
 - Activer/désactiver le mode Carousel
 - Nombre de slides visibles par page
 - Autoplay
 - Boucle infinie
 
-D'autres modules (Accordéon, Masonry...) sont prévus pour plus tard. Voir `CONTEXT.md` et `docs/adr/` pour le vocabulaire du projet et les décisions d'architecture.
+D'autres bras arrivent : Accordéon, Masonry... sont sur la roadmap, chacun suivant le même principe (choisir un bloc, activer un toggle). Voir `CONTEXT.md` et `docs/adr/` pour le vocabulaire du projet et les décisions d'architecture.
 
 ## Installation dans WordPress
 
@@ -71,6 +73,12 @@ composer test           # tests PHP (PHPUnit + Brain Monkey)
 npm run test:unit       # tests JS (Jest)
 ```
 
+### Publication WordPress.org
+
+```bash
+bin/build-wporg-package.sh   # génère dist/blocktopus-<version>.zip (runtime seul)
+```
+
 ## Structure
 
 ```
@@ -80,7 +88,7 @@ includes/
 ├── class-module-registry.php           # Registre explicite des Modules
 ├── class-assets.php                    # Enqueue conditionnel des assets front
 ├── class-render.php                    # Dispatch générique du rendu (render_block)
-└── modules/carousel/                   # Module 1 : Carousel
+└── modules/carousel/                   # Module Carousel
 src/
 ├── index.js                            # Entrée éditeur (attributs génériques, contrôles Carousel)
 ├── frontend/carousel-init.js           # Init Splide.js en front

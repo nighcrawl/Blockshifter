@@ -8,26 +8,29 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Turn native Gallery and Group blocks into a carousel — without leaving the editor. More display modes coming soon.
+Turn native Gallery and Group blocks into a clean, minimalist carousel — without leaving the editor.
 
 == Description ==
 
-Blocktopus transforms native Gutenberg blocks into alternate display variants — without creating new block types, and without leaving the block editor.
+Blocktopus is a growing toolbox of display modes for native Gutenberg blocks — no new block types, no leaving the block editor, no learning curve.
 
-Most carousel/slider plugins add their own custom block that lives awkwardly next to your existing content. Blocktopus takes a different approach: it adds an optional display mode directly to the Inspector of blocks you already use — Gallery and Group. Your block stays 100% native and editable; only its front-end output changes.
+Most carousel/slider plugins bolt on their own custom block that sits awkwardly next to your existing content, dragging in bloated JS and a design language that fights your theme. Blocktopus takes the opposite approach: pick a block you already use — Gallery, Group — flip a toggle in its Inspector, and its front-end output transforms. The block itself stays 100% native and editable; nothing about how you write content changes.
 
-= Module 1 (available now): Carousel =
+Think of Blocktopus as an octopus growing new arms over time: today it's Carousel, tomorrow more display modes join the same toolbox, each one just as simple to reach for.
 
-Turn a Gallery or Group block into a [Splide.js](https://splidejs.com/) carousel, with:
+= Carousel, live today =
 
-* A simple toggle to enable/disable the carousel display
-* Number of slides visible per page
+A clean, minimalist carousel for Gallery and Group blocks, powered by [Splide.js](https://splidejs.com/) — lightweight, accessible, dependency-free. No bloated slider bundle, no clashing default theme fighting your site's design: arrows and pagination are styled to sit quietly on top of your content, in any color, on any background.
+
+* One toggle to turn a block into a carousel
+* Slides per page
 * Autoplay
 * Infinite loop
+* Fully responsive, keyboard and screen-reader friendly out of the box
 
-= Coming later =
+= More arms are coming =
 
-More display modules (Accordion, Masonry...) are planned. Each will follow the same pattern: pick a block, flip a toggle in the Inspector, done.
+Accordion, Masonry, and other display modes are on the roadmap. Every future module follows the exact same pattern you already know: pick a block, flip a toggle, done.
 
 = For developers =
 
@@ -60,9 +63,12 @@ Yes, Blocktopus is completely free, with no premium tier at this time.
 
 == Screenshots ==
 
-1. The Blocktopus Carousel panel in the block Inspector, with the Carousel mode enabled and its settings (slides per page, autoplay, infinite loop) visible.
+1. The Blocktopus Carousel panel in the Inspector of a Group block, with the Carousel mode enabled and its settings (slides per page, autoplay, infinite loop) visible.
+2. The same Blocktopus Carousel panel on a Gallery block.
+3. A Group block rendered as a full-width Carousel on the front end.
+4. A Gallery block rendered as a Carousel on the front end.
 
 == Changelog ==
 
 = 0.1.0 =
-* Initial release: Carousel module for the Gallery and Group blocks.
+* Initial release: Carousel, the first Blocktopus module, for the Gallery and Group blocks.
