@@ -5,4 +5,5 @@ blocktopus-brief.md
 /build/
 /.phpunit.cache/
 /.wp-core-src/
+/dist/
 .DS_Store
