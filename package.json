@@ -1,0 +1,15 @@
+{
+  "name": "blocktopus",
+  "version": "0.1.0",
+  "description": "Transform native Gutenberg blocks into alternate display variants without leaving the editor.",
+  "license": "GPL-2.0-or-later",
+  "private": true,
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "test:unit": "wp-scripts test-unit-js"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.0.0"
+  }
+}
