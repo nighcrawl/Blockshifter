@@ -1,0 +1,25 @@
+/**
+ * Fixes WordPress's block layout system fighting the injected
+ * `.splide__track`/`.splide__list` wrapper (ticket #7).
+ *
+ * The Carousel Transform turns the block's own wrapper into the `.splide`
+ * root, which keeps whatever layout class it already had (e.g.
+ * `is-layout-constrained`). That layout class applies WP core's own
+ * default child-width clamp to ANY direct child that isn't itself
+ * `alignwide`/`alignfull`/`alignleft`/`alignright` — and `.splide__track`,
+ * being a newly-injected direct child with none of those classes, gets
+ * clamped to the theme's normal content width instead of filling the
+ * (correctly full/wide-width) `.splide` root around it.
+ *
+ * WP core's own default-child rule uses `:where()` (zero specificity), so
+ * a plain, non-`:where()` selector here already wins without `!important`
+ * for `max-width` — but WP core's margin rule does carry `!important`, so
+ * this one needs it too to actually take effect.
+ */
+
+.splide.is-layout-constrained > .splide__track,
+.splide.is-layout-flow > .splide__track {
+	max-width: none;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}

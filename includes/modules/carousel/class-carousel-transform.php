@@ -70,12 +70,21 @@ final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
 	 * direct children of `.splide__list`, not nested one level deeper
 	 * inside the original wrapper), and mark its direct children as slides.
 	 *
+	 * Also propagates the widest `alignwide`/`alignfull` found among the
+	 * slides up to the root: WordPress's own layout CSS targets those
+	 * classes with a direct-child selector (e.g. `.is-layout-constrained >
+	 * .alignfull`), which the newly-inserted `.splide__track`/`.splide__list`
+	 * wrapper breaks for the slides themselves. Slides can't each bleed
+	 * independently — they must share one width to slide correctly — so
+	 * the carousel as a whole takes on the alignment instead.
+	 *
 	 * @param array{perPage?: int, autoplay?: bool, loop?: bool} $config
 	 */
 	private function mark_root_and_slides( string $html, array $config ): string {
-		$processor = new WP_HTML_Tag_Processor( $html );
-		$depth     = 0;
-		$root_seen = false;
+		$processor          = new WP_HTML_Tag_Processor( $html );
+		$depth              = 0;
+		$root_seen          = false;
+		$widest_slide_align = '';
 
 		while ( $processor->next_token() ) {
 			if ( '#tag' !== $processor->get_token_type() ) {
@@ -89,8 +98,7 @@ final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
 
 			if ( ! $root_seen ) {
 				$root_seen = true;
-				$processor->add_class( 'splide' );
-				$processor->set_attribute( 'data-splide', wp_json_encode( $this->build_splide_options( $config ) ) );
+				$processor->set_bookmark( 'root' );
 
 				if ( ! $this->is_void_element( $processor->get_tag() ) ) {
 					$depth = 1;
@@ -100,6 +108,7 @@ final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
 
 			if ( 1 === $depth ) {
 				$processor->add_class( 'splide__slide' );
+				$widest_slide_align = $this->widest_alignment( $widest_slide_align, $this->slide_alignment( $processor ) );
 			}
 
 			if ( ! $this->is_void_element( $processor->get_tag() ) ) {
@@ -107,7 +116,38 @@ final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
 			}
 		}
 
+		$processor->seek( 'root' );
+		$processor->add_class( 'splide' );
+
+		if ( '' !== $widest_slide_align ) {
+			$processor->add_class( 'align' . $widest_slide_align );
+		}
+
+		$processor->set_attribute( 'data-splide', wp_json_encode( $this->build_splide_options( $config ) ) );
+
 		return $processor->get_updated_html();
+	}
+
+	private function slide_alignment( WP_HTML_Tag_Processor $processor ): string {
+		if ( $processor->has_class( 'alignfull' ) ) {
+			return 'full';
+		}
+
+		if ( $processor->has_class( 'alignwide' ) ) {
+			return 'wide';
+		}
+
+		return '';
+	}
+
+	private function widest_alignment( string $a, string $b ): string {
+		$rank = array(
+			''     => 0,
+			'wide' => 1,
+			'full' => 2,
+		);
+
+		return $rank[ $b ] > $rank[ $a ] ? $b : $a;
 	}
 
 	/**

@@ -101,6 +101,41 @@ final class CarouselTransformTest extends HtmlRenderingTestCase {
 		$this->assertStringNotContainsString( '"type"', $this->transform->render( '<ul><li>one</li></ul>', $not_looping ) );
 	}
 
+	public function test_does_not_add_an_align_class_to_the_root_when_no_slide_is_aligned(): void {
+		$result = $this->transform->render( '<div class="wp-block-group"><div>one</div></div>', array() );
+
+		$this->assertDoesNotMatchRegularExpression( '/class="[^"]*\balign(wide|full)\b/', $result );
+	}
+
+	public function test_propagates_alignwide_from_a_slide_to_the_root(): void {
+		$result = $this->transform->render(
+			'<div class="wp-block-group"><div class="alignwide">one</div></div>',
+			array()
+		);
+
+		$this->assertMatchesRegularExpression( '/^<div [^>]*class="wp-block-group splide alignwide"/', $result );
+		// The slide itself keeps its own alignwide class too.
+		$this->assertStringContainsString( 'class="alignwide splide__slide"', $result );
+	}
+
+	public function test_propagates_alignfull_from_a_slide_to_the_root(): void {
+		$result = $this->transform->render(
+			'<div class="wp-block-group"><div class="alignfull">one</div></div>',
+			array()
+		);
+
+		$this->assertMatchesRegularExpression( '/^<div [^>]*class="wp-block-group splide alignfull"/', $result );
+	}
+
+	public function test_propagates_the_widest_alignment_when_slides_disagree(): void {
+		$result = $this->transform->render(
+			'<div class="wp-block-group"><div class="alignwide">one</div><div class="alignfull">two</div></div>',
+			array()
+		);
+
+		$this->assertMatchesRegularExpression( '/^<div [^>]*class="wp-block-group splide alignfull"/', $result );
+	}
+
 	public function test_asset_handles_are_scoped_to_the_carousel_frontend_bundle(): void {
 		$this->assertSame(
 			array(
