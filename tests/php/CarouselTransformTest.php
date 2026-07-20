@@ -3,10 +3,9 @@
 namespace Blocktopus\Tests;
 
 use Blocktopus_Carousel_Transform;
-use Brain\Monkey;
-use PHPUnit\Framework\TestCase;
+use Blocktopus\Tests\Fakes\HtmlRenderingTestCase;
 
-final class CarouselTransformTest extends TestCase {
+final class CarouselTransformTest extends HtmlRenderingTestCase {
 
 	/**
 	 * @var Blocktopus_Carousel_Transform
@@ -15,17 +14,7 @@ final class CarouselTransformTest extends TestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		Monkey\setUp();
-		Monkey\Functions\when( '__' )->returnArg( 1 );
-		Monkey\Functions\when( '_doing_it_wrong' )->justReturn( null );
-		Monkey\Functions\when( 'esc_attr' )->returnArg( 1 );
-		Monkey\Functions\when( 'wp_json_encode' )->alias( 'json_encode' );
 		$this->transform = new Blocktopus_Carousel_Transform();
-	}
-
-	protected function tearDown(): void {
-		Monkey\tearDown();
-		parent::tearDown();
 	}
 
 	public function test_slug_is_carousel(): void {
