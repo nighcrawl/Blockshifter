@@ -1,15 +1,19 @@
 /**
- * Fixes WordPress's block layout system fighting the injected
- * `.splide__track`/`.splide__list` wrapper (ticket #7).
+ * Fixes WordPress's block layout system fighting Splide's own generated
+ * markup (ticket #7): `.splide__track`, `.splide__arrows`, and
+ * `.splide__pagination` are all direct children Splide inserts under the
+ * `.splide` root.
  *
  * The Carousel Transform turns the block's own wrapper into the `.splide`
  * root, which keeps whatever layout class it already had (e.g.
  * `is-layout-constrained`). That layout class applies WP core's own
  * default child-width clamp to ANY direct child that isn't itself
- * `alignwide`/`alignfull`/`alignleft`/`alignright` — and `.splide__track`,
- * being a newly-injected direct child with none of those classes, gets
- * clamped to the theme's normal content width instead of filling the
- * (correctly full/wide-width) `.splide` root around it.
+ * `alignwide`/`alignfull`/`alignleft`/`alignright` — and none of Splide's
+ * generated elements carry those classes, so all three get clamped to the
+ * theme's normal content width (and centered) instead of filling/reaching
+ * the edges of the (correctly full/wide-width) `.splide` root around them
+ * — most visibly, the arrows end up centered over the middle of the
+ * carousel instead of anchored to its actual left/right edges.
  *
  * WP core's own default-child rule uses `:where()` (zero specificity), so
  * a plain, non-`:where()` selector here already wins without `!important`
@@ -18,8 +22,24 @@
  */
 
 .splide.is-layout-constrained > .splide__track,
-.splide.is-layout-flow > .splide__track {
+.splide.is-layout-constrained > .splide__arrows,
+.splide.is-layout-constrained > .splide__pagination,
+.splide.is-layout-flow > .splide__track,
+.splide.is-layout-flow > .splide__arrows,
+.splide.is-layout-flow > .splide__pagination {
 	max-width: none;
 	margin-left: 0 !important;
 	margin-right: 0 !important;
+}
+
+/*
+ * `has-global-padding` reserves a comfortable inner gutter on alignfull
+ * sections (WP's intentional default: the section bleeds to the viewport
+ * edge, but its own content still keeps a margin) — appropriate for a
+ * block of static content, but not for a carousel, where the point of
+ * going alignfull is for each slide to reach the true edges too.
+ */
+.splide.has-global-padding {
+	padding-left: 0;
+	padding-right: 0;
 }
