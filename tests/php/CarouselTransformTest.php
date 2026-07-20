@@ -25,12 +25,16 @@ final class CarouselTransformTest extends HtmlRenderingTestCase {
 		$this->assertSame( array( 'core/gallery', 'core/group' ), $this->transform->get_allowed_blocks() );
 	}
 
-	public function test_wraps_content_in_the_splide_structure(): void {
+	public function test_turns_the_blocks_own_wrapper_into_the_splide_root(): void {
 		$result = $this->transform->render( '<ul class="wp-block-gallery"><li>one</li></ul>', array() );
 
-		$this->assertStringContainsString( 'class="splide"', $result );
+		// The original wrapper tag gains the splide class — it is not
+		// nested inside a *new* wrapper — so its children end up as
+		// direct children of .splide__list, which Splide requires.
+		$this->assertMatchesRegularExpression( '/^<ul [^>]*class="wp-block-gallery splide"/', $result );
 		$this->assertStringContainsString( 'class="splide__track"', $result );
-		$this->assertStringContainsString( 'class="splide__list"', $result );
+		$this->assertStringContainsString( '<div class="splide__list"><li class="splide__slide">one</li></div>', $result );
+		$this->assertStringEndsWith( '</div></div></ul>', $result );
 	}
 
 	public function test_marks_direct_children_as_slides(): void {

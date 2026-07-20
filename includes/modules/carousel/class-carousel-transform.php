@@ -57,16 +57,22 @@ final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
 			return $block_content;
 		}
 
-		$config = $block['attrs']['blocktopusConfig']['carousel'] ?? array();
+		$config  = $block['attrs']['blocktopusConfig']['carousel'] ?? array();
+		$prepped = $this->mark_root_and_slides( $block_content, $config );
 
-		return $this->wrap_as_splide( $this->mark_direct_children_as_slides( $block_content ), $config );
+		return $this->insert_splide_track( $prepped );
 	}
 
 	/**
-	 * Add the `splide__slide` class to every element one level directly
-	 * inside the block's own wrapper element — not deeper descendants.
+	 * Turn the block's own wrapper element into the `.splide` root itself
+	 * (merging the `splide` class and `data-splide` config onto it, rather
+	 * than adding a new wrapper around it — Splide needs its slides to be
+	 * direct children of `.splide__list`, not nested one level deeper
+	 * inside the original wrapper), and mark its direct children as slides.
+	 *
+	 * @param array{perPage?: int, autoplay?: bool, loop?: bool} $config
 	 */
-	private function mark_direct_children_as_slides( string $html ): string {
+	private function mark_root_and_slides( string $html, array $config ): string {
 		$processor = new WP_HTML_Tag_Processor( $html );
 		$depth     = 0;
 		$root_seen = false;
@@ -83,6 +89,9 @@ final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
 
 			if ( ! $root_seen ) {
 				$root_seen = true;
+				$processor->add_class( 'splide' );
+				$processor->set_attribute( 'data-splide', wp_json_encode( $this->build_splide_options( $config ) ) );
+
 				if ( ! $this->is_void_element( $processor->get_tag() ) ) {
 					$depth = 1;
 				}
@@ -102,16 +111,28 @@ final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
 	}
 
 	/**
-	 * @param array{perPage?: int, autoplay?: bool, loop?: bool} $config
+	 * Insert `.splide__track > .splide__list` immediately inside the root
+	 * element prepared by mark_root_and_slides(), wrapping its children
+	 * (now marked as slides) without disturbing the root tag itself.
 	 */
-	private function wrap_as_splide( string $inner_html, array $config ): string {
-		$options_json = wp_json_encode( $this->build_splide_options( $config ) );
+	private function insert_splide_track( string $html ): string {
+		$root_tag_ends_at = strpos( $html, '>' );
 
-		return '<div class="splide" data-splide="' . esc_attr( $options_json ) . '">'
-			. '<div class="splide__track">'
-			. '<div class="splide__list">' . $inner_html . '</div>'
-			. '</div>'
-			. '</div>';
+		if ( false === $root_tag_ends_at ) {
+			return $html;
+		}
+
+		$root_closing_tag_starts_at = strrpos( $html, '</' );
+
+		if ( false === $root_closing_tag_starts_at || $root_closing_tag_starts_at <= $root_tag_ends_at ) {
+			return $html;
+		}
+
+		return substr( $html, 0, $root_tag_ends_at + 1 )
+			. '<div class="splide__track"><div class="splide__list">'
+			. substr( $html, $root_tag_ends_at + 1, $root_closing_tag_starts_at - $root_tag_ends_at - 1 )
+			. '</div></div>'
+			. substr( $html, $root_closing_tag_starts_at );
 	}
 
 	/**
