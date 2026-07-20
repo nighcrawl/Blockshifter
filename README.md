@@ -1,26 +1,26 @@
 # Blocktopus
 
-Blocktopus est une boîte à outils grandissante de modes d'affichage pour les blocs Gutenberg natifs (`core/gallery`, `core/group`) — pas de nouveau type de bloc, pas besoin de sortir de l'éditeur natif, aucune courbe d'apprentissage.
+Blocktopus is a growing toolbox of display modes for native Gutenberg blocks (`core/gallery`, `core/group`) — no new block types, no leaving the native editor, no learning curve.
 
 ## Concept
 
-La plupart des plugins de carousel/slider ajoutent leur propre bloc custom, qui vit maladroitement à côté du contenu existant, avec son JS lourd et un design qui jure avec le thème. Blocktopus fait l'inverse : on prend un bloc qu'on utilise déjà — Galerie, Groupe — on bascule un toggle dans son Inspector, et sa sortie front se transforme. Le bloc lui-même reste 100% natif et éditable ; rien ne change dans la façon d'écrire le contenu.
+Most carousel/slider plugins bolt on their own custom block that sits awkwardly next to your existing content, dragging in heavy JS and a design that clashes with the theme. Blocktopus does the opposite: pick a block you already use — Gallery, Group — flip a toggle in its Inspector, and its front-end output transforms. The block itself stays 100% native and editable; nothing changes about how you write content.
 
-Blocktopus, c'est une pieuvre qui fait grandir de nouveaux bras avec le temps : aujourd'hui c'est Carousel, demain d'autres modes d'affichage rejoindront la même boîte à outils, chacun tout aussi simple à activer.
+Blocktopus is an octopus growing new arms over time: today it's Carousel, tomorrow more display modes will join the same toolbox, each just as simple to turn on.
 
-**Carousel, disponible aujourd'hui** — transforme un bloc Galerie ou Groupe en carousel propre et minimaliste (via [Splide.js](https://splidejs.com/)), avec réglages :
-- Activer/désactiver le mode Carousel
-- Nombre de slides visibles par page
+**Carousel, available today** — turns a Gallery or Group block into a clean, minimalist carousel (via [Splide.js](https://splidejs.com/)), with settings:
+- Enable/disable Carousel mode
+- Number of visible slides per page
 - Autoplay
-- Boucle infinie
+- Infinite loop
 
-D'autres bras arrivent : Accordéon, Masonry... sont sur la roadmap, chacun suivant le même principe (choisir un bloc, activer un toggle). Voir `CONTEXT.md` et `docs/adr/` pour le vocabulaire du projet et les décisions d'architecture.
+More arms are coming: Accordion, Masonry... are on the roadmap, each following the same pattern (pick a block, flip a toggle). See `CONTEXT.md` and `docs/adr/` for the project's vocabulary and architecture decisions.
 
-## Installation dans WordPress
+## Installing in WordPress
 
-Le plugin doit être **buildé avant** d'être installé — le dossier `build/` (assets JS/CSS compilés) n'est pas versionné dans le dépôt git.
+The plugin must be **built before** being installed — the `build/` folder (compiled JS/CSS assets) is not versioned in the git repo.
 
-### Depuis ce dépôt (développement)
+### From this repo (development)
 
 ```bash
 composer install
@@ -28,73 +28,73 @@ npm install
 npm run build
 ```
 
-Puis copiez (ou créez un lien symbolique) le dossier du plugin dans `wp-content/plugins/` de votre installation WordPress, par exemple :
+Then copy (or symlink) the plugin folder into `wp-content/plugins/` of your WordPress install, e.g.:
 
 ```bash
-cp -R . /chemin/vers/wordpress/wp-content/plugins/blocktopus
+cp -R . /path/to/wordpress/wp-content/plugins/blocktopus
 ```
 
-Activez ensuite le plugin depuis l'admin WordPress (**Extensions**).
+Then activate the plugin from the WordPress admin (**Plugins**).
 
-### Depuis une archive ZIP GitHub
+### From a GitHub ZIP archive
 
-Si vous téléchargez le code via le bouton "Code → Download ZIP" de GitHub, le dossier `build/` sera absent (il est dans `.gitignore`). Il faut le générer vous-même :
+If you download the code via GitHub's "Code → Download ZIP" button, the `build/` folder will be missing (it's in `.gitignore`). You'll need to generate it yourself:
 
-1. Placez le dossier extrait dans `wp-content/plugins/`
-2. Depuis ce dossier, lancez `npm install && npm run build`
-3. Activez le plugin dans l'admin WordPress
+1. Place the extracted folder in `wp-content/plugins/`
+2. From that folder, run `npm install && npm run build`
+3. Activate the plugin in the WordPress admin
 
-### Prérequis
+### Requirements
 
 - WordPress 6.2+
 - PHP 7.4+
-- Node.js (pour builder les assets JS/CSS)
+- Node.js (to build the JS/CSS assets)
 
-## Utilisation
+## Usage
 
-1. Dans l'éditeur, sélectionnez un bloc **Galerie** ou **Groupe**
-2. Dans l'Inspector (panneau latéral), ouvrez le panneau **Blocktopus Carousel**
-3. Activez le toggle "Enable Carousel mode" (le texte de l'UI suit la langue de votre WordPress — anglais par défaut, tant qu'aucune traduction française n'est fournie)
-4. Réglez le nombre de slides visibles, l'autoplay et la boucle infinie selon vos besoins
+1. In the editor, select a **Gallery** or **Group** block
+2. In the Inspector (sidebar panel), open the **Blocktopus Carousel** panel
+3. Enable the "Enable Carousel mode" toggle
+4. Adjust the number of visible slides, autoplay, and infinite loop to your needs
 
-Le rendu carousel ne s'applique qu'au front — l'édition du bloc dans l'éditeur reste inchangée.
+The carousel rendering only applies on the front end — editing the block in the editor stays unchanged.
 
-## Développement
+## Development
 
 ```bash
-composer install       # dépendances PHP (tests uniquement)
-npm install             # dépendances JS
+composer install       # PHP dependencies (tests only)
+npm install             # JS dependencies
 
-npm run start           # build JS en mode watch
-npm run build           # build JS de production
+npm run start           # JS build in watch mode
+npm run build           # production JS build
 
-composer test-setup     # télécharge le noyau WordPress nécessaire aux tests PHP (une fois)
-composer test           # tests PHP (PHPUnit + Brain Monkey)
-npm run test:unit       # tests JS (Jest)
+composer test-setup     # downloads the WordPress core needed by PHP tests (once)
+composer test           # PHP tests (PHPUnit + Brain Monkey)
+npm run test:unit       # JS tests (Jest)
 ```
 
-### Publication WordPress.org
+### WordPress.org release
 
 ```bash
-bin/build-wporg-package.sh   # génère dist/blocktopus-<version>.zip (runtime seul)
+bin/build-wporg-package.sh   # generates dist/blocktopus-<version>.zip (runtime only)
 ```
 
 ## Structure
 
 ```
-blocktopus.php                          # Bootstrap du plugin
+blocktopus.php                          # Plugin bootstrap
 includes/
-├── interface-transform.php             # Contrat Blocktopus_Transform
-├── class-module-registry.php           # Registre explicite des Modules
-├── class-assets.php                    # Enqueue conditionnel des assets front
-├── class-render.php                    # Dispatch générique du rendu (render_block)
-└── modules/carousel/                   # Module Carousel
+├── interface-transform.php             # Blocktopus_Transform contract
+├── class-module-registry.php           # Explicit Module registry
+├── class-assets.php                    # Conditional front-end asset enqueue
+├── class-render.php                    # Generic render dispatch (render_block)
+└── modules/carousel/                   # Carousel module
 src/
-├── index.js                            # Entrée éditeur (attributs génériques, contrôles Carousel)
-├── frontend/carousel-init.js           # Init Splide.js en front
-└── modules/carousel/                   # Logique + Inspector Controls du Module Carousel
+├── index.js                            # Editor entry (generic attributes, Carousel controls)
+├── frontend/carousel-init.js           # Splide.js front-end init
+└── modules/carousel/                   # Carousel module logic + Inspector Controls
 ```
 
-## Licence
+## License
 
 GPL-2.0-or-later
