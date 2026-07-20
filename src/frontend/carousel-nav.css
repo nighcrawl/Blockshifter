@@ -29,6 +29,15 @@
 	z-index: 1;
 }
 
+/* Splide wraps each dot in an <li> that core CSS sets to inline-block —
+ * its height then follows the inherited line-height/font metrics rather
+ * than the dot's own size, leaving the dot baseline-aligned near the top
+ * of a taller box instead of vertically centered. */
+.splide__pagination li {
+	display: flex;
+	align-items: center;
+}
+
 .splide__pagination__page {
 	background: #fff;
 	border: none;
