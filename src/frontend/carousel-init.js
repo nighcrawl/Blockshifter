@@ -1,5 +1,6 @@
 import Splide from '@splidejs/splide';
 import '@splidejs/splide/css/core';
+import './carousel-nav.css';
 
 /**
  * Mount a Splide instance on every carousel wrapper found in `root`.

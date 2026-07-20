@@ -1,0 +1,93 @@
+/**
+ * Minimal, theme-agnostic styling for Splide's navigation (arrows,
+ * pagination) — not Splide's own bundled default theme.
+ *
+ * .splide__arrows and .splide__pagination are siblings of .splide__track
+ * (not descendants), so simple `top: 50%` centering on the arrows would
+ * center across the whole component including the pagination row below.
+ * The pagination row's height is fixed here so the arrows can reserve
+ * exactly that much space at the bottom and stay centered on the track.
+ *
+ * Arrows overlay directly on top of slide content, which can be any
+ * color (photos, dark backgrounds, brand colors...). A `currentColor`
+ * icon with no backdrop disappears against a same-tone slide, so the
+ * arrow button gets a neutral translucent black chip behind it, and the
+ * icon itself is fixed white rather than `currentColor` — legible
+ * against any slide content, deliberately not a brand/theme color choice.
+ * Only the pagination dots (which sit below the track on the page's own
+ * background, not overlaid on slide content) use `currentColor`.
+ */
+
+.splide__pagination {
+	height: 0.75rem;
+	margin-top: 0.5rem;
+}
+
+.splide__pagination__page {
+	background: currentColor;
+	border: none;
+	border-radius: 9999px;
+	height: 0.5rem;
+	width: 0.5rem;
+	padding: 0;
+	opacity: 0.35;
+	transition: opacity 0.2s ease;
+}
+
+.splide__pagination__page.is-active {
+	opacity: 1;
+}
+
+.splide__arrows {
+	position: absolute;
+	inset: 0 0 1.25rem 0; /* bottom offset == pagination height + margin-top above */
+	pointer-events: none;
+	/* .splide__track (z-index: 0, set by Splide's core CSS) paints after
+	 * .splide__arrows in DOM order, so without an explicit z-index here
+	 * the track would render on top and hide the arrows entirely. */
+	z-index: 1;
+}
+
+.splide__arrow {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 2.5rem;
+	width: 2.5rem;
+	background: rgba(0, 0, 0, 0.35);
+	border: none;
+	border-radius: 9999px;
+	color: #fff;
+	cursor: pointer;
+	opacity: 0.85;
+	pointer-events: auto;
+	transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.splide__arrow:hover,
+.splide__arrow:focus-visible {
+	background: rgba(0, 0, 0, 0.55);
+	opacity: 1;
+}
+
+.splide__arrow svg {
+	fill: currentColor;
+	height: 1.25rem;
+	width: 1.25rem;
+}
+
+.splide__arrow--prev {
+	left: 0.5rem;
+}
+
+.splide__arrow--next {
+	right: 0.5rem;
+}
+
+.splide__arrow:disabled {
+	opacity: 0.2;
+	cursor: default;
+}
