@@ -21,6 +21,7 @@
         }
     },
     "scripts": {
-        "test": "phpunit"
+        "test": "phpunit",
+        "test-setup": "wp core download --path=.wp-core-src --version=6.7 --skip-content --force"
     }
 }
