@@ -1,0 +1,3 @@
+# Attributs de bloc génériques, pas d'attributs plats par Module
+
+Plutôt que chaque Module ajoute ses propres attributs préfixés au niveau bloc (ex. `carouselPerPage`, `accordionOpenFirst`), le core system déclare deux attributs génériques une fois pour toutes : `blocktopusTransform` (string — quel Module est actif) et `blocktopusConfig` (objet, namespacé par clé de Module — ex. `blocktopusConfig.carousel = { perPage, autoplay, loop }`). Alternative rejetée : attributs plats préfixés par Module, qui fait grossir sans borne le schéma d'attributs de chaque bloc core à chaque nouveau Module et expose à des collisions de noms entre Modules tiers.
