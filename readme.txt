@@ -1,5 +1,5 @@
 === Blocktopus ===
-Contributors: TODO-wporg-username-once-approved
+Contributors: nighcrawl
 Tags: slider, carousel, gutenberg, full site editing, block editor
 Requires at least: 6.2
 Tested up to: 7.0
