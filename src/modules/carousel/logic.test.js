@@ -19,16 +19,16 @@ describe( 'isCarouselSupported', () => {
 } );
 
 describe( 'isCarouselEnabled', () => {
-	it( 'is true when blocktopusTransform is carousel', () => {
-		expect( isCarouselEnabled( { blocktopusTransform: 'carousel' } ) ).toBe( true );
+	it( 'is true when blockshifterTransform is carousel', () => {
+		expect( isCarouselEnabled( { blockshifterTransform: 'carousel' } ) ).toBe( true );
 	} );
 
-	it( 'is false when blocktopusTransform is empty', () => {
-		expect( isCarouselEnabled( { blocktopusTransform: '' } ) ).toBe( false );
+	it( 'is false when blockshifterTransform is empty', () => {
+		expect( isCarouselEnabled( { blockshifterTransform: '' } ) ).toBe( false );
 	} );
 
-	it( 'is false when blocktopusTransform belongs to another module', () => {
-		expect( isCarouselEnabled( { blocktopusTransform: 'accordion' } ) ).toBe( false );
+	it( 'is false when blockshifterTransform belongs to another module', () => {
+		expect( isCarouselEnabled( { blockshifterTransform: 'accordion' } ) ).toBe( false );
 	} );
 
 	it( 'is false when attributes is undefined', () => {
@@ -60,7 +60,7 @@ describe( 'getCarouselConfig', () => {
 	} );
 
 	it( 'merges stored carousel config over the defaults', () => {
-		const attributes = { blocktopusConfig: { carousel: { perPage: 3 } } };
+		const attributes = { blockshifterConfig: { carousel: { perPage: 3 } } };
 
 		expect( getCarouselConfig( attributes ) ).toEqual( {
 			perPage: 3,
@@ -70,21 +70,21 @@ describe( 'getCarouselConfig', () => {
 	} );
 
 	it( 'ignores another module\'s config namespace', () => {
-		const attributes = { blocktopusConfig: { accordion: { openFirst: true } } };
+		const attributes = { blockshifterConfig: { accordion: { openFirst: true } } };
 
 		expect( getCarouselConfig( attributes ) ).toEqual( CAROUSEL_DEFAULT_CONFIG );
 	} );
 } );
 
 describe( 'setCarouselConfigValue', () => {
-	it( 'sets a key on an empty blocktopusConfig', () => {
+	it( 'sets a key on an empty blockshifterConfig', () => {
 		const result = setCarouselConfigValue( {}, 'perPage', 4 );
 
 		expect( result ).toEqual( { carousel: { perPage: 4 } } );
 	} );
 
 	it( 'preserves other carousel keys already set', () => {
-		const attributes = { blocktopusConfig: { carousel: { perPage: 2, autoplay: true } } };
+		const attributes = { blockshifterConfig: { carousel: { perPage: 2, autoplay: true } } };
 
 		const result = setCarouselConfigValue( attributes, 'loop', true );
 
@@ -93,7 +93,7 @@ describe( 'setCarouselConfigValue', () => {
 
 	it( 'preserves other modules\' config namespaces untouched', () => {
 		const attributes = {
-			blocktopusConfig: {
+			blockshifterConfig: {
 				accordion: { openFirst: true },
 				carousel: { perPage: 2 },
 			},

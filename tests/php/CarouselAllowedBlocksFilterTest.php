@@ -1,11 +1,11 @@
 <?php
 
-namespace Blocktopus\Tests;
+namespace Blockshifter\Tests;
 
-use Blocktopus_Carousel_Transform;
-use Blocktopus_Module_Registry;
-use Blocktopus_Render;
-use Blocktopus\Tests\Fakes\HtmlRenderingTestCase;
+use Blockshifter_Carousel_Transform;
+use Blockshifter_Module_Registry;
+use Blockshifter_Render;
+use Blockshifter\Tests\Fakes\HtmlRenderingTestCase;
 use Brain\Monkey\Filters;
 
 /**
@@ -17,26 +17,26 @@ final class CarouselAllowedBlocksFilterTest extends HtmlRenderingTestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		Blocktopus_Module_Registry::reset();
-		Blocktopus_Module_Registry::register( new Blocktopus_Carousel_Transform() );
+		Blockshifter_Module_Registry::reset();
+		Blockshifter_Module_Registry::register( new Blockshifter_Carousel_Transform() );
 	}
 
 	protected function tearDown(): void {
-		Blocktopus_Module_Registry::reset();
+		Blockshifter_Module_Registry::reset();
 		parent::tearDown();
 	}
 
 	public function test_a_block_added_via_the_filter_is_treated_as_carousel(): void {
-		Filters\expectApplied( 'blocktopus/carousel/allowed_blocks' )
+		Filters\expectApplied( 'blockshifter/carousel/allowed_blocks' )
 			->once()
 			->with( array( 'core/gallery', 'core/group' ) )
 			->andReturn( array( 'core/gallery', 'core/group', 'core/columns' ) );
 
-		$result = Blocktopus_Render::dispatch(
+		$result = Blockshifter_Render::dispatch(
 			'<div><div class="col">one</div></div>',
 			array(
 				'blockName' => 'core/columns',
-				'attrs'     => array( 'blocktopusTransform' => 'carousel' ),
+				'attrs'     => array( 'blockshifterTransform' => 'carousel' ),
 			)
 		);
 
@@ -45,15 +45,15 @@ final class CarouselAllowedBlocksFilterTest extends HtmlRenderingTestCase {
 	}
 
 	public function test_without_the_filter_a_non_default_block_is_left_untouched(): void {
-		Filters\expectApplied( 'blocktopus/carousel/allowed_blocks' )
+		Filters\expectApplied( 'blockshifter/carousel/allowed_blocks' )
 			->once()
 			->andReturnFirstArg();
 
-		$result = Blocktopus_Render::dispatch(
+		$result = Blockshifter_Render::dispatch(
 			'<div><div class="col">one</div></div>',
 			array(
 				'blockName' => 'core/columns',
-				'attrs'     => array( 'blocktopusTransform' => 'carousel' ),
+				'attrs'     => array( 'blockshifterTransform' => 'carousel' ),
 			)
 		);
 
@@ -61,15 +61,15 @@ final class CarouselAllowedBlocksFilterTest extends HtmlRenderingTestCase {
 	}
 
 	public function test_without_the_filter_the_default_blocks_still_work(): void {
-		Filters\expectApplied( 'blocktopus/carousel/allowed_blocks' )
+		Filters\expectApplied( 'blockshifter/carousel/allowed_blocks' )
 			->once()
 			->andReturnFirstArg();
 
-		$result = Blocktopus_Render::dispatch(
+		$result = Blockshifter_Render::dispatch(
 			'<ul><li>one</li></ul>',
 			array(
 				'blockName' => 'core/gallery',
-				'attrs'     => array( 'blocktopusTransform' => 'carousel' ),
+				'attrs'     => array( 'blockshifterTransform' => 'carousel' ),
 			)
 		);
 

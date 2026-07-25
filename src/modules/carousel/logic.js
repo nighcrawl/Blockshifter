@@ -11,11 +11,11 @@ export function isCarouselSupported( blockName ) {
 }
 
 export function isCarouselEnabled( attributes ) {
-	return attributes?.blocktopusTransform === CAROUSEL_SLUG;
+	return attributes?.blockshifterTransform === CAROUSEL_SLUG;
 }
 
 /**
- * What `blocktopusTransform` should become when the toggle changes.
+ * What `blockshifterTransform` should become when the toggle changes.
  * Only clears the attribute if this Module was the one that owned it.
  */
 export function nextTransformOnToggle( enabled, currentTransform ) {
@@ -39,21 +39,21 @@ export const CAROUSEL_DEFAULT_CONFIG = {
 export function getCarouselConfig( attributes ) {
 	return {
 		...CAROUSEL_DEFAULT_CONFIG,
-		...( attributes?.blocktopusConfig?.carousel ?? {} ),
+		...( attributes?.blockshifterConfig?.carousel ?? {} ),
 	};
 }
 
 /**
- * The next `blocktopusConfig` attribute value after changing one Carousel
+ * The next `blockshifterConfig` attribute value after changing one Carousel
  * setting. Preserves every other Module's namespaced config, and every
  * other Carousel setting, untouched.
  */
 export function setCarouselConfigValue( attributes, key, value ) {
-	const blocktopusConfig = attributes?.blocktopusConfig ?? {};
-	const carousel = blocktopusConfig.carousel ?? {};
+	const blockshifterConfig = attributes?.blockshifterConfig ?? {};
+	const carousel = blockshifterConfig.carousel ?? {};
 
 	return {
-		...blocktopusConfig,
+		...blockshifterConfig,
 		carousel: {
 			...carousel,
 			[ key ]: value,

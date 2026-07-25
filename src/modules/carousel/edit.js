@@ -22,13 +22,13 @@ export const withCarouselControls = createHigherOrderComponent(
 
 		const onToggle = ( value ) => {
 			setAttributes( {
-				blocktopusTransform: nextTransformOnToggle( value, attributes.blocktopusTransform ),
+				blockshifterTransform: nextTransformOnToggle( value, attributes.blockshifterTransform ),
 			} );
 		};
 
 		const onConfigChange = ( key ) => ( value ) => {
 			setAttributes( {
-				blocktopusConfig: setCarouselConfigValue( attributes, key, value ),
+				blockshifterConfig: setCarouselConfigValue( attributes, key, value ),
 			} );
 		};
 
@@ -36,28 +36,28 @@ export const withCarouselControls = createHigherOrderComponent(
 			<>
 				<BlockEdit { ...props } />
 				<InspectorControls>
-					<PanelBody title={ __( 'Blocktopus Carousel', 'blocktopus' ) }>
+					<PanelBody title={ __( 'Blockshifter Carousel', 'blockshifter' ) }>
 						<ToggleControl
-							label={ __( 'Enable Carousel mode', 'blocktopus' ) }
+							label={ __( 'Enable Carousel mode', 'blockshifter' ) }
 							checked={ enabled }
 							onChange={ onToggle }
 						/>
 						{ enabled && (
 							<>
 								<RangeControl
-									label={ __( 'Visible slides per page', 'blocktopus' ) }
+									label={ __( 'Visible slides per page', 'blockshifter' ) }
 									min={ 1 }
 									max={ 6 }
 									value={ config.perPage }
 									onChange={ onConfigChange( 'perPage' ) }
 								/>
 								<ToggleControl
-									label={ __( 'Autoplay', 'blocktopus' ) }
+									label={ __( 'Autoplay', 'blockshifter' ) }
 									checked={ config.autoplay }
 									onChange={ onConfigChange( 'autoplay' ) }
 								/>
 								<ToggleControl
-									label={ __( 'Infinite loop', 'blocktopus' ) }
+									label={ __( 'Infinite loop', 'blockshifter' ) }
 									checked={ config.loop }
 									onChange={ onConfigChange( 'loop' ) }
 								/>

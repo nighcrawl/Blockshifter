@@ -2,7 +2,7 @@
 
 ### Issue tracker
 
-Issues suivies sur GitHub (`nighcrawl/Blocktopus`) via `gh` CLI. See `docs/agents/issue-tracker.md`.
+Issues suivies sur GitHub (`nighcrawl/Blockshifter`) via `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

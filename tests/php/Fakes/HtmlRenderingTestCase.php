@@ -1,13 +1,13 @@
 <?php
 
-namespace Blocktopus\Tests\Fakes;
+namespace Blockshifter\Tests\Fakes;
 
 use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Shared setup for tests that exercise real rendering through
- * WP_HTML_Tag_Processor (Blocktopus_Carousel_Transform::render() and
+ * WP_HTML_Tag_Processor (Blockshifter_Carousel_Transform::render() and
  * anything that dispatches to it).
  */
 abstract class HtmlRenderingTestCase extends TestCase {

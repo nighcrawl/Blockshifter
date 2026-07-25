@@ -4,12 +4,12 @@ import { withCarouselControls } from './modules/carousel/edit';
 
 addFilter(
 	'blocks.registerBlockType',
-	'blocktopus/core-attributes',
+	'blockshifter/core-attributes',
 	addCoreAttributes
 );
 
 addFilter(
 	'editor.BlockEdit',
-	'blocktopus/carousel-controls',
+	'blockshifter/carousel-controls',
 	withCarouselControls
 );

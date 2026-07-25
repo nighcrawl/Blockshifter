@@ -1,20 +1,20 @@
 <?php
 
-namespace Blocktopus\Tests;
+namespace Blockshifter\Tests;
 
-use Blocktopus_Carousel_Transform;
-use Blocktopus\Tests\Fakes\HtmlRenderingTestCase;
+use Blockshifter_Carousel_Transform;
+use Blockshifter\Tests\Fakes\HtmlRenderingTestCase;
 
 final class CarouselTransformTest extends HtmlRenderingTestCase {
 
 	/**
-	 * @var Blocktopus_Carousel_Transform
+	 * @var Blockshifter_Carousel_Transform
 	 */
 	private $transform;
 
 	protected function setUp(): void {
 		parent::setUp();
-		$this->transform = new Blocktopus_Carousel_Transform();
+		$this->transform = new Blockshifter_Carousel_Transform();
 	}
 
 	public function test_slug_is_carousel(): void {
@@ -78,7 +78,7 @@ final class CarouselTransformTest extends HtmlRenderingTestCase {
 	}
 
 	public function test_passes_per_page_from_block_config(): void {
-		$block = array( 'attrs' => array( 'blocktopusConfig' => array( 'carousel' => array( 'perPage' => 3 ) ) ) );
+		$block = array( 'attrs' => array( 'blockshifterConfig' => array( 'carousel' => array( 'perPage' => 3 ) ) ) );
 
 		$result = $this->transform->render( '<ul><li>one</li></ul>', $block );
 
@@ -86,16 +86,16 @@ final class CarouselTransformTest extends HtmlRenderingTestCase {
 	}
 
 	public function test_omits_autoplay_when_disabled_and_includes_it_when_enabled(): void {
-		$disabled = array( 'attrs' => array( 'blocktopusConfig' => array( 'carousel' => array( 'autoplay' => false ) ) ) );
-		$enabled  = array( 'attrs' => array( 'blocktopusConfig' => array( 'carousel' => array( 'autoplay' => true ) ) ) );
+		$disabled = array( 'attrs' => array( 'blockshifterConfig' => array( 'carousel' => array( 'autoplay' => false ) ) ) );
+		$enabled  = array( 'attrs' => array( 'blockshifterConfig' => array( 'carousel' => array( 'autoplay' => true ) ) ) );
 
 		$this->assertStringNotContainsString( 'autoplay', $this->transform->render( '<ul><li>one</li></ul>', $disabled ) );
 		$this->assertStringContainsString( '"autoplay":true', $this->transform->render( '<ul><li>one</li></ul>', $enabled ) );
 	}
 
 	public function test_maps_loop_to_splides_loop_type_when_enabled(): void {
-		$looping     = array( 'attrs' => array( 'blocktopusConfig' => array( 'carousel' => array( 'loop' => true ) ) ) );
-		$not_looping = array( 'attrs' => array( 'blocktopusConfig' => array( 'carousel' => array( 'loop' => false ) ) ) );
+		$looping     = array( 'attrs' => array( 'blockshifterConfig' => array( 'carousel' => array( 'loop' => true ) ) ) );
+		$not_looping = array( 'attrs' => array( 'blockshifterConfig' => array( 'carousel' => array( 'loop' => false ) ) ) );
 
 		$this->assertStringContainsString( '"type":"loop"', $this->transform->render( '<ul><li>one</li></ul>', $looping ) );
 		$this->assertStringNotContainsString( '"type"', $this->transform->render( '<ul><li>one</li></ul>', $not_looping ) );
@@ -139,8 +139,8 @@ final class CarouselTransformTest extends HtmlRenderingTestCase {
 	public function test_asset_handles_are_scoped_to_the_carousel_frontend_bundle(): void {
 		$this->assertSame(
 			array(
-				'scripts' => array( 'blocktopus-carousel-frontend' ),
-				'styles'  => array( 'blocktopus-carousel-frontend' ),
+				'scripts' => array( 'blockshifter-carousel-frontend' ),
+				'styles'  => array( 'blockshifter-carousel-frontend' ),
 			),
 			$this->transform->get_asset_handles()
 		);

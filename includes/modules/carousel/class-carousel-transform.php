@@ -1,8 +1,8 @@
 <?php
 /**
- * Blocktopus_Carousel_Transform class.
+ * Blockshifter_Carousel_Transform class.
  *
- * @package Blocktopus
+ * @package Blockshifter
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Module 1 (MVP): wraps a block's rendered content as a Splide carousel.
  */
-final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
+final class Blockshifter_Carousel_Transform implements Blockshifter_Transform {
 
 	const SLUG = 'carousel';
 
@@ -47,8 +47,8 @@ final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
 
 	public function get_asset_handles(): array {
 		return array(
-			'scripts' => array( 'blocktopus-carousel-frontend' ),
-			'styles'  => array( 'blocktopus-carousel-frontend' ),
+			'scripts' => array( 'blockshifter-carousel-frontend' ),
+			'styles'  => array( 'blockshifter-carousel-frontend' ),
 		);
 	}
 
@@ -57,7 +57,7 @@ final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
 			return $block_content;
 		}
 
-		$config  = $block['attrs']['blocktopusConfig']['carousel'] ?? array();
+		$config  = $block['attrs']['blockshifterConfig']['carousel'] ?? array();
 		$prepped = $this->mark_root_and_slides( $block_content, $config );
 
 		return $this->insert_splide_track( $prepped );
@@ -176,7 +176,7 @@ final class Blocktopus_Carousel_Transform implements Blocktopus_Transform {
 	}
 
 	/**
-	 * Map Blocktopus's own config shape to Splide's own option names —
+	 * Map Blockshifter's own config shape to Splide's own option names —
 	 * consumed automatically by Splide's `data-splide` JSON attribute, so
 	 * the front-end init script needs no changes to honour these settings.
 	 *

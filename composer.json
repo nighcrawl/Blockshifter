@@ -1,5 +1,5 @@
 {
-    "name": "blocktopus/blocktopus",
+    "name": "blockshifter/blockshifter",
     "description": "Transform native Gutenberg blocks into alternate display variants without leaving the editor.",
     "license": "GPL-2.0-or-later",
     "type": "wordpress-plugin",
@@ -17,7 +17,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Blocktopus\\Tests\\": "tests/php/"
+            "Blockshifter\\Tests\\": "tests/php/"
         }
     },
     "scripts": {

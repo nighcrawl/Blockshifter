@@ -1,29 +1,29 @@
 <?php
 /**
- * Blocktopus_Transform interface.
+ * Blockshifter_Transform interface.
  *
- * @package Blocktopus
+ * @package Blockshifter
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Contract implemented by every Blocktopus Module's PHP half.
+ * Contract implemented by every Blockshifter Module's PHP half.
  *
  * Covers only what the render pipeline needs (ADR-0005) — the Inspector
  * Controls (JS) live separately and share nothing but the slug.
  */
-interface Blocktopus_Transform {
+interface Blockshifter_Transform {
 
 	/**
 	 * Stable identifier shared with the Module's JS half and used as the
-	 * namespace key in the `blocktopusConfig` block attribute.
+	 * namespace key in the `blockshifterConfig` block attribute.
 	 */
 	public function get_slug(): string;
 
 	/**
 	 * Default list of core block names this Module targets. Consumers must
-	 * apply the `blocktopus/{slug}/allowed_blocks` filter rather than calling
+	 * apply the `blockshifter/{slug}/allowed_blocks` filter rather than calling
 	 * this directly, so third parties can extend the list (ADR-0001).
 	 */
 	public function get_allowed_blocks(): array;

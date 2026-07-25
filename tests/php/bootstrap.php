@@ -1,6 +1,6 @@
 <?php
 /**
- * PHPUnit bootstrap for Blocktopus — Brain Monkey, no full WP install.
+ * PHPUnit bootstrap for Blockshifter — Brain Monkey, no full WP install.
  *
  * The HTML API classes (WP_HTML_Tag_Processor & friends) are the real
  * WordPress core source, vendored read-only under .wp-core-src/ (gitignored).

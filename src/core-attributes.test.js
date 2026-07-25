@@ -2,18 +2,18 @@ import { addCoreAttributes, TARGET_BLOCKS } from './core-attributes';
 
 describe( 'addCoreAttributes', () => {
 	it.each( TARGET_BLOCKS )(
-		'adds blocktopusTransform and blocktopusConfig to %s',
+		'adds blockshifterTransform and blockshifterConfig to %s',
 		( blockName ) => {
 			const settings = { name: blockName, attributes: { existing: { type: 'string' } } };
 
 			const result = addCoreAttributes( settings, blockName );
 
 			expect( result.attributes.existing ).toEqual( { type: 'string' } );
-			expect( result.attributes.blocktopusTransform ).toEqual( {
+			expect( result.attributes.blockshifterTransform ).toEqual( {
 				type: 'string',
 				default: '',
 			} );
-			expect( result.attributes.blocktopusConfig ).toEqual( {
+			expect( result.attributes.blockshifterConfig ).toEqual( {
 				type: 'object',
 				default: {},
 			} );
@@ -26,7 +26,7 @@ describe( 'addCoreAttributes', () => {
 		const result = addCoreAttributes( settings, 'core/paragraph' );
 
 		expect( result ).toBe( settings );
-		expect( result.attributes.blocktopusTransform ).toBeUndefined();
+		expect( result.attributes.blockshifterTransform ).toBeUndefined();
 	} );
 
 	it( 'does not mutate the original settings object', () => {
@@ -34,6 +34,6 @@ describe( 'addCoreAttributes', () => {
 
 		addCoreAttributes( settings, 'core/gallery' );
 
-		expect( settings.attributes.blocktopusTransform ).toBeUndefined();
+		expect( settings.attributes.blockshifterTransform ).toBeUndefined();
 	} );
 } );

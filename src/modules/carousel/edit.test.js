@@ -57,11 +57,11 @@ describe( 'withCarouselControls', () => {
 		expect( screen.getByLabelText( 'Enable Carousel mode' ) ).not.toBeChecked();
 	} );
 
-	it( 'shows the toggle checked when blocktopusTransform is carousel', () => {
+	it( 'shows the toggle checked when blockshifterTransform is carousel', () => {
 		render(
 			<WrappedEdit
 				name="core/group"
-				attributes={ { blocktopusTransform: 'carousel' } }
+				attributes={ { blockshifterTransform: 'carousel' } }
 				setAttributes={ jest.fn() }
 			/>
 		);
@@ -69,28 +69,28 @@ describe( 'withCarouselControls', () => {
 		expect( screen.getByLabelText( 'Enable Carousel mode' ) ).toBeChecked();
 	} );
 
-	it( 'sets blocktopusTransform to carousel when toggled on', () => {
+	it( 'sets blockshifterTransform to carousel when toggled on', () => {
 		const setAttributes = jest.fn();
 		render( <WrappedEdit name="core/gallery" attributes={ {} } setAttributes={ setAttributes } /> );
 
 		fireEvent.click( screen.getByLabelText( 'Enable Carousel mode' ) );
 
-		expect( setAttributes ).toHaveBeenCalledWith( { blocktopusTransform: 'carousel' } );
+		expect( setAttributes ).toHaveBeenCalledWith( { blockshifterTransform: 'carousel' } );
 	} );
 
-	it( 'clears blocktopusTransform when toggled off', () => {
+	it( 'clears blockshifterTransform when toggled off', () => {
 		const setAttributes = jest.fn();
 		render(
 			<WrappedEdit
 				name="core/gallery"
-				attributes={ { blocktopusTransform: 'carousel' } }
+				attributes={ { blockshifterTransform: 'carousel' } }
 				setAttributes={ setAttributes }
 			/>
 		);
 
 		fireEvent.click( screen.getByLabelText( 'Enable Carousel mode' ) );
 
-		expect( setAttributes ).toHaveBeenCalledWith( { blocktopusTransform: '' } );
+		expect( setAttributes ).toHaveBeenCalledWith( { blockshifterTransform: '' } );
 	} );
 
 	it( 'hides the secondary controls when carousel is disabled', () => {
@@ -106,8 +106,8 @@ describe( 'withCarouselControls', () => {
 			<WrappedEdit
 				name="core/gallery"
 				attributes={ {
-					blocktopusTransform: 'carousel',
-					blocktopusConfig: { carousel: { perPage: 3, autoplay: true, loop: false } },
+					blockshifterTransform: 'carousel',
+					blockshifterConfig: { carousel: { perPage: 3, autoplay: true, loop: false } },
 				} }
 				setAttributes={ jest.fn() }
 			/>
@@ -118,14 +118,14 @@ describe( 'withCarouselControls', () => {
 		expect( screen.getByLabelText( 'Infinite loop' ) ).not.toBeChecked();
 	} );
 
-	it( 'updates only perPage in blocktopusConfig.carousel when changed', () => {
+	it( 'updates only perPage in blockshifterConfig.carousel when changed', () => {
 		const setAttributes = jest.fn();
 		render(
 			<WrappedEdit
 				name="core/gallery"
 				attributes={ {
-					blocktopusTransform: 'carousel',
-					blocktopusConfig: { carousel: { perPage: 1, autoplay: true, loop: false } },
+					blockshifterTransform: 'carousel',
+					blockshifterConfig: { carousel: { perPage: 1, autoplay: true, loop: false } },
 				} }
 				setAttributes={ setAttributes }
 			/>
@@ -134,7 +134,7 @@ describe( 'withCarouselControls', () => {
 		fireEvent.change( screen.getByLabelText( 'Visible slides per page' ), { target: { value: '4' } } );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
-			blocktopusConfig: { carousel: { perPage: 4, autoplay: true, loop: false } },
+			blockshifterConfig: { carousel: { perPage: 4, autoplay: true, loop: false } },
 		} );
 	} );
 
@@ -144,8 +144,8 @@ describe( 'withCarouselControls', () => {
 			<WrappedEdit
 				name="core/gallery"
 				attributes={ {
-					blocktopusTransform: 'carousel',
-					blocktopusConfig: { accordion: { openFirst: true }, carousel: { perPage: 1, autoplay: false, loop: false } },
+					blockshifterTransform: 'carousel',
+					blockshifterConfig: { accordion: { openFirst: true }, carousel: { perPage: 1, autoplay: false, loop: false } },
 				} }
 				setAttributes={ setAttributes }
 			/>
@@ -154,7 +154,7 @@ describe( 'withCarouselControls', () => {
 		fireEvent.click( screen.getByLabelText( 'Autoplay' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
-			blocktopusConfig: {
+			blockshifterConfig: {
 				accordion: { openFirst: true },
 				carousel: { perPage: 1, autoplay: true, loop: false },
 			},

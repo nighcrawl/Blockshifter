@@ -1,8 +1,8 @@
 <?php
 /**
- * Blocktopus_Render class.
+ * Blockshifter_Render class.
  *
- * @package Blocktopus
+ * @package Blockshifter
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  * Module's Transform is active on it (ADR-0003 — at most one at a time).
  * The Transform itself decides how to render; this class only routes.
  */
-final class Blocktopus_Render {
+final class Blockshifter_Render {
 
 	/**
 	 * Hook the dispatcher onto `render_block`.
@@ -28,13 +28,13 @@ final class Blocktopus_Render {
 	 * @param array  $block         The parsed block, including attrs.
 	 */
 	public static function dispatch( string $block_content, array $block ): string {
-		$transform_slug = $block['attrs']['blocktopusTransform'] ?? '';
+		$transform_slug = $block['attrs']['blockshifterTransform'] ?? '';
 
 		if ( '' === $transform_slug ) {
 			return $block_content;
 		}
 
-		$module = Blocktopus_Module_Registry::get( $transform_slug );
+		$module = Blockshifter_Module_Registry::get( $transform_slug );
 
 		if ( null === $module ) {
 			return $block_content;
@@ -42,7 +42,7 @@ final class Blocktopus_Render {
 
 		$block_name = $block['blockName'] ?? '';
 
-		if ( ! in_array( $block_name, Blocktopus_Module_Registry::allowed_blocks_for( $module ), true ) ) {
+		if ( ! in_array( $block_name, Blockshifter_Module_Registry::allowed_blocks_for( $module ), true ) ) {
 			return $block_content;
 		}
 

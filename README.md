@@ -1,12 +1,12 @@
-# Blocktopus
+# Blockshifter
 
-Blocktopus is a growing toolbox of display modes for native Gutenberg blocks (`core/gallery`, `core/group`) — no new block types, no leaving the native editor, no learning curve.
+Blockshifter is a growing toolbox of display modes for native Gutenberg blocks (`core/gallery`, `core/group`) — no new block types, no leaving the native editor, no learning curve.
 
 ## Concept
 
-Most carousel/slider plugins bolt on their own custom block that sits awkwardly next to your existing content, dragging in heavy JS and a design that clashes with the theme. Blocktopus does the opposite: pick a block you already use — Gallery, Group — flip a toggle in its Inspector, and its front-end output transforms. The block itself stays 100% native and editable; nothing changes about how you write content.
+Pick a block you already use — Gallery, Group — flip a toggle in its Inspector, and its front-end output transforms. The block itself stays 100% native and editable; nothing changes about how you write content.
 
-Blocktopus is an octopus growing new arms over time: today it's Carousel, tomorrow more display modes will join the same toolbox, each just as simple to turn on.
+Blockshifter is a shape-shifter for your blocks: same content underneath, a different shape on the front end. Today it shifts into a Carousel; tomorrow more shapes will join the same toolbox, each just as simple to switch on.
 
 **Carousel, available today** — turns a Gallery or Group block into a clean, minimalist carousel (via [Splide.js](https://splidejs.com/)), with settings:
 - Enable/disable Carousel mode
@@ -14,7 +14,7 @@ Blocktopus is an octopus growing new arms over time: today it's Carousel, tomorr
 - Autoplay
 - Infinite loop
 
-More arms are coming: Accordion, Masonry... are on the roadmap, each following the same pattern (pick a block, flip a toggle). See `CONTEXT.md` and `docs/adr/` for the project's vocabulary and architecture decisions.
+More shapes are coming: Accordion, Masonry... are on the roadmap, each following the same pattern (pick a block, flip a toggle). See `CONTEXT.md` and `docs/adr/` for the project's vocabulary and architecture decisions.
 
 ## Installing in WordPress
 
@@ -31,7 +31,7 @@ npm run build
 Then copy (or symlink) the plugin folder into `wp-content/plugins/` of your WordPress install, e.g.:
 
 ```bash
-cp -R . /path/to/wordpress/wp-content/plugins/blocktopus
+cp -R . /path/to/wordpress/wp-content/plugins/blockshifter
 ```
 
 Then activate the plugin from the WordPress admin (**Plugins**).
@@ -53,7 +53,7 @@ If you download the code via GitHub's "Code → Download ZIP" button, the `build
 ## Usage
 
 1. In the editor, select a **Gallery** or **Group** block
-2. In the Inspector (sidebar panel), open the **Blocktopus Carousel** panel
+2. In the Inspector (sidebar panel), open the **Blockshifter Carousel** panel
 3. Enable the "Enable Carousel mode" toggle
 4. Adjust the number of visible slides, autoplay, and infinite loop to your needs
 
@@ -76,15 +76,15 @@ npm run test:unit       # JS tests (Jest)
 ### WordPress.org release
 
 ```bash
-bin/build-wporg-package.sh   # generates dist/blocktopus-<version>.zip (runtime only)
+bin/build-wporg-package.sh   # generates dist/blockshifter-<version>.zip (runtime only)
 ```
 
 ## Structure
 
 ```
-blocktopus.php                          # Plugin bootstrap
+blockshifter.php                          # Plugin bootstrap
 includes/
-├── interface-transform.php             # Blocktopus_Transform contract
+├── interface-transform.php             # Blockshifter_Transform contract
 ├── class-module-registry.php           # Explicit Module registry
 ├── class-assets.php                    # Conditional front-end asset enqueue
 ├── class-render.php                    # Generic render dispatch (render_block)

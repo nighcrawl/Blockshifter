@@ -1,8 +1,8 @@
 <?php
 /**
- * Blocktopus_Module_Registry class.
+ * Blockshifter_Module_Registry class.
  *
- * @package Blocktopus
+ * @package Blockshifter
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,29 +10,29 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Explicit registry of Modules (ADR-0004) — no filesystem auto-discovery.
  */
-final class Blocktopus_Module_Registry {
+final class Blockshifter_Module_Registry {
 
 	/**
-	 * @var array<string, Blocktopus_Transform>
+	 * @var array<string, Blockshifter_Transform>
 	 */
 	private static $modules = array();
 
 	/**
 	 * Register a Module. Called explicitly from the plugin bootstrap.
 	 */
-	public static function register( Blocktopus_Transform $module ): void {
+	public static function register( Blockshifter_Transform $module ): void {
 		self::$modules[ $module->get_slug() ] = $module;
 	}
 
 	/**
 	 * Get a single registered Module by slug, or null if none matches.
 	 */
-	public static function get( string $slug ): ?Blocktopus_Transform {
+	public static function get( string $slug ): ?Blockshifter_Transform {
 		return self::$modules[ $slug ] ?? null;
 	}
 
 	/**
-	 * @return array<string, Blocktopus_Transform>
+	 * @return array<string, Blockshifter_Transform>
 	 */
 	public static function all(): array {
 		return self::$modules;
@@ -41,10 +41,10 @@ final class Blocktopus_Module_Registry {
 	/**
 	 * The Module's allowed blocks, with the extensibility filter applied
 	 * (ADR-0001). Consumers should always go through this instead of
-	 * calling Blocktopus_Transform::get_allowed_blocks() directly.
+	 * calling Blockshifter_Transform::get_allowed_blocks() directly.
 	 */
-	public static function allowed_blocks_for( Blocktopus_Transform $module ): array {
-		return apply_filters( "blocktopus/{$module->get_slug()}/allowed_blocks", $module->get_allowed_blocks() );
+	public static function allowed_blocks_for( Blockshifter_Transform $module ): array {
+		return apply_filters( "blockshifter/{$module->get_slug()}/allowed_blocks", $module->get_allowed_blocks() );
 	}
 
 	/**

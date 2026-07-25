@@ -1,10 +1,10 @@
 <?php
 
-namespace Blocktopus\Tests;
+namespace Blockshifter\Tests;
 
-use Blocktopus_Module_Registry;
-use Blocktopus_Render;
-use Blocktopus\Tests\Fakes\FakeTransform;
+use Blockshifter_Module_Registry;
+use Blockshifter_Render;
+use Blockshifter\Tests\Fakes\FakeTransform;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
 use PHPUnit\Framework\TestCase;
@@ -14,11 +14,11 @@ final class RenderDispatchTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		Monkey\setUp();
-		Blocktopus_Module_Registry::reset();
+		Blockshifter_Module_Registry::reset();
 	}
 
 	protected function tearDown(): void {
-		Blocktopus_Module_Registry::reset();
+		Blockshifter_Module_Registry::reset();
 		Monkey\tearDown();
 		parent::tearDown();
 	}
@@ -32,17 +32,17 @@ final class RenderDispatchTest extends TestCase {
 				return 'RENDERED:' . $content;
 			}
 		);
-		Blocktopus_Module_Registry::register( $module );
+		Blockshifter_Module_Registry::register( $module );
 
-		Filters\expectApplied( 'blocktopus/carousel/allowed_blocks' )
+		Filters\expectApplied( 'blockshifter/carousel/allowed_blocks' )
 			->once()
 			->andReturn( array( 'core/gallery' ) );
 
-		$result = Blocktopus_Render::dispatch(
+		$result = Blockshifter_Render::dispatch(
 			'ORIGINAL',
 			array(
 				'blockName' => 'core/gallery',
-				'attrs'     => array( 'blocktopusTransform' => 'carousel' ),
+				'attrs'     => array( 'blockshifterTransform' => 'carousel' ),
 			)
 		);
 
@@ -58,9 +58,9 @@ final class RenderDispatchTest extends TestCase {
 				return 'SHOULD_NOT_BE_CALLED';
 			}
 		);
-		Blocktopus_Module_Registry::register( $module );
+		Blockshifter_Module_Registry::register( $module );
 
-		$result = Blocktopus_Render::dispatch(
+		$result = Blockshifter_Render::dispatch(
 			'ORIGINAL',
 			array(
 				'blockName' => 'core/gallery',
@@ -73,13 +73,13 @@ final class RenderDispatchTest extends TestCase {
 
 	public function test_returns_content_unchanged_when_transform_attribute_is_empty_string(): void {
 		$module = new FakeTransform( 'carousel', array( 'core/gallery' ) );
-		Blocktopus_Module_Registry::register( $module );
+		Blockshifter_Module_Registry::register( $module );
 
-		$result = Blocktopus_Render::dispatch(
+		$result = Blockshifter_Render::dispatch(
 			'ORIGINAL',
 			array(
 				'blockName' => 'core/gallery',
-				'attrs'     => array( 'blocktopusTransform' => '' ),
+				'attrs'     => array( 'blockshifterTransform' => '' ),
 			)
 		);
 
@@ -87,11 +87,11 @@ final class RenderDispatchTest extends TestCase {
 	}
 
 	public function test_returns_content_unchanged_when_no_module_matches_the_slug(): void {
-		$result = Blocktopus_Render::dispatch(
+		$result = Blockshifter_Render::dispatch(
 			'ORIGINAL',
 			array(
 				'blockName' => 'core/gallery',
-				'attrs'     => array( 'blocktopusTransform' => 'unknown-module' ),
+				'attrs'     => array( 'blockshifterTransform' => 'unknown-module' ),
 			)
 		);
 
@@ -107,17 +107,17 @@ final class RenderDispatchTest extends TestCase {
 				return 'SHOULD_NOT_BE_CALLED';
 			}
 		);
-		Blocktopus_Module_Registry::register( $module );
+		Blockshifter_Module_Registry::register( $module );
 
-		Filters\expectApplied( 'blocktopus/carousel/allowed_blocks' )
+		Filters\expectApplied( 'blockshifter/carousel/allowed_blocks' )
 			->once()
 			->andReturn( array( 'core/gallery' ) );
 
-		$result = Blocktopus_Render::dispatch(
+		$result = Blockshifter_Render::dispatch(
 			'ORIGINAL',
 			array(
 				'blockName' => 'core/paragraph',
-				'attrs'     => array( 'blocktopusTransform' => 'carousel' ),
+				'attrs'     => array( 'blockshifterTransform' => 'carousel' ),
 			)
 		);
 

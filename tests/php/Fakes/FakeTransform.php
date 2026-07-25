@@ -1,13 +1,13 @@
 <?php
 
-namespace Blocktopus\Tests\Fakes;
+namespace Blockshifter\Tests\Fakes;
 
-use Blocktopus_Transform;
+use Blockshifter_Transform;
 
 /**
- * Minimal Blocktopus_Transform test double, shared across test cases.
+ * Minimal Blockshifter_Transform test double, shared across test cases.
  */
-final class FakeTransform implements Blocktopus_Transform {
+final class FakeTransform implements Blockshifter_Transform {
 
 	private $slug;
 	private $allowed_blocks;
