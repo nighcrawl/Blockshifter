@@ -43,16 +43,7 @@ export function mountMasonryGrids() {
 		// block-gap style (core/gallery).
 		const gap = parseInt( window.getComputedStyle( grid ).columnGap || '16', 10 );
 
-		// Calculate span for each item
-		Array.from( items ).forEach( ( item ) => {
-			// scrollHeight, not offsetHeight: once packed, the item's box is
-			// already constrained by its previous grid-row-end span, so
-			// offsetHeight would just read that stale value back instead of
-			// the content's true (possibly overflowing) natural height.
-			const itemHeight = item.scrollHeight;
-			const span = computeSpan( itemHeight, ROW_UNIT, gap );
-			item.style.gridRowEnd = `span ${ span }`;
-		} );
+		Array.from( items ).forEach( ( item ) => setItemSpan( item, gap ) );
 
 		// Switch on the fine-grained row unit only once spans are set —
 		// keeps the no-JS fallback (auto rows, no overlap) reachable.
@@ -74,12 +65,26 @@ export function mountMasonryGrids() {
 }
 
 function recalculateItemSpans( grid, gap ) {
-	const items = grid.children;
-	Array.from( items ).forEach( ( item ) => {
-		const itemHeight = item.scrollHeight;
-		const span = computeSpan( itemHeight, ROW_UNIT, gap );
-		item.style.gridRowEnd = `span ${ span }`;
-	} );
+	Array.from( grid.children ).forEach( ( item ) => setItemSpan( item, gap ) );
+}
+
+/**
+ * Measure one item and set its grid-row-end span.
+ *
+ * The item's own `grid-row-end` is reset to a single row *before*
+ * measuring: a grid item's box stretches (the default `align-self`) to
+ * fill its current row span, so measuring it as-is only ever reveals
+ * growth (content now overflowing a too-small box, via `scrollHeight`)
+ * and never shrinkage (a too-tall box whose content no longer fills it —
+ * shrinking has nothing to overflow, so the box stays stuck at its old,
+ * now oversized height). Resetting first collapses the box back to its
+ * row's natural min-content floor, so `offsetHeight` reflects the item's
+ * true height at the current width in both directions.
+ */
+function setItemSpan( item, gap ) {
+	item.style.gridRowEnd = 'span 1';
+	const span = computeSpan( item.offsetHeight, ROW_UNIT, gap );
+	item.style.gridRowEnd = `span ${ span }`;
 }
 
 // Debounced resize handler
