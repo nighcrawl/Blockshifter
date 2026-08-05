@@ -66,6 +66,21 @@ describe( 'mountMasonryGrids', () => {
 		expect( masonry ).not.toBeNull();
 	} );
 
+	it( 'marks the grid as packed once spans are set (enables the fine row unit, keeps the no-JS fallback reachable otherwise)', () => {
+		document.body.innerHTML = `
+			<div class="blockshifter-masonry" style="--blockshifter-masonry-columns: 3; --blockshifter-masonry-gap: 16px;">
+				<div style="height: 100px;"></div>
+			</div>
+		`;
+
+		const grid = document.querySelector( '.blockshifter-masonry' );
+		expect( grid.classList.contains( 'is-masonry-packed' ) ).toBe( false );
+
+		mountMasonryGrids();
+
+		expect( grid.classList.contains( 'is-masonry-packed' ) ).toBe( true );
+	} );
+
 	it( 'does nothing when no masonry grids are present', () => {
 		document.body.innerHTML = '<div class="not-masonry"></div>';
 

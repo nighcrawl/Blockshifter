@@ -8,10 +8,12 @@
 	grid-template-columns: repeat( var( --blockshifter-masonry-columns, 3 ), 1fr );
 	gap: var( --blockshifter-masonry-gap, 16px );
 	grid-auto-flow: dense;
-	grid-auto-rows: 8px; /* Internal constant, not exposed to user (ADR 0009) */
+	/* Auto row height until JS is confirmed to have run: plain CSS Grid
+	 * columns, no packing, but never overlapping (spec: no-JS degradation). */
+	grid-auto-rows: auto;
 }
 
-/* Degrade gracefully without JavaScript: simple grid layout without packing */
-.no-js .blockshifter-masonry > * {
-	grid-row-end: auto;
+/* JS sets this once it has measured items and starts assigning spans. */
+.blockshifter-masonry.is-masonry-packed {
+	grid-auto-rows: 8px; /* Internal constant, not exposed to user (ADR 0009) */
 }

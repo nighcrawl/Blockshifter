@@ -47,6 +47,10 @@ export function mountMasonryGrids() {
 			item.style.gridRowEnd = `span ${ span }`;
 		} );
 
+		// Switch on the fine-grained row unit only once spans are set —
+		// keeps the no-JS fallback (auto rows, no overlap) reachable.
+		grid.classList.add( 'is-masonry-packed' );
+
 		// Recalculate when images inside items load
 		const images = grid.querySelectorAll( 'img' );
 		images.forEach( ( img ) => {
