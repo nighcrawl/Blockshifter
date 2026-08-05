@@ -21,3 +21,17 @@
 .blockshifter-masonry.is-masonry-packed {
 	grid-auto-rows: 8px; /* Internal constant, not exposed to user (ADR 0009) */
 }
+
+/* !important: core/gallery's own native styles give each item an explicit
+ * `width: calc(N% - …)`, sized for its original flex layout where that
+ * percentage resolves against the whole gallery's width. Under our grid,
+ * the item's containing block is its own column track (already divided by
+ * the column count), so that same percentage divides the column again —
+ * items end up a fraction of the intended size. Percentage width has a
+ * higher-specificity source (an ID-strength `:not(#individual-image)`
+ * selector), so only `!important` reliably wins here; `width: auto` then
+ * lets the item fill its grid column the way `grid-template-columns`
+ * already intends. */
+.blockshifter-masonry > * {
+	width: auto !important;
+}
