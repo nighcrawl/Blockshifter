@@ -42,7 +42,11 @@ export function mountMasonryGrids() {
 
 		// Calculate span for each item
 		Array.from( items ).forEach( ( item ) => {
-			const itemHeight = item.offsetHeight;
+			// scrollHeight, not offsetHeight: once packed, the item's box is
+			// already constrained by its previous grid-row-end span, so
+			// offsetHeight would just read that stale value back instead of
+			// the content's true (possibly overflowing) natural height.
+			const itemHeight = item.scrollHeight;
 			const span = computeSpan( itemHeight, ROW_UNIT, gap );
 			item.style.gridRowEnd = `span ${ span }`;
 		} );
