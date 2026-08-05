@@ -4,7 +4,10 @@
  */
 
 .blockshifter-masonry {
-	display: grid;
+	/* !important: WordPress core layout supports (e.g. `body .is-layout-flex`
+	 * on core/gallery) have higher selector specificity than a single class
+	 * and would otherwise force display:flex back on. */
+	display: grid !important;
 	grid-template-columns: repeat( var( --blockshifter-masonry-columns, 3 ), 1fr );
 	gap: var( --blockshifter-masonry-gap, 16px );
 	grid-auto-flow: dense;
