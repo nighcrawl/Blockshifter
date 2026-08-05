@@ -1,0 +1,88 @@
+import './masonry-layout.css';
+
+const ROW_UNIT = 8; // Internal constant, not exposed to user (ADR 0009)
+const RESIZE_DEBOUNCE_MS = 150;
+
+/**
+ * Pure function to calculate grid-row-end span based on item height.
+ * Used by the mount logic and unit-tested separately.
+ *
+ * @param {number} itemHeight - The rendered height of the item in pixels
+ * @param {number} rowUnit - The grid-auto-rows unit in pixels
+ * @param {number} gap - The gap between items in pixels
+ * @returns {number} The span value for grid-row-end
+ */
+export function computeSpan( itemHeight, rowUnit, gap ) {
+	if ( itemHeight <= 0 ) {
+		return 1;
+	}
+
+	const effectiveRowHeight = rowUnit + gap;
+	const span = Math.ceil( itemHeight / effectiveRowHeight );
+
+	return Math.max( 1, span );
+}
+
+/**
+ * Measure items and set grid-row-end spans for true masonry packing.
+ * Recalculates on image load and window resize (debounced).
+ */
+export function mountMasonryGrids() {
+	const masonryGrids = document.querySelectorAll( '.blockshifter-masonry' );
+
+	masonryGrids.forEach( ( grid ) => {
+		const items = grid.children;
+		if ( items.length === 0 ) {
+			return;
+		}
+
+		// Read config from CSS custom properties
+		const gridStyle = window.getComputedStyle( grid );
+		const gap = parseInt( gridStyle.getPropertyValue( '--blockshifter-masonry-gap' ) || '16', 10 );
+
+		// Calculate span for each item
+		Array.from( items ).forEach( ( item ) => {
+			const itemHeight = item.offsetHeight;
+			const span = computeSpan( itemHeight, ROW_UNIT, gap );
+			item.style.gridRowEnd = `span ${ span }`;
+		} );
+
+		// Recalculate when images inside items load
+		const images = grid.querySelectorAll( 'img' );
+		images.forEach( ( img ) => {
+			if ( img.complete ) {
+				// Image already loaded, recalculate immediately
+				recalculateItemSpans( grid, gap );
+			} else {
+				img.addEventListener( 'load', () => {
+					recalculateItemSpans( grid, gap );
+				} );
+			}
+		} );
+	} );
+}
+
+function recalculateItemSpans( grid, gap ) {
+	const items = grid.children;
+	Array.from( items ).forEach( ( item ) => {
+		const itemHeight = item.offsetHeight;
+		const span = computeSpan( itemHeight, ROW_UNIT, gap );
+		item.style.gridRowEnd = `span ${ span }`;
+	} );
+}
+
+// Debounced resize handler
+let resizeTimeout;
+function handleResize() {
+	clearTimeout( resizeTimeout );
+	resizeTimeout = setTimeout( () => {
+		mountMasonryGrids();
+	}, RESIZE_DEBOUNCE_MS );
+}
+
+if ( typeof document !== 'undefined' ) {
+	document.addEventListener( 'DOMContentLoaded', () => {
+		mountMasonryGrids();
+		window.addEventListener( 'resize', handleResize );
+	} );
+}
