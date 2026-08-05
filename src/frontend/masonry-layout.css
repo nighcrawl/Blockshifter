@@ -1,0 +1,17 @@
+/**
+ * Masonry layout using CSS Grid with dense packing.
+ * The JS script calculates grid-row-end spans based on item heights.
+ */
+
+.blockshifter-masonry {
+	display: grid;
+	grid-template-columns: repeat( var( --blockshifter-masonry-columns, 3 ), 1fr );
+	gap: var( --blockshifter-masonry-gap, 16px );
+	grid-auto-flow: dense;
+	grid-auto-rows: 8px; /* Internal constant, not exposed to user (ADR 0009) */
+}
+
+/* Degrade gracefully without JavaScript: simple grid layout without packing */
+.no-js .blockshifter-masonry > * {
+	grid-row-end: auto;
+}
