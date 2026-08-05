@@ -36,9 +36,12 @@ export function mountMasonryGrids() {
 			return;
 		}
 
-		// Read config from CSS custom properties
-		const gridStyle = window.getComputedStyle( grid );
-		const gap = parseInt( gridStyle.getPropertyValue( '--blockshifter-masonry-gap' ) || '16', 10 );
+		// Read the effective gap straight off the resolved `gap` CSS
+		// property (always resolved to px by the browser) rather than a
+		// Blockshifter-specific custom property — works whether the gap
+		// comes from our own inline style (core/group) or WP's own native
+		// block-gap style (core/gallery).
+		const gap = parseInt( window.getComputedStyle( grid ).columnGap || '16', 10 );
 
 		// Calculate span for each item
 		Array.from( items ).forEach( ( item ) => {
@@ -73,7 +76,7 @@ export function mountMasonryGrids() {
 function recalculateItemSpans( grid, gap ) {
 	const items = grid.children;
 	Array.from( items ).forEach( ( item ) => {
-		const itemHeight = item.offsetHeight;
+		const itemHeight = item.scrollHeight;
 		const span = computeSpan( itemHeight, ROW_UNIT, gap );
 		item.style.gridRowEnd = `span ${ span }`;
 	} );

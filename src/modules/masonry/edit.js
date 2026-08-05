@@ -19,6 +19,9 @@ export const withMasonryControls = createHigherOrderComponent(
 		const { attributes, setAttributes } = props;
 		const enabled = isMasonryEnabled( attributes );
 		const config = getMasonryConfig( attributes );
+		// core/gallery already has its own Columns and block-gap (spacing)
+		// controls — masonry defers to those instead of duplicating them.
+		const usesNativeControls = 'core/gallery' === props.name;
 
 		const onToggle = ( value ) => {
 			setAttributes( {
@@ -41,8 +44,13 @@ export const withMasonryControls = createHigherOrderComponent(
 							label={ __( 'Enable Masonry mode', 'blockshifter' ) }
 							checked={ enabled }
 							onChange={ onToggle }
+							help={
+								usesNativeControls
+									? __( 'Uses the Gallery block’s own Columns and spacing settings.', 'blockshifter' )
+									: undefined
+							}
 						/>
-						{ enabled && (
+						{ enabled && ! usesNativeControls && (
 							<>
 								<RangeControl
 									label={ __( 'Columns', 'blockshifter' ) }

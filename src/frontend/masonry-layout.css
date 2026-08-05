@@ -9,7 +9,8 @@
 	 * and would otherwise force display:flex back on. */
 	display: grid !important;
 	grid-template-columns: repeat( var( --blockshifter-masonry-columns, 3 ), 1fr );
-	gap: var( --blockshifter-masonry-gap, 16px );
+	/* No `gap` here: core/group gets it inline (PHP), core/gallery keeps
+	 * whatever its own native block-gap style already applies. */
 	grid-auto-flow: dense;
 	/* Auto row height until JS is confirmed to have run: plain CSS Grid
 	 * columns, no packing, but never overlapping (spec: no-JS degradation). */

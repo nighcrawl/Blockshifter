@@ -53,9 +53,9 @@ describe( 'mountMasonryGrids', () => {
 		expect( items[ 1 ].style.gridRowEnd ).toContain( 'span' );
 	} );
 
-	it( 'reads columns and gap from CSS custom properties', () => {
+	it( 'reads columns from the custom property and gap from the resolved gap style', () => {
 		document.body.innerHTML = `
-			<div class="blockshifter-masonry" style="--blockshifter-masonry-columns: 4; --blockshifter-masonry-gap: 24px;">
+			<div class="blockshifter-masonry" style="--blockshifter-masonry-columns: 4; gap: 24px;">
 				<div style="height: 50px;"></div>
 			</div>
 		`;

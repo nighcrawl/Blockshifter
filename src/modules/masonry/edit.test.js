@@ -15,15 +15,18 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</div>
 	),
-	ToggleControl: ( { label, checked, onChange } ) => (
-		<label>
-			{ label }
-			<input
-				type="checkbox"
-				checked={ checked }
-				onChange={ ( event ) => onChange( event.target.checked ) }
-			/>
-		</label>
+	ToggleControl: ( { label, checked, onChange, help } ) => (
+		<>
+			<label>
+				{ label }
+				<input
+					type="checkbox"
+					checked={ checked }
+					onChange={ ( event ) => onChange( event.target.checked ) }
+				/>
+			</label>
+			{ help && <span>{ help }</span> }
+		</>
 	),
 	RangeControl: ( { label, value, onChange } ) => (
 		<label>
@@ -94,16 +97,16 @@ describe( 'withMasonryControls', () => {
 	} );
 
 	it( 'hides the secondary controls when masonry is disabled', () => {
-		render( <WrappedEdit name="core/gallery" attributes={ {} } setAttributes={ jest.fn() } /> );
+		render( <WrappedEdit name="core/group" attributes={ {} } setAttributes={ jest.fn() } /> );
 
 		expect( screen.queryByLabelText( 'Columns' ) ).not.toBeInTheDocument();
 		expect( screen.queryByLabelText( 'Gap (px)' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows the secondary controls with current config when enabled', () => {
+	it( 'shows the secondary controls with current config when enabled on core/group', () => {
 		render(
 			<WrappedEdit
-				name="core/gallery"
+				name="core/group"
 				attributes={ {
 					blockshifterTransform: 'masonry',
 					blockshifterConfig: { masonry: { columns: 4, gap: 24 } },
@@ -120,7 +123,7 @@ describe( 'withMasonryControls', () => {
 		const setAttributes = jest.fn();
 		render(
 			<WrappedEdit
-				name="core/gallery"
+				name="core/group"
 				attributes={ {
 					blockshifterTransform: 'masonry',
 					blockshifterConfig: { masonry: { columns: 3, gap: 16 } },
@@ -140,7 +143,7 @@ describe( 'withMasonryControls', () => {
 		const setAttributes = jest.fn();
 		render(
 			<WrappedEdit
-				name="core/gallery"
+				name="core/group"
 				attributes={ {
 					blockshifterTransform: 'masonry',
 					blockshifterConfig: { carousel: { perPage: 2 }, masonry: { columns: 3, gap: 16 } },
@@ -157,5 +160,37 @@ describe( 'withMasonryControls', () => {
 				masonry: { columns: 3, gap: 32 },
 			},
 		} );
+	} );
+
+	it( 'never shows the secondary controls for core/gallery, even when enabled', () => {
+		render(
+			<WrappedEdit
+				name="core/gallery"
+				attributes={ {
+					blockshifterTransform: 'masonry',
+					blockshifterConfig: { masonry: { columns: 4, gap: 24 } },
+				} }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		expect( screen.queryByLabelText( 'Columns' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Gap (px)' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows a help hint pointing to the Gallery\'s own controls for core/gallery', () => {
+		render( <WrappedEdit name="core/gallery" attributes={ {} } setAttributes={ jest.fn() } /> );
+
+		expect(
+			screen.getByText( 'Uses the Gallery block’s own Columns and spacing settings.' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'shows no help hint for core/group', () => {
+		render( <WrappedEdit name="core/group" attributes={ {} } setAttributes={ jest.fn() } /> );
+
+		expect(
+			screen.queryByText( 'Uses the Gallery block’s own Columns and spacing settings.' )
+		).not.toBeInTheDocument();
 	} );
 } );
