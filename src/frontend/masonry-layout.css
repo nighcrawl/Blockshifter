@@ -13,8 +13,9 @@
 	 * The configured `--blockshifter-masonry-columns` only takes over at
 	 * gallery's own 600px breakpoint. */
 	grid-template-columns: repeat( 2, 1fr );
-	/* No `gap` here: it always comes from Gutenberg's own native spacing
-	 * (Gap) support, for both core/gallery and core/group. */
+	/* No `gap` declared here: the JS resolves it from Gutenberg's own
+	 * native spacing (Gap) support and sets it inline, for both
+	 * core/gallery and core/group (masonry-init.js). */
 	grid-auto-flow: dense;
 	/* Auto row height until JS is confirmed to have run: plain CSS Grid
 	 * columns, no packing, but never overlapping (spec: no-JS degradation). */
