@@ -28,7 +28,6 @@ export function nextTransformOnToggle( enabled, currentTransform ) {
 
 export const MASONRY_DEFAULT_CONFIG = {
 	columns: 3,
-	gap: 16,
 };
 
 /**

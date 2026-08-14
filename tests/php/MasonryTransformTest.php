@@ -31,23 +31,22 @@ final class MasonryTransformTest extends HtmlRenderingTestCase {
 		$this->assertMatchesRegularExpression( '/^<ul [^>]*class="wp-block-gallery blockshifter-masonry"/', $result );
 	}
 
-	public function test_adds_css_custom_properties_for_columns_and_gap(): void {
+	public function test_adds_css_custom_property_for_columns(): void {
 		$result = $this->transform->render( '<div class="wp-block-group"><div>one</div></div>', array() );
 
 		$this->assertStringContainsString( '--blockshifter-masonry-columns:', $result );
-		$this->assertStringContainsString( 'gap:', $result );
+	}
+
+	public function test_never_writes_a_gap_declaration(): void {
+		$result = $this->transform->render( '<div class="wp-block-group"><div>one</div></div>', array() );
+
+		$this->assertStringNotContainsString( 'gap:', $result );
 	}
 
 	public function test_defaults_to_three_columns_when_no_config(): void {
 		$result = $this->transform->render( '<div><div>one</div></div>', array() );
 
 		$this->assertStringContainsString( '--blockshifter-masonry-columns: 3;', $result );
-	}
-
-	public function test_defaults_to_sixteen_pixel_gap_when_no_config(): void {
-		$result = $this->transform->render( '<div><div>one</div></div>', array() );
-
-		$this->assertStringContainsString( 'gap: 16px;', $result );
 	}
 
 	public function test_passes_columns_from_block_config(): void {
@@ -58,12 +57,12 @@ final class MasonryTransformTest extends HtmlRenderingTestCase {
 		$this->assertStringContainsString( '--blockshifter-masonry-columns: 4;', $result );
 	}
 
-	public function test_passes_gap_from_block_config(): void {
+	public function test_ignores_legacy_gap_config(): void {
 		$block = array( 'attrs' => array( 'blockshifterConfig' => array( 'masonry' => array( 'gap' => 24 ) ) ) );
 
 		$result = $this->transform->render( '<div><div>one</div></div>', $block );
 
-		$this->assertStringContainsString( 'gap: 24px;', $result );
+		$this->assertStringNotContainsString( 'gap:', $result );
 	}
 
 	public function test_clamps_columns_to_minimum_of_one(): void {
@@ -74,20 +73,12 @@ final class MasonryTransformTest extends HtmlRenderingTestCase {
 		$this->assertStringContainsString( '--blockshifter-masonry-columns: 1;', $result );
 	}
 
-	public function test_clamps_gap_to_minimum_of_zero(): void {
-		$block = array( 'attrs' => array( 'blockshifterConfig' => array( 'masonry' => array( 'gap' => -10 ) ) ) );
-
-		$result = $this->transform->render( '<div><div>one</div></div>', $block );
-
-		$this->assertStringContainsString( 'gap: 0px;', $result );
-	}
-
 	public function test_gallery_reads_native_columns_attribute_instead_of_config(): void {
 		$block = array(
 			'blockName' => 'core/gallery',
 			'attrs'     => array(
 				'columns'            => 5,
-				'blockshifterConfig' => array( 'masonry' => array( 'columns' => 2, 'gap' => 40 ) ),
+				'blockshifterConfig' => array( 'masonry' => array( 'columns' => 2 ) ),
 			),
 		);
 
@@ -110,10 +101,7 @@ final class MasonryTransformTest extends HtmlRenderingTestCase {
 	public function test_gallery_never_writes_a_gap_declaration(): void {
 		$block = array(
 			'blockName' => 'core/gallery',
-			'attrs'     => array(
-				'columns'            => 4,
-				'blockshifterConfig' => array( 'masonry' => array( 'gap' => 40 ) ),
-			),
+			'attrs'     => array( 'columns' => 4 ),
 		);
 
 		$result = $this->transform->render( '<figure class="wp-block-gallery"><figure>one</figure></figure>', $block );
@@ -121,16 +109,35 @@ final class MasonryTransformTest extends HtmlRenderingTestCase {
 		$this->assertStringNotContainsString( 'gap:', $result );
 	}
 
-	public function test_group_still_uses_blockshifter_config_for_columns_and_gap(): void {
+	public function test_group_uses_blockshifter_config_for_columns_only(): void {
 		$block = array(
 			'blockName' => 'core/group',
-			'attrs'     => array( 'blockshifterConfig' => array( 'masonry' => array( 'columns' => 5, 'gap' => 40 ) ) ),
+			'attrs'     => array( 'blockshifterConfig' => array( 'masonry' => array( 'columns' => 5 ) ) ),
 		);
 
 		$result = $this->transform->render( '<div class="wp-block-group"><div>one</div></div>', $block );
 
 		$this->assertStringContainsString( '--blockshifter-masonry-columns: 5;', $result );
-		$this->assertStringContainsString( 'gap: 40px;', $result );
+		$this->assertStringNotContainsString( 'gap:', $result );
+	}
+
+	public function test_preserves_existing_inline_style_on_root_element(): void {
+		$result = $this->transform->render(
+			'<div class="wp-block-group" style="background-color:red;">one</div>',
+			array()
+		);
+
+		$this->assertStringContainsString( 'background-color:red', $result );
+		$this->assertStringContainsString( '--blockshifter-masonry-columns:', $result );
+	}
+
+	public function test_preserves_native_gap_custom_property_on_root_element(): void {
+		$result = $this->transform->render(
+			'<div class="wp-block-group" style="--wp--style--block-gap: 24px;">one</div>',
+			array()
+		);
+
+		$this->assertStringContainsString( '--wp--style--block-gap: 24px', $result );
 	}
 
 	public function test_does_not_modify_empty_block_content(): void {

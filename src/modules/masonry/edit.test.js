@@ -100,7 +100,6 @@ describe( 'withMasonryControls', () => {
 		render( <WrappedEdit name="core/group" attributes={ {} } setAttributes={ jest.fn() } /> );
 
 		expect( screen.queryByLabelText( 'Columns' ) ).not.toBeInTheDocument();
-		expect( screen.queryByLabelText( 'Gap (px)' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the secondary controls with current config when enabled on core/group', () => {
@@ -109,14 +108,13 @@ describe( 'withMasonryControls', () => {
 				name="core/group"
 				attributes={ {
 					blockshifterTransform: 'masonry',
-					blockshifterConfig: { masonry: { columns: 4, gap: 24 } },
+					blockshifterConfig: { masonry: { columns: 4 } },
 				} }
 				setAttributes={ jest.fn() }
 			/>
 		);
 
 		expect( screen.getByLabelText( 'Columns' ) ).toHaveValue( 4 );
-		expect( screen.getByLabelText( 'Gap (px)' ) ).toHaveValue( 24 );
 	} );
 
 	it( 'updates only columns in blockshifterConfig.masonry when changed', () => {
@@ -126,7 +124,7 @@ describe( 'withMasonryControls', () => {
 				name="core/group"
 				attributes={ {
 					blockshifterTransform: 'masonry',
-					blockshifterConfig: { masonry: { columns: 3, gap: 16 } },
+					blockshifterConfig: { masonry: { columns: 3 } },
 				} }
 				setAttributes={ setAttributes }
 			/>
@@ -135,29 +133,29 @@ describe( 'withMasonryControls', () => {
 		fireEvent.change( screen.getByLabelText( 'Columns' ), { target: { value: '5' } } );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
-			blockshifterConfig: { masonry: { columns: 5, gap: 16 } },
+			blockshifterConfig: { masonry: { columns: 5 } },
 		} );
 	} );
 
-	it( 'preserves other modules\' config when changing gap', () => {
+	it( 'preserves other modules\' config when changing columns', () => {
 		const setAttributes = jest.fn();
 		render(
 			<WrappedEdit
 				name="core/group"
 				attributes={ {
 					blockshifterTransform: 'masonry',
-					blockshifterConfig: { carousel: { perPage: 2 }, masonry: { columns: 3, gap: 16 } },
+					blockshifterConfig: { carousel: { perPage: 2 }, masonry: { columns: 3 } },
 				} }
 				setAttributes={ setAttributes }
 			/>
 		);
 
-		fireEvent.change( screen.getByLabelText( 'Gap (px)' ), { target: { value: '32' } } );
+		fireEvent.change( screen.getByLabelText( 'Columns' ), { target: { value: '5' } } );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			blockshifterConfig: {
 				carousel: { perPage: 2 },
-				masonry: { columns: 3, gap: 32 },
+				masonry: { columns: 5 },
 			},
 		} );
 	} );
@@ -168,14 +166,13 @@ describe( 'withMasonryControls', () => {
 				name="core/gallery"
 				attributes={ {
 					blockshifterTransform: 'masonry',
-					blockshifterConfig: { masonry: { columns: 4, gap: 24 } },
+					blockshifterConfig: { masonry: { columns: 4 } },
 				} }
 				setAttributes={ jest.fn() }
 			/>
 		);
 
 		expect( screen.queryByLabelText( 'Columns' ) ).not.toBeInTheDocument();
-		expect( screen.queryByLabelText( 'Gap (px)' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows a help hint pointing to the Gallery\'s own controls for core/gallery', () => {

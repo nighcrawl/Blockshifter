@@ -64,7 +64,6 @@ describe( 'getMasonryConfig', () => {
 
 		expect( getMasonryConfig( attributes ) ).toEqual( {
 			columns: 4,
-			gap: 16,
 		} );
 	} );
 

@@ -40,16 +40,21 @@ final class Blockshifter_Masonry_Transform implements Blockshifter_Transform {
 	/**
 	 * Add CSS Grid classes and custom properties to the block's root element.
 	 *
-	 * `core/gallery` already exposes its own Columns and block-gap (spacing)
-	 * controls natively, so masonry defers to those instead of duplicating
-	 * them in a Blockshifter-specific config: only `--blockshifter-masonry-
-	 * columns` is set (gallery has no default column count, so it falls
-	 * back to 3), and no `gap` is written at all — WP's own generated
-	 * layout style already applies gallery's block gap, and forcing
-	 * `display: grid` (see masonry-layout.css) doesn't touch that.
+	 * Gap is never written here for either block: it always comes from
+	 * Gutenberg's own native spacing (Gap) support, which the browser already
+	 * resolves regardless of layout type (inline custom property or WP's own
+	 * generated layout stylesheet) — a single source of truth, never
+	 * duplicated by a Blockshifter-authored `gap` declaration.
 	 *
-	 * `core/group` has no native equivalent for either setting, so it keeps
-	 * using Blockshifter's own config for both.
+	 * `core/gallery` already exposes its own native Columns control, so only
+	 * that attribute is read (it has no default column count, so this falls
+	 * back to 3). `core/group` has no native equivalent, so it keeps its own
+	 * Blockshifter-specific column count.
+	 *
+	 * Only `--blockshifter-masonry-columns` is appended to the root
+	 * element's existing `style` attribute rather than replacing it, so
+	 * that any style already authored on the block (native or otherwise)
+	 * survives enabling Masonry.
 	 */
 	private function add_masonry_classes_and_props( string $html, array $block ): string {
 		$processor = new WP_HTML_Tag_Processor( $html );
@@ -60,18 +65,34 @@ final class Blockshifter_Masonry_Transform implements Blockshifter_Transform {
 
 		$processor->add_class( 'blockshifter-masonry' );
 
-		if ( 'core/gallery' === ( $block['blockName'] ?? '' ) ) {
-			$columns = max( 1, (int) ( $block['attrs']['columns'] ?? 3 ) );
-			$style   = sprintf( '--blockshifter-masonry-columns: %d;', $columns );
-		} else {
-			$config  = $block['attrs']['blockshifterConfig']['masonry'] ?? array();
-			$columns = max( 1, (int) ( $config['columns'] ?? 3 ) );
-			$gap     = max( 0, (int) ( $config['gap'] ?? 16 ) );
-			$style   = sprintf( '--blockshifter-masonry-columns: %d; gap: %dpx;', $columns, $gap );
-		}
+		$columns = $this->get_columns( $block );
 
-		$processor->set_attribute( 'style', $style );
+		$this->append_inline_style( $processor, sprintf( '--blockshifter-masonry-columns: %d;', $columns ) );
 
 		return $processor->get_updated_html();
+	}
+
+	private function get_columns( array $block ): int {
+		if ( 'core/gallery' === ( $block['blockName'] ?? '' ) ) {
+			return max( 1, (int) ( $block['attrs']['columns'] ?? 3 ) );
+		}
+
+		$config = $block['attrs']['blockshifterConfig']['masonry'] ?? array();
+
+		return max( 1, (int) ( $config['columns'] ?? 3 ) );
+	}
+
+	/**
+	 * Appends a declaration to the root element's existing `style`
+	 * attribute instead of replacing it.
+	 */
+	private function append_inline_style( WP_HTML_Tag_Processor $processor, string $declaration ): void {
+		$existing = trim( (string) $processor->get_attribute( 'style' ) );
+
+		if ( '' !== $existing && ';' !== substr( $existing, -1 ) ) {
+			$existing .= ';';
+		}
+
+		$processor->set_attribute( 'style', trim( $existing . ' ' . $declaration ) );
 	}
 }
