@@ -28,9 +28,13 @@
 	}
 }
 
-/* JS sets this once it has measured items and starts assigning spans. */
+/* JS sets this once it has measured items and starts assigning spans. Kept
+ * to 1px: the gap between tiles is baked into each item's own span rather
+ * than a real `row-gap` (masonry-init.js), so the row unit is only a
+ * quantization granularity — the finer it is, the less an item's box can
+ * overshoot its content-plus-gap height. */
 .blockshifter-masonry.is-masonry-packed {
-	grid-auto-rows: 8px; /* Internal constant, not exposed to user (ADR 0009) */
+	grid-auto-rows: 1px; /* Internal constant, not exposed to user (ADR 0009) */
 }
 
 /* !important: core/gallery's own native styles give each item an explicit

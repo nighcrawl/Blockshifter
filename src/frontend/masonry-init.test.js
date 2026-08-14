@@ -10,11 +10,26 @@ describe( 'computeSpan', () => {
 		expect( computeSpan( 100, 20, 0 ) ).toBe( 5 );
 	} );
 
-	it( 'accounts for gap in span calculation', () => {
-		// Item height 100px, row unit 20px, gap 10px
-		// Each row takes 20px + 10px gap = 30px effective
-		// 100px / 30px = 3.33 => ceil => 4
-		expect( computeSpan( 100, 20, 10 ) ).toBe( 4 );
+	it( 'bakes the gap into the span, since the grid\'s own real row-gap is always zero', () => {
+		// Item height 100px, row unit 20px, gap 10px baked in as trailing
+		// space: box must cover 100+10=110px, so ceil(110/20) = 6 rows.
+		expect( computeSpan( 100, 20, 10 ) ).toBe( 6 );
+	} );
+
+	it( 'keeps the box within one row unit of the item height plus gap, regardless of how large gap is relative to the row unit', () => {
+		// A real `row-gap` bakes gap into the *step size* between spans
+		// (rowUnit + gap per extra row), so the quantization slack scales
+		// with gap no matter how fine rowUnit is. Baking gap into the
+		// target height instead (itemHeight + gap) and stepping only by
+		// rowUnit keeps slack bounded by rowUnit alone.
+		const rowUnit = 1;
+		const gap = 24;
+		const itemHeight = 149;
+		const span = computeSpan( itemHeight, rowUnit, gap );
+		const boxHeight = span * rowUnit;
+
+		expect( boxHeight ).toBeGreaterThanOrEqual( itemHeight + gap );
+		expect( boxHeight - ( itemHeight + gap ) ).toBeLessThan( rowUnit );
 	} );
 
 	it( 'returns at least 1 for very small items', () => {
@@ -26,7 +41,7 @@ describe( 'computeSpan', () => {
 	} );
 
 	it( 'handles large heights', () => {
-		expect( computeSpan( 500, 25, 5 ) ).toBe( 17 );
+		expect( computeSpan( 500, 25, 5 ) ).toBe( 21 );
 	} );
 } );
 
@@ -91,6 +106,14 @@ class MockMutationObserver {
 }
 MockMutationObserver.instances = [];
 
+/**
+ * jsdom never computes real layout, so `offsetHeight` is always 0 — stub
+ * it per element to exercise the actual span math.
+ */
+function mockOffsetHeight( element, height ) {
+	Object.defineProperty( element, 'offsetHeight', { value: height, configurable: true } );
+}
+
 describe( 'mountMasonryGrids', () => {
 	let mountMasonryGrids;
 
@@ -152,31 +175,68 @@ describe( 'mountMasonryGrids', () => {
 	it( 'falls back to a safe numeric gap when no numeric gap or sibling margin can be resolved', () => {
 		document.body.innerHTML = `
 			<div class="blockshifter-masonry">
-				<div style="height: 100px;"></div>
+				<div></div>
 			</div>
 		`;
 
+		const grid = document.querySelector( '.blockshifter-masonry' );
+		mockOffsetHeight( grid.children[ 0 ], 100 );
+
 		mountMasonryGrids();
 
-		const grid = document.querySelector( '.blockshifter-masonry' );
-		// Falls back to the internal 16px default rather than producing NaN.
-		expect( grid.style.rowGap ).toBe( '16px' );
+		const item = grid.children[ 0 ];
+
+		// The real `row-gap` is always zeroed — the gap this module resolves
+		// is baked into each item's own span instead (see computeSpan).
+		expect( grid.style.rowGap ).toBe( '0px' );
+		// Falls back to the internal 16px default rather than producing NaN:
+		// 100px content + 16px gap, at the 1px internal row unit.
+		expect( item.style.gridRowEnd ).toBe( 'span 116' );
 	} );
 
-	it( 'measures a native Flow sibling margin as the gap and neutralizes it on the item', () => {
+	it( 'measures a native Flow sibling margin as the gap and bakes it into the span, neutralizing the margin itself', () => {
 		document.body.innerHTML = `
 			<div class="blockshifter-masonry">
-				<div style="height: 50px;"></div>
-				<div style="height: 50px; margin-block-start: 24px;"></div>
+				<div></div>
+				<div style="margin-block-start: 24px;"></div>
 			</div>
 		`;
 
+		const grid = document.querySelector( '.blockshifter-masonry' );
+		const [ firstItem, secondItem ] = grid.children;
+		mockOffsetHeight( firstItem, 50 );
+		mockOffsetHeight( secondItem, 50 );
+
 		mountMasonryGrids();
 
-		const grid = document.querySelector( '.blockshifter-masonry' );
-		const secondItem = grid.children[ 1 ];
+		expect( grid.style.rowGap ).toBe( '0px' );
+		// 50px content + the measured 24px margin as gap, at the 1px row unit.
+		expect( firstItem.style.gridRowEnd ).toBe( 'span 74' );
+		expect( secondItem.style.marginBlockStart ).toBe( '0' );
+	} );
 
-		expect( grid.style.rowGap ).toBe( '24px' );
+	it( 'measures the Flow sibling margin even when the forced grid display already resolves row-gap to a numeric zero', () => {
+		// Real browsers resolve an unset `row-gap` to a numeric `0px` once
+		// display is forced to grid (unlike jsdom, which leaves it `normal`)
+		// — reproduced here with an explicit `row-gap: 0`. Without checking
+		// the native `is-layout-flow` class first, that numeric zero would
+		// be mistaken for "no gap configured" and the real 24px sibling
+		// margin would never be measured.
+		document.body.innerHTML = `
+			<div class="blockshifter-masonry is-layout-flow" style="row-gap: 0; column-gap: 0;">
+				<div></div>
+				<div style="margin-block-start: 24px;"></div>
+			</div>
+		`;
+
+		const grid = document.querySelector( '.blockshifter-masonry' );
+		const [ firstItem, secondItem ] = grid.children;
+		mockOffsetHeight( firstItem, 50 );
+		mockOffsetHeight( secondItem, 50 );
+
+		mountMasonryGrids();
+
+		expect( firstItem.style.gridRowEnd ).toBe( 'span 74' );
 		expect( secondItem.style.marginBlockStart ).toBe( '0' );
 	} );
 

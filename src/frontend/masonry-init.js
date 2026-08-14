@@ -1,6 +1,6 @@
 import './masonry-layout.css';
 
-const ROW_UNIT = 8; // Internal constant, not exposed to user (ADR 0009)
+const ROW_UNIT = 1; // Internal constant, not exposed to user (ADR 0009)
 const RESIZE_DEBOUNCE_MS = 150;
 const DEFAULT_GAP = 16; // Safe fallback when no numeric gap can be resolved at all.
 
@@ -17,9 +17,23 @@ const packTimers = new WeakMap();
  * Pure function to calculate grid-row-end span based on item height.
  * Used by the mount logic and unit-tested separately.
  *
+ * The grid's own real `row-gap` is always zeroed (see `adoptNativeGap`) —
+ * the visual gap is instead baked into each item's own box, as blank space
+ * trailing its content, sized directly from `gap` here. That sidesteps a
+ * real row-gap's coarse quantization: a box can only ever be an exact
+ * multiple of `rowUnit + gap` tall, so whenever an item's actual height
+ * doesn't land on one of those multiples, the leftover slack lands *after*
+ * the gap rather than as part of it, growing the visual gap by a varying,
+ * inconsistent amount per item (worse still, too small a `rowUnit` lets
+ * the item's own min-content size — it won't shrink below its intrinsic
+ * height — grow the box's last row past its quantized allocation entirely,
+ * *shrinking* the following gap instead). Baking the gap into the span
+ * directly and keeping `rowUnit` a small internal constant (ADR 0009)
+ * keeps that slack under one `rowUnit`, imperceptible.
+ *
  * @param {number} itemHeight - The rendered height of the item in pixels
  * @param {number} rowUnit - The grid-auto-rows unit in pixels
- * @param {number} gap - The gap between items in pixels
+ * @param {number} gap - The visual gap to bake in after this item's content
  * @returns {number} The span value for grid-row-end
  */
 export function computeSpan( itemHeight, rowUnit, gap ) {
@@ -27,8 +41,7 @@ export function computeSpan( itemHeight, rowUnit, gap ) {
 		return 1;
 	}
 
-	const effectiveRowHeight = rowUnit + gap;
-	const span = Math.ceil( itemHeight / effectiveRowHeight );
+	const span = Math.ceil( ( itemHeight + gap ) / rowUnit );
 
 	return Math.max( 1, span );
 }
@@ -40,25 +53,42 @@ function readNumericGap( style, property ) {
 }
 
 /**
+ * core/group's default (Flow) and constrained layouts never use the `gap`
+ * property at all — they space children with a sibling margin instead
+ * (`margin-block-start` on `* + *`). Once this module forces `display:
+ * grid` on the root (masonry-layout.css), an *unset* `row-gap`/`column-gap`
+ * stops being distinguishable from a real one: per spec, `normal` computes
+ * to `0px` for a grid container, not to a non-numeric keyword the way it
+ * does for flex — so a Flow-layout Group with no `gap` property at all
+ * reads back as a perfectly numeric (and wrong) zero. WordPress's own
+ * layout-type class name is the reliable signal instead: Flow and
+ * constrained layouts always go through the margin-based path below,
+ * regardless of what the forced-grid `gap` computes to.
+ */
+function isMarginBasedLayout( grid ) {
+	return grid.classList.contains( 'is-layout-flow' ) || grid.classList.contains( 'is-layout-constrained' );
+}
+
+/**
  * Resolves the grid's effective row/column gap, always from the native
  * Gutenberg Gap control — never a Blockshifter-authored value.
  *
- * When the browser already resolves a numeric `row-gap`/`column-gap` (a
- * flex or grid native layout), those values are used directly. core/group's
- * default (Flow) layout instead expresses its native Gap as a sibling
- * margin (`margin-block-start`) rather than a Grid `gap` property, so it's
- * measured off an actual sibling instead — before that margin gets
+ * For a flex or grid native layout (not margin-based — see
+ * `isMarginBasedLayout`), the browser's own resolved numeric
+ * `row-gap`/`column-gap` is used directly. Otherwise the native Gap is
+ * measured off an actual sibling's margin instead, before that margin gets
  * neutralized by `neutralizeFlowMargins`. A safe numeric default covers the
- * remaining case: a non-numeric gap (e.g. `normal`) with no sibling to
- * measure a margin from.
+ * remaining case: no sibling to measure a margin from at all.
  */
 function measureGaps( grid ) {
-	const computed = window.getComputedStyle( grid );
-	const nativeRowGap = readNumericGap( computed, 'rowGap' );
-	const nativeColumnGap = readNumericGap( computed, 'columnGap' );
+	if ( ! isMarginBasedLayout( grid ) ) {
+		const computed = window.getComputedStyle( grid );
+		const nativeRowGap = readNumericGap( computed, 'rowGap' );
+		const nativeColumnGap = readNumericGap( computed, 'columnGap' );
 
-	if ( null !== nativeRowGap && null !== nativeColumnGap ) {
-		return { rowGap: nativeRowGap, columnGap: nativeColumnGap };
+		if ( null !== nativeRowGap && null !== nativeColumnGap ) {
+			return { rowGap: nativeRowGap, columnGap: nativeColumnGap };
+		}
 	}
 
 	const secondChild = grid.children[ 1 ];
@@ -84,9 +114,12 @@ function neutralizeFlowMargins( grid ) {
 }
 
 /**
- * Reads the grid's native gap once, translates it into the Grid's own
- * `row-gap`/`column-gap`, and neutralizes any native sibling margin so the
- * gap is expressed exactly once. Only ever done at mount: re-measuring on
+ * Reads the grid's native row gap once and neutralizes any native sibling
+ * margin so it isn't doubled up. The *column* gap is applied as a real CSS
+ * `column-gap` (columns are even `fr` tracks, so it's exact either way);
+ * the *row* gap is deliberately never applied as a real `row-gap` — see
+ * `computeSpan` for why — and is instead only recorded for `packGrid` to
+ * bake into each item's own span. Only ever done at mount: re-measuring on
  * every recalculation would read back the already-neutralized margin.
  */
 function adoptNativeGap( grid ) {
@@ -94,7 +127,7 @@ function adoptNativeGap( grid ) {
 
 	neutralizeFlowMargins( grid );
 
-	grid.style.rowGap = `${ rowGap }px`;
+	grid.style.rowGap = '0px';
 	grid.style.columnGap = `${ columnGap }px`;
 
 	gridRowGaps.set( grid, rowGap );
@@ -103,18 +136,20 @@ function adoptNativeGap( grid ) {
 /**
  * Measure one item and set its grid-row-end span.
  *
- * The item's own `grid-row-end` is reset to a single row *before*
- * measuring: a grid item's box stretches (the default `align-self`) to
- * fill its current row span, so measuring it as-is only ever reveals
- * growth (content now overflowing a too-small box, via `scrollHeight`)
- * and never shrinkage (a too-tall box whose content no longer fills it —
- * shrinking has nothing to overflow, so the box stays stuck at its old,
- * now oversized height). Resetting first collapses the box back to its
- * row's natural min-content floor, so `offsetHeight` reflects the item's
- * true height at the current width in both directions.
+ * `align-self` is forced to `start` rather than the grid default
+ * (`stretch`): the gap this module applies is baked into each item's own
+ * span as *trailing* empty space in its row track (see `computeSpan`), and
+ * a stretched item would paint its own background/border across that
+ * space, visually erasing the gap for any tile with a solid background.
+ * `start` instead sizes the item to its own natural content height and
+ * anchors it to the top of the track, leaving the trailing space — and
+ * whatever sits behind it — untouched. As a side effect, `offsetHeight`
+ * always reflects the item's true content height at its current width,
+ * regardless of its currently assigned span, so no reset-then-measure
+ * dance is needed before reading it.
  */
 function setItemSpan( item, gap ) {
-	item.style.gridRowEnd = 'span 1';
+	item.style.alignSelf = 'start';
 	const span = computeSpan( item.offsetHeight, ROW_UNIT, gap );
 	item.style.gridRowEnd = `span ${ span }`;
 }
