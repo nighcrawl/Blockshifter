@@ -8,13 +8,23 @@
 	 * on core/gallery) have higher selector specificity than a single class
 	 * and would otherwise force display:flex back on. */
 	display: grid !important;
-	grid-template-columns: repeat( var( --blockshifter-masonry-columns, 3 ), 1fr );
-	/* No `gap` here: core/group gets it inline (PHP), core/gallery keeps
-	 * whatever its own native block-gap style already applies. */
+	/* Below 600px, mirror core/gallery's own native mobile convention: two
+	 * columns regardless of the configured desktop column count (ADR 0009).
+	 * The configured `--blockshifter-masonry-columns` only takes over at
+	 * gallery's own 600px breakpoint. */
+	grid-template-columns: repeat( 2, 1fr );
+	/* No `gap` here: it always comes from Gutenberg's own native spacing
+	 * (Gap) support, for both core/gallery and core/group. */
 	grid-auto-flow: dense;
 	/* Auto row height until JS is confirmed to have run: plain CSS Grid
 	 * columns, no packing, but never overlapping (spec: no-JS degradation). */
 	grid-auto-rows: auto;
+}
+
+@media ( min-width: 600px ) {
+	.blockshifter-masonry {
+		grid-template-columns: repeat( var( --blockshifter-masonry-columns, 3 ), 1fr );
+	}
 }
 
 /* JS sets this once it has measured items and starts assigning spans. */
