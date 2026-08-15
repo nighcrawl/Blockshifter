@@ -1,0 +1,52 @@
+/**
+ * Masonry layout using CSS Grid with dense packing.
+ * The JS script calculates grid-row-end spans based on item heights.
+ */
+
+.blockshifter-masonry {
+	/* !important: WordPress core layout supports (e.g. `body .is-layout-flex`
+	 * on core/gallery) have higher selector specificity than a single class
+	 * and would otherwise force display:flex back on. */
+	display: grid !important;
+	/* Below 600px, mirror core/gallery's own native mobile convention: two
+	 * columns regardless of the configured desktop column count (ADR 0009).
+	 * The configured `--blockshifter-masonry-columns` only takes over at
+	 * gallery's own 600px breakpoint. */
+	grid-template-columns: repeat( 2, 1fr );
+	/* No `gap` declared here: the JS resolves it from Gutenberg's own
+	 * native spacing (Gap) support and sets it inline, for both
+	 * core/gallery and core/group (masonry-init.js). */
+	grid-auto-flow: dense;
+	/* Auto row height until JS is confirmed to have run: plain CSS Grid
+	 * columns, no packing, but never overlapping (spec: no-JS degradation). */
+	grid-auto-rows: auto;
+}
+
+@media ( min-width: 600px ) {
+	.blockshifter-masonry {
+		grid-template-columns: repeat( var( --blockshifter-masonry-columns, 3 ), 1fr );
+	}
+}
+
+/* JS sets this once it has measured items and starts assigning spans. Kept
+ * to 1px: the gap between tiles is baked into each item's own span rather
+ * than a real `row-gap` (masonry-init.js), so the row unit is only a
+ * quantization granularity — the finer it is, the less an item's box can
+ * overshoot its content-plus-gap height. */
+.blockshifter-masonry.is-masonry-packed {
+	grid-auto-rows: 1px; /* Internal constant, not exposed to user (ADR 0009) */
+}
+
+/* !important: core/gallery's own native styles give each item an explicit
+ * `width: calc(N% - …)`, sized for its original flex layout where that
+ * percentage resolves against the whole gallery's width. Under our grid,
+ * the item's containing block is its own column track (already divided by
+ * the column count), so that same percentage divides the column again —
+ * items end up a fraction of the intended size. Percentage width has a
+ * higher-specificity source (an ID-strength `:not(#individual-image)`
+ * selector), so only `!important` reliably wins here; `width: auto` then
+ * lets the item fill its grid column the way `grid-template-columns`
+ * already intends. */
+.blockshifter-masonry > * {
+	width: auto !important;
+}

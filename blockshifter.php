@@ -25,6 +25,7 @@ require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/class-module-registry.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/class-assets.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/class-render.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/modules/carousel/class-carousel-transform.php';
+require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/modules/masonry/class-masonry-transform.php';
 
 Blockshifter_Render::register();
 
@@ -36,6 +37,7 @@ add_action(
 	'init',
 	static function () {
 		Blockshifter_Module_Registry::register( new Blockshifter_Carousel_Transform() );
+		Blockshifter_Module_Registry::register( new Blockshifter_Masonry_Transform() );
 	},
 	0
 );
@@ -70,6 +72,44 @@ add_action(
 			wp_register_style(
 				'blockshifter-carousel-frontend',
 				BLOCKSHIFTER_PLUGIN_URL . 'build/frontend/carousel-init.css',
+				array(),
+				BLOCKSHIFTER_VERSION
+			);
+		}
+	},
+	5
+);
+
+/**
+ * Register (but don't yet enqueue) the Masonry Module's front-end assets.
+ * Blockshifter_Assets enqueues them conditionally, only when the page
+ * actually contains an active masonry grid.
+ */
+add_action(
+	'wp_enqueue_scripts',
+	static function () {
+		$asset_file = BLOCKSHIFTER_PLUGIN_DIR . 'build/frontend/masonry-init.asset.php';
+
+		if ( ! file_exists( $asset_file ) ) {
+			return;
+		}
+
+		$asset = require $asset_file;
+
+		wp_register_script(
+			'blockshifter-masonry-frontend',
+			BLOCKSHIFTER_PLUGIN_URL . 'build/frontend/masonry-init.js',
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
+
+		$style_file = BLOCKSHIFTER_PLUGIN_DIR . 'build/frontend/masonry-init.css';
+
+		if ( file_exists( $style_file ) ) {
+			wp_register_style(
+				'blockshifter-masonry-frontend',
+				BLOCKSHIFTER_PLUGIN_URL . 'build/frontend/masonry-init.css',
 				array(),
 				BLOCKSHIFTER_VERSION
 			);

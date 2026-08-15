@@ -60,4 +60,17 @@ final class ModuleRegistryTest extends TestCase {
 
 		$this->assertSame( array( 'core/gallery', 'core/group', 'core/columns' ), $result );
 	}
+
+	public function test_allowed_blocks_for_applies_the_filter_for_masonry(): void {
+		$module = new FakeTransform( 'masonry', array( 'core/gallery', 'core/group' ) );
+
+		Filters\expectApplied( 'blockshifter/masonry/allowed_blocks' )
+			->once()
+			->with( array( 'core/gallery', 'core/group' ) )
+			->andReturn( array( 'core/gallery', 'core/group', 'core/columns' ) );
+
+		$result = Blockshifter_Module_Registry::allowed_blocks_for( $module );
+
+		$this->assertSame( array( 'core/gallery', 'core/group', 'core/columns' ), $result );
+	}
 }

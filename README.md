@@ -14,7 +14,11 @@ Blockshifter is a shape-shifter for your blocks: same content underneath, a diff
 - Autoplay
 - Infinite loop
 
-More shapes are coming: Accordion, Masonry... are on the roadmap, each following the same pattern (pick a block, flip a toggle). See `CONTEXT.md` and `docs/adr/` for the project's vocabulary and architecture decisions.
+**Masonry, available today** — turns a Gallery or Group block into a compact, varied-height masonry layout (CSS Grid, no third-party library). Every native Gutenberg setting stays in charge — Columns and Gap on Gallery, Gap on Group:
+- Enable/disable Masonry mode
+- Columns (Group only — Gallery keeps its own native Columns control)
+
+More shapes are coming: Accordion... is on the roadmap, each following the same pattern (pick a block, flip a toggle). See `CONTEXT.md` and `docs/adr/` for the project's vocabulary and architecture decisions.
 
 ## Installing in WordPress
 
@@ -52,12 +56,21 @@ If you download the code via GitHub's "Code → Download ZIP" button, the `build
 
 ## Usage
 
+### Carousel
+
 1. In the editor, select a **Gallery** or **Group** block
 2. In the Inspector (sidebar panel), open the **Blockshifter Carousel** panel
 3. Enable the "Enable Carousel mode" toggle
 4. Adjust the number of visible slides, autoplay, and infinite loop to your needs
 
-The carousel rendering only applies on the front end — editing the block in the editor stays unchanged.
+### Masonry
+
+1. In the editor, select a **Gallery** or **Group** block
+2. In the Inspector (sidebar panel), open the **Blockshifter Masonry** panel
+3. Enable the "Enable Masonry mode" toggle
+4. On a Group, set the number of columns (Gallery keeps its own native Columns control); set spacing via the block's native **Gap** setting on either block
+
+Both Modules only change the front-end output — editing the block in the editor stays unchanged.
 
 ## Development
 
@@ -88,11 +101,16 @@ includes/
 ├── class-module-registry.php           # Explicit Module registry
 ├── class-assets.php                    # Conditional front-end asset enqueue
 ├── class-render.php                    # Generic render dispatch (render_block)
-└── modules/carousel/                   # Carousel module
+└── modules/
+    ├── carousel/                       # Carousel module
+    └── masonry/                        # Masonry module
 src/
-├── index.js                            # Editor entry (generic attributes, Carousel controls)
+├── index.js                            # Editor entry (generic attributes, Carousel/Masonry controls)
 ├── frontend/carousel-init.js           # Splide.js front-end init
-└── modules/carousel/                   # Carousel module logic + Inspector Controls
+├── frontend/masonry-init.js            # Masonry front-end init (CSS Grid span calc)
+└── modules/
+    ├── carousel/                       # Carousel module logic + Inspector Controls
+    └── masonry/                        # Masonry module logic + Inspector Controls
 ```
 
 ## License

@@ -6,5 +6,6 @@ module.exports = {
 	entry: {
 		index: path.resolve( process.cwd(), 'src/index.js' ),
 		'frontend/carousel-init': path.resolve( process.cwd(), 'src/frontend/carousel-init.js' ),
+		'frontend/masonry-init': path.resolve( process.cwd(), 'src/frontend/masonry-init.js' ),
 	},
 };
