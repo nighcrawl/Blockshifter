@@ -6,7 +6,7 @@ Blockshifter is a growing toolbox of display modes for native Gutenberg blocks (
 
 Pick a block you already use — Gallery, Group — flip a toggle in its Inspector, and its front-end output transforms. The block itself stays 100% native and editable; nothing changes about how you write content.
 
-Blockshifter is a shape-shifter for your blocks: same content underneath, a different shape on the front end. Today it shifts into a Carousel; tomorrow more shapes will join the same toolbox, each just as simple to switch on.
+Blockshifter is a shape-shifter for your blocks: same content underneath, a different shape on the front end. Today it shifts into a Carousel or a Masonry grid; tomorrow more shapes will join the same toolbox, each just as simple to switch on.
 
 **Carousel, available today** — turns a Gallery or Group block into a clean, minimalist carousel (via [Splide.js](https://splidejs.com/)), with settings:
 - Enable/disable Carousel mode

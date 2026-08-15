@@ -2,13 +2,13 @@
 Contributors: nighcrawl
 Tags: slider, carousel, gutenberg, full site editing, block editor
 Requires at least: 6.2
-Tested up to: 7.0
+Tested up to: 7.0.4
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Turn native Gallery and Group blocks into a clean, minimalist carousel — without leaving the editor.
+Transform native Gutenberg blocks into alternate display variants without leaving the editor.
 
 == Description ==
 
@@ -16,7 +16,7 @@ Blockshifter is a growing toolbox of display modes for native Gutenberg blocks �
 
 Pick a block you already use — Gallery, Group — flip a toggle in its Inspector, and its front-end output transforms. The block itself stays 100% native and editable; nothing about how you write content changes.
 
-Think of Blockshifter as a shape-shifter for your blocks: same content underneath, a different shape on the front end. Today it shifts into a Carousel; tomorrow more shapes join the same toolbox, each just as simple to switch on.
+Think of Blockshifter as a shape-shifter for your blocks: same content underneath, a different shape on the front end. Today it shifts into a Carousel or a Masonry grid; tomorrow more shapes join the same toolbox, each just as simple to switch on.
 
 = Carousel, live today =
 
@@ -28,15 +28,29 @@ A clean, minimalist carousel for Gallery and Group blocks, powered by [Splide.js
 * Infinite loop
 * Fully responsive, keyboard and screen-reader friendly out of the box
 
+= Masonry, live today =
+
+A compact, variable-height masonry grid for Gallery and Group blocks, built with native CSS Grid — no third-party library. Every native Gutenberg setting stays in charge: Columns and Gap on Gallery, Gap on Group.
+
+* One toggle to turn a block into a masonry grid
+* Columns (Group only — Gallery keeps its own native Columns control)
+* Respects each block's native Gap and responsive behavior
+* Degrades gracefully to a regular grid without JavaScript
+
 = More shapes are coming =
 
-Accordion, Masonry, and other display modes are on the roadmap. Every future module follows the exact same pattern you already know: pick a block, flip a toggle, done.
+Accordion and other display modes are on the roadmap. Every future module follows the exact same pattern you already know: pick a block, flip a toggle, done.
 
 = For developers =
 
-The list of blocks a module targets is filterable, so you can extend the Carousel module to other core blocks without forking the plugin:
+The list of blocks a module targets is filterable, so you can extend any module to other core blocks without forking the plugin — the filter name follows `blockshifter/<module>/allowed_blocks`:
 
 `add_filter( 'blockshifter/carousel/allowed_blocks', function( $blocks ) {
+	$blocks[] = 'core/columns';
+	return $blocks;
+} );
+
+add_filter( 'blockshifter/masonry/allowed_blocks', function( $blocks ) {
 	$blocks[] = 'core/columns';
 	return $blocks;
 } );`
@@ -51,11 +65,11 @@ The list of blocks a module targets is filterable, so you can extend the Carouse
 
 = Can I use this on blocks other than Gallery and Group? =
 
-Not out of the box yet, but developers can extend the Carousel module's target blocks via the `blockshifter/carousel/allowed_blocks` filter — see the Description above.
+Not out of the box yet, but developers can extend any module's target blocks via its `blockshifter/<module>/allowed_blocks` filter — see the Description above.
 
-= Are other display modes (Accordion, Masonry...) available? =
+= Are other display modes (Accordion...) available? =
 
-Not yet — the current release ships with the Carousel module only. More are planned.
+Not yet — the current release ships with the Carousel and Masonry modules. More are planned.
 
 = Is this plugin free? =
 
@@ -75,6 +89,12 @@ The `src/` directory contains the human-readable, unminified source for everythi
 4. A Gallery block rendered as a Carousel on the front end.
 
 == Changelog ==
+
+= 0.2.0 =
+* Adds Masonry, a second Blockshifter module: turns a Gallery or Group block into a compact, variable-height CSS Grid layout, with the same "pick a block, flip a toggle" pattern as Carousel.
+* Gap and (on Gallery) Columns always come from the block's own native Gutenberg settings — Masonry never duplicates them.
+* Matches Gallery's native responsive behavior (two columns on narrow screens, configured column count above) on both Gallery and Group.
+* Degrades gracefully to a regular, non-overlapping grid without JavaScript.
 
 = 0.1.0 =
 * Initial release: Carousel, the first Blockshifter module, for the Gallery and Group blocks.
