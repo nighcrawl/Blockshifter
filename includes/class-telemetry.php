@@ -172,9 +172,10 @@ final class Blockshifter_Telemetry {
 	/**
 	 * Apply an opt-in/opt-out decision: flip the stored flags and, only on
 	 * the false-to-true transition, generate the installation id, schedule
-	 * the cron and fire an immediate report (Q7/Q10).
+	 * the cron and fire an immediate report (Q7/Q10). Public so the decision
+	 * logic can be unit tested independently of handle_update()'s exit().
 	 */
-	private static function apply_enabled_change( bool $enabled ): void {
+	public static function apply_enabled_change( bool $enabled ): void {
 		$was_enabled = self::is_enabled();
 
 		update_option( self::OPTION_DECIDED, true );
