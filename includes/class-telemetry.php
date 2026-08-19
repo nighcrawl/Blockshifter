@@ -104,7 +104,7 @@ final class Blockshifter_Telemetry {
 					<?php submit_button( __( 'Save', 'blockshifter' ), 'primary', '', false ); ?>
 				</p>
 				<p>
-					<a href="https://blockshifter.dev/privacy" target="_blank" rel="noopener noreferrer">
+					<a href="https://blockshifter.dev/privacy.html" target="_blank" rel="noopener noreferrer">
 						<?php esc_html_e( 'Privacy policy', 'blockshifter' ); ?>
 					</a>
 				</p>
@@ -138,7 +138,7 @@ final class Blockshifter_Telemetry {
 			<p>
 				<a href="<?php echo esc_url( $enable_url ); ?>" class="button button-primary"><?php esc_html_e( 'Enable', 'blockshifter' ); ?></a>
 				<a href="<?php echo esc_url( $decline_url ); ?>" class="button"><?php esc_html_e( 'No thanks', 'blockshifter' ); ?></a>
-				<a href="https://blockshifter.dev/privacy" target="_blank" rel="noopener noreferrer" style="margin-left: 8px;">
+				<a href="https://blockshifter.dev/privacy.html" target="_blank" rel="noopener noreferrer" style="margin-left: 8px;">
 					<?php esc_html_e( 'Learn more', 'blockshifter' ); ?>
 				</a>
 			</p>
@@ -340,7 +340,7 @@ final class Blockshifter_Telemetry {
 		}
 
 		$content = '<p>' . esc_html__(
-			'Blockshifter may send, only if explicitly enabled in its settings, anonymous usage statistics: a random installation identifier, the Blockshifter/WordPress/PHP version, and which Blockshifter modules (Carousel, Masonry...) are detected on the site. No URL, no page content and no data that could identify the site or its users is ever sent. See the full privacy policy: https://blockshifter.dev/privacy',
+			'Blockshifter may send, only if explicitly enabled in its settings, anonymous usage statistics: a random installation identifier, the Blockshifter/WordPress/PHP version, and which Blockshifter modules (Carousel, Masonry...) are detected on the site. No URL, no page content and no data that could identify the site or its users is ever sent. See the full privacy policy: https://blockshifter.dev/privacy.html',
 			'blockshifter'
 		) . '</p>';
 

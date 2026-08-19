@@ -87,7 +87,7 @@ When enabled, once a week (and once immediately after you opt in), the plugin se
 
 No page content, no URL, no username, no email address and no IP address is stored. You can disable telemetry at any time from Settings > Blockshifter, which also stops all further data collection.
 
-Full privacy policy: https://blockshifter.dev/privacy
+Full privacy policy: https://blockshifter.dev/privacy.html
 
 == Development ==
 
