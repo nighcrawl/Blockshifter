@@ -4,7 +4,7 @@ Tags: slider, carousel, gutenberg, full site editing, block editor
 Requires at least: 6.2
 Tested up to: 7.0.4
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,20 @@ Not yet — the current release ships with the Carousel and Masonry modules. Mor
 = Is this plugin free? =
 
 Yes, Blockshifter is completely free, with no premium tier at this time.
+
+== Privacy ==
+
+Blockshifter includes a fully **opt-in** telemetry feature — disabled by default, and no data is ever sent before you explicitly enable it from Settings > Blockshifter.
+
+When enabled, once a week (and once immediately after you opt in), the plugin sends this anonymous payload to `https://api.blockshifter.dev/v1/telemetry`:
+
+* A random installation identifier (a UUID generated locally, not tied to your identity or your site's URL)
+* The Blockshifter, WordPress and PHP version numbers
+* Which Blockshifter modules (Carousel, Masonry...) are detected in your rendered content
+
+No page content, no URL, no username, no email address and no IP address is stored. You can disable telemetry at any time from Settings > Blockshifter, which also stops all further data collection.
+
+Full privacy policy: https://blockshifter.dev/privacy
 
 == Development ==
 

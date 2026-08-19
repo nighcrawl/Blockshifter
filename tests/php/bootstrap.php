@@ -16,6 +16,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', sys_get_temp_dir() . '/' );
 }
 
+if ( ! defined( 'BLOCKSHIFTER_VERSION' ) ) {
+	define( 'BLOCKSHIFTER_VERSION', '0.0.0-test' );
+}
+
+if ( ! defined( 'WEEK_IN_SECONDS' ) ) {
+	define( 'WEEK_IN_SECONDS', 7 * 24 * 60 * 60 );
+}
+
 $wp_core_html_api_dir = dirname( __DIR__, 2 ) . '/.wp-core-src/wp-includes/html-api/';
 
 if ( ! is_dir( $wp_core_html_api_dir ) ) {
@@ -49,5 +57,6 @@ require_once dirname( __DIR__, 2 ) . '/includes/interface-transform.php';
 require_once dirname( __DIR__, 2 ) . '/includes/class-module-registry.php';
 require_once dirname( __DIR__, 2 ) . '/includes/class-assets.php';
 require_once dirname( __DIR__, 2 ) . '/includes/class-render.php';
+require_once dirname( __DIR__, 2 ) . '/includes/class-telemetry.php';
 require_once dirname( __DIR__, 2 ) . '/includes/modules/carousel/class-carousel-transform.php';
 require_once dirname( __DIR__, 2 ) . '/includes/modules/masonry/class-masonry-transform.php';

@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Blockshifter
  * Description:       Transform native Gutenberg blocks into alternate display variants without leaving the editor.
- * Version:           0.2.0
+ * Version:           0.3.0
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            Ange Chierchia
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BLOCKSHIFTER_VERSION', '0.2.0' );
+define( 'BLOCKSHIFTER_VERSION', '0.3.0' );
 define( 'BLOCKSHIFTER_PLUGIN_FILE', __FILE__ );
 define( 'BLOCKSHIFTER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BLOCKSHIFTER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -24,10 +24,14 @@ require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/interface-transform.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/class-module-registry.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/class-assets.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/class-render.php';
+require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/class-telemetry.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/modules/carousel/class-carousel-transform.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/modules/masonry/class-masonry-transform.php';
 
 Blockshifter_Render::register();
+Blockshifter_Telemetry::register();
+
+register_deactivation_hook( BLOCKSHIFTER_PLUGIN_FILE, array( 'Blockshifter_Telemetry', 'on_deactivation' ) );
 
 /**
  * Register every Blockshifter Module here (ADR-0004 — explicit registry,
@@ -154,6 +158,7 @@ add_action(
 
 		if ( $post instanceof WP_Post ) {
 			Blockshifter_Assets::maybe_enqueue_for_content( $post->post_content );
+			Blockshifter_Telemetry::maybe_record_feature_usage( $post->post_content );
 		}
 	}
 );
