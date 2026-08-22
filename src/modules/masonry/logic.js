@@ -58,3 +58,20 @@ export function setMasonryConfigValue( attributes, key, value ) {
 		},
 	};
 }
+
+/**
+ * The Masonry Module's effective column count, mirroring
+ * Blockshifter_Masonry_Transform::get_columns() on the PHP side: `core/gallery`
+ * has no Blockshifter-specific control and reads its own native `columns`
+ * attribute (falling back to 3, its Gutenberg default), while `core/group`
+ * has no native equivalent and reads its own namespaced config.
+ */
+export function getMasonryColumns( attributes, blockName ) {
+	if ( 'core/gallery' === blockName ) {
+		const parsed = parseInt( attributes?.columns, 10 );
+
+		return Math.max( 1, Number.isNaN( parsed ) ? 3 : parsed );
+	}
+
+	return Math.max( 1, getMasonryConfig( attributes ).columns );
+}
