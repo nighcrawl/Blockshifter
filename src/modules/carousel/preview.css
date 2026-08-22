@@ -1,0 +1,19 @@
+/**
+ * A CSS-only stand-in for the front end's real Splide carousel — see ADR
+ * "Carousel Editor Preview en CSS scroll-snap, pas de vrai Splide monté".
+ * Deliberately not a Splide behaviour clone: no loop, no autoplay, no
+ * arrows/dots. `scroll-snap` alone gets close enough to be legible while
+ * never touching the DOM Gutenberg owns, so it stays visible even while the
+ * block is selected and being edited.
+ */
+
+.blockshifter-carousel-preview {
+	display: flex;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+}
+
+.blockshifter-carousel-preview > * {
+	flex: 0 0 calc( 100% / var( --blockshifter-carousel-per-page, 1 ) );
+	scroll-snap-align: start;
+}

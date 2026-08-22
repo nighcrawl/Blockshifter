@@ -60,28 +60,3 @@ export function setCarouselConfigValue( attributes, key, value ) {
 		},
 	};
 }
-
-/**
- * Maps the Carousel Module's own config shape to Splide's own option names,
- * mirroring Blockshifter_Carousel_Transform::build_splide_options() on the
- * PHP side. `isEditor` strips autoplay: the Editor Preview never autoplays,
- * regardless of what's configured for the front end (ADR: Carousel autoplay
- * is disabled in the editor).
- */
-export function buildSplideOptions( config, { isEditor = false } = {} ) {
-	const options = {
-		perPage: Math.max( 1, parseInt( config?.perPage, 10 ) || 1 ),
-	};
-
-	if ( config?.autoplay && ! isEditor ) {
-		options.autoplay = true;
-	}
-
-	if ( config?.loop ) {
-		// Splide has no plain boolean "loop" option — infinite looping is
-		// enabled via its `type: 'loop'` slider mode instead.
-		options.type = 'loop';
-	}
-
-	return options;
-}

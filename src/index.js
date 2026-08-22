@@ -36,7 +36,7 @@ addFilter(
 );
 
 addFilter(
-	'editor.BlockEdit',
+	'editor.BlockListBlock',
 	'blockshifter/carousel-preview',
 	withCarouselPreview
 );
