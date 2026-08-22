@@ -2,7 +2,7 @@
 Contributors: nighcrawl
 Tags: slider, carousel, gutenberg, full site editing, block editor
 Requires at least: 6.2
-Tested up to: 7.0.4
+Tested up to: 7.1
 Requires PHP: 7.4
 Stable tag: 0.3.0
 License: GPLv2 or later

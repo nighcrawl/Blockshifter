@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Blockshifter
  * Description:       Transform native Gutenberg blocks into alternate display variants without leaving the editor.
- * Version:           0.3.2
+ * Version:           0.3.99
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            Ange Chierchia
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BLOCKSHIFTER_VERSION', '0.3.2' );
+define( 'BLOCKSHIFTER_VERSION', '0.3.99' );
 define( 'BLOCKSHIFTER_PLUGIN_FILE', __FILE__ );
 define( 'BLOCKSHIFTER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BLOCKSHIFTER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -154,16 +154,19 @@ add_action(
  * iframe, and Gutenberg only ever mirrors styles registered through
  * `enqueue_block_assets` (or `block.json`) into that iframe — a style
  * enqueued on `enqueue_block_editor_assets` only ever reaches the top-level
- * admin document, never the canvas itself. `is_admin()` keeps it out of the
- * front end, since `enqueue_block_assets` otherwise fires there too.
+ * admin document, never the canvas itself.
+ *
+ * Not gated on `is_admin()`: WordPress rebuilds the iframe's own asset list
+ * by re-running `enqueue_block_assets` in isolation (`_wp_get_iframed_editor_assets()`
+ * in wp-includes/block-editor.php) to capture only what a callback enqueues
+ * there — gating on `is_admin()` silently dropped the style from that pass.
+ * The trade-off: this now also loads on the front end (a few hundred bytes
+ * of CSS whose selectors never match anything there, since neither Preview
+ * class is ever applied outside the editor).
  */
 add_action(
 	'enqueue_block_assets',
 	static function () {
-		if ( ! is_admin() ) {
-			return;
-		}
-
 		$style_file = BLOCKSHIFTER_PLUGIN_DIR . 'build/index.css';
 
 		if ( ! file_exists( $style_file ) ) {
