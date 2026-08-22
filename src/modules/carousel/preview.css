@@ -7,8 +7,16 @@
  * block is selected and being edited.
  */
 
+/*
+ * `!important` on `display`: Gutenberg's own native layout support (e.g.
+ * `is-layout-constrained`/`is-layout-flow`) has higher specificity than
+ * `.blockshifter-carousel-preview` alone and would otherwise silently keep
+ * the block in its native `block`/`flow-root` display, disabling the
+ * preview entirely — the exact conflict ADR-0009 documents for Masonry's
+ * `display: grid`.
+ */
 .blockshifter-carousel-preview {
-	display: flex;
+	display: flex !important;
 	overflow-x: auto;
 	scroll-snap-type: x mandatory;
 }
