@@ -2,6 +2,7 @@ import { addFilter } from '@wordpress/hooks';
 import { addCoreAttributes } from './core-attributes';
 import { withCarouselControls } from './modules/carousel/edit';
 import { withMasonryControls } from './modules/masonry/edit';
+import { withMasonryPreview, withMasonryPreviewMount } from './modules/masonry/preview';
 
 addFilter(
 	'blocks.registerBlockType',
@@ -19,4 +20,16 @@ addFilter(
 	'editor.BlockEdit',
 	'blockshifter/masonry-controls',
 	withMasonryControls
+);
+
+addFilter(
+	'editor.BlockListBlock',
+	'blockshifter/masonry-preview',
+	withMasonryPreview
+);
+
+addFilter(
+	'editor.BlockEdit',
+	'blockshifter/masonry-preview-mount',
+	withMasonryPreviewMount
 );
