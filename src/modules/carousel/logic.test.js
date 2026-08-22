@@ -6,6 +6,7 @@ import {
 	nextTransformOnToggle,
 	getCarouselConfig,
 	setCarouselConfigValue,
+	buildSplideOptions,
 } from './logic';
 
 describe( 'isCarouselSupported', () => {
@@ -105,5 +106,45 @@ describe( 'setCarouselConfigValue', () => {
 			accordion: { openFirst: true },
 			carousel: { perPage: 2, autoplay: true },
 		} );
+	} );
+} );
+
+describe( 'buildSplideOptions', () => {
+	it( 'maps perPage as-is, defaulting to 1', () => {
+		expect( buildSplideOptions( { perPage: 3 } ) ).toEqual( { perPage: 3 } );
+		expect( buildSplideOptions( {} ) ).toEqual( { perPage: 1 } );
+	} );
+
+	it( 'never lets perPage go below 1', () => {
+		expect( buildSplideOptions( { perPage: 0 } ) ).toEqual( { perPage: 1 } );
+	} );
+
+	it( 'includes autoplay outside the editor when configured', () => {
+		expect( buildSplideOptions( { autoplay: true } ) ).toEqual( {
+			perPage: 1,
+			autoplay: true,
+		} );
+	} );
+
+	it( 'omits autoplay outside the editor when not configured', () => {
+		expect( buildSplideOptions( { autoplay: false } ) ).toEqual( { perPage: 1 } );
+	} );
+
+	it( 'always omits autoplay in the editor, even when configured on', () => {
+		expect( buildSplideOptions( { autoplay: true }, { isEditor: true } ) ).toEqual( {
+			perPage: 1,
+		} );
+	} );
+
+	it( 'maps loop to Splide\'s type: "loop", both in and out of the editor', () => {
+		expect( buildSplideOptions( { loop: true } ) ).toEqual( { perPage: 1, type: 'loop' } );
+		expect( buildSplideOptions( { loop: true }, { isEditor: true } ) ).toEqual( {
+			perPage: 1,
+			type: 'loop',
+		} );
+	} );
+
+	it( 'omits type when loop is not configured', () => {
+		expect( buildSplideOptions( { loop: false } ) ).toEqual( { perPage: 1 } );
 	} );
 } );
