@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Blockshifter
  * Description:       Transform native Gutenberg blocks into alternate display variants without leaving the editor.
- * Version:           0.3.0
+ * Version:           0.3.2
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            Ange Chierchia
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BLOCKSHIFTER_VERSION', '0.3.0' );
+define( 'BLOCKSHIFTER_VERSION', '0.3.2' );
 define( 'BLOCKSHIFTER_PLUGIN_FILE', __FILE__ );
 define( 'BLOCKSHIFTER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BLOCKSHIFTER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -144,17 +144,38 @@ add_action(
 			$asset['version'],
 			true
 		);
+	}
+);
+
+/**
+ * Load the Editor Preview's own styles (Masonry's grid, Carousel's
+ * scroll-snap row). Deliberately on `enqueue_block_assets`, not
+ * `enqueue_block_editor_assets`: the block editor canvas runs in its own
+ * iframe, and Gutenberg only ever mirrors styles registered through
+ * `enqueue_block_assets` (or `block.json`) into that iframe — a style
+ * enqueued on `enqueue_block_editor_assets` only ever reaches the top-level
+ * admin document, never the canvas itself. `is_admin()` keeps it out of the
+ * front end, since `enqueue_block_assets` otherwise fires there too.
+ */
+add_action(
+	'enqueue_block_assets',
+	static function () {
+		if ( ! is_admin() ) {
+			return;
+		}
 
 		$style_file = BLOCKSHIFTER_PLUGIN_DIR . 'build/index.css';
 
-		if ( file_exists( $style_file ) ) {
-			wp_enqueue_style(
-				'blockshifter-editor',
-				BLOCKSHIFTER_PLUGIN_URL . 'build/index.css',
-				array(),
-				$asset['version']
-			);
+		if ( ! file_exists( $style_file ) ) {
+			return;
 		}
+
+		wp_enqueue_style(
+			'blockshifter-editor',
+			BLOCKSHIFTER_PLUGIN_URL . 'build/index.css',
+			array(),
+			BLOCKSHIFTER_VERSION
+		);
 	}
 );
 
