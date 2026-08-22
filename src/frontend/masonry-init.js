@@ -241,7 +241,7 @@ const directChildMutationObserver =
  * mounted is a no-op — the guard every recalculation path relies on to
  * never accumulate duplicate observers or listeners.
  */
-function mountGrid( grid ) {
+export function mountGrid( grid ) {
 	if ( mountedGrids.has( grid ) ) {
 		return;
 	}

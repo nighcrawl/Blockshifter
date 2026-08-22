@@ -335,3 +335,56 @@ describe( 'mountMasonryGrids', () => {
 		expect( MockMutationObserver.instances[ 0 ].observeCalls ).toBe( 1 );
 	} );
 } );
+
+describe( 'mountGrid', () => {
+	let mountGrid;
+
+	beforeEach( () => {
+		document.body.innerHTML = '';
+		jest.useFakeTimers();
+
+		MockResizeObserver.instances = [];
+		MockMutationObserver.instances = [];
+		global.ResizeObserver = MockResizeObserver;
+		global.MutationObserver = MockMutationObserver;
+
+		jest.resetModules();
+		( { mountGrid } = require( './masonry-init' ) );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+		delete global.ResizeObserver;
+		delete global.MutationObserver;
+	} );
+
+	it( 'packs a single grid element passed directly, without querying the document', () => {
+		document.body.innerHTML = `
+			<div class="blockshifter-masonry" style="--blockshifter-masonry-columns: 3;">
+				<div style="height: 100px;"></div>
+			</div>
+		`;
+
+		const grid = document.querySelector( '.blockshifter-masonry' );
+
+		mountGrid( grid );
+
+		expect( grid.classList.contains( 'is-masonry-packed' ) ).toBe( true );
+		expect( grid.children[ 0 ].style.gridRowEnd ).toContain( 'span' );
+	} );
+
+	it( 'is idempotent for the same grid element, like mountMasonryGrids', () => {
+		document.body.innerHTML = `
+			<div class="blockshifter-masonry">
+				<div style="height: 50px;"></div>
+			</div>
+		`;
+
+		const grid = document.querySelector( '.blockshifter-masonry' );
+
+		mountGrid( grid );
+		mountGrid( grid );
+
+		expect( MockResizeObserver.instances[ 0 ].observeCalls ).toBe( 1 );
+	} );
+} );
