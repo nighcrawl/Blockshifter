@@ -115,6 +115,68 @@ describe( 'withCarouselPreview', () => {
 		expect( mount ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'wraps the block\'s real children in the .splide__track/.splide__list structure Splide requires, tagging each as a slide', async () => {
+		document.body.innerHTML =
+			'<div id="block-abc"><div class="wp-block-image">one</div><div class="wp-block-image">two</div></div>';
+		const element = document.getElementById( 'block-abc' );
+		const [ first, second ] = element.children;
+
+		render(
+			<WrappedBlockEdit
+				name="core/gallery"
+				attributes={ { blockshifterTransform: 'carousel' } }
+				clientId="abc"
+				isSelected={ false }
+			/>
+		);
+		await flush();
+
+		expect( element ).toHaveClass( 'splide' );
+		const track = element.querySelector( ':scope > .splide__track' );
+		const list = track?.querySelector( ':scope > .splide__list' );
+		expect( list?.children ).toHaveLength( 2 );
+		// The same DOM nodes are reparented, not recreated — real children
+		// stay editable (Gutenberg keeps its own reference to them).
+		expect( list.children[ 0 ] ).toBe( first );
+		expect( list.children[ 1 ] ).toBe( second );
+		expect( first ).toHaveClass( 'splide__slide' );
+		expect( second ).toHaveClass( 'splide__slide' );
+	} );
+
+	it( 'unwraps back to the original flat children once the block becomes selected', async () => {
+		document.body.innerHTML =
+			'<div id="block-abc"><div class="wp-block-image">one</div><div class="wp-block-image">two</div></div>';
+		const element = document.getElementById( 'block-abc' );
+		const [ first, second ] = element.children;
+
+		const { rerender } = render(
+			<WrappedBlockEdit
+				name="core/gallery"
+				attributes={ { blockshifterTransform: 'carousel' } }
+				clientId="abc"
+				isSelected={ false }
+			/>
+		);
+		await flush();
+
+		await act( async () => {
+			rerender(
+				<WrappedBlockEdit
+					name="core/gallery"
+					attributes={ { blockshifterTransform: 'carousel' } }
+					clientId="abc"
+					isSelected
+				/>
+			);
+		} );
+
+		expect( element ).not.toHaveClass( 'splide' );
+		expect( element.querySelector( '.splide__track' ) ).toBeNull();
+		expect( Array.from( element.children ) ).toEqual( [ first, second ] );
+		expect( first ).not.toHaveClass( 'splide__slide' );
+		expect( second ).not.toHaveClass( 'splide__slide' );
+	} );
+
 	it( 'strips autoplay from the mounted Splide options, even when configured on', async () => {
 		document.body.innerHTML = '<div id="block-abc"></div>';
 
