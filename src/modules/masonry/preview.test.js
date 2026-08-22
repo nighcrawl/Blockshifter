@@ -106,11 +106,10 @@ describe( 'withMasonryPreview', () => {
 		);
 
 		const element = screen.getByTestId( 'dummy-block-list-block' );
-		// The Module's own className replaces rather than merges here — see
-		// preview.js: only the column custom property needs to survive
-		// alongside other filters' style declarations, never another
-		// Module's className, since ADR-0003 guarantees at most one
-		// Blockshifter transform is ever active on a block at a time.
+		// A className already set by another editor.BlockListBlock filter
+		// (core alignment classes, a third-party plugin, etc.) must survive
+		// alongside blockshifter-masonry, not be clobbered by it.
+		expect( element ).toHaveAttribute( 'data-classname', 'some-other-class blockshifter-masonry' );
 		expect( element ).toHaveAttribute( 'data-existing', '1px' );
 	} );
 } );

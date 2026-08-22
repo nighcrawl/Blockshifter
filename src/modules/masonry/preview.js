@@ -39,7 +39,7 @@ export const withMasonryPreview = createHigherOrderComponent(
 				{ ...props }
 				wrapperProps={ {
 					...wrapperProps,
-					className: 'blockshifter-masonry',
+					className: [ wrapperProps?.className, 'blockshifter-masonry' ].filter( Boolean ).join( ' ' ),
 					style: {
 						...wrapperProps?.style,
 						'--blockshifter-masonry-columns': columns,
