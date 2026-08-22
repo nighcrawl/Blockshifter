@@ -144,6 +144,17 @@ add_action(
 			$asset['version'],
 			true
 		);
+
+		$style_file = BLOCKSHIFTER_PLUGIN_DIR . 'build/index.css';
+
+		if ( file_exists( $style_file ) ) {
+			wp_enqueue_style(
+				'blockshifter-editor',
+				BLOCKSHIFTER_PLUGIN_URL . 'build/index.css',
+				array(),
+				$asset['version']
+			);
+		}
 	}
 );
 
