@@ -1,0 +1,33 @@
+/**
+ * Shifted Block Indicator: an always-visible badge naming the active
+ * Blockshifter Module, plus a faint tint in that Module's own color — see
+ * `preview.js` for why this stays CSS-only (a `data-*` attribute read back
+ * via `content: attr(...)`, no DOM node inserted).
+ */
+.blockshifter-shifted-indicator {
+	position: relative;
+}
+
+.blockshifter-shifted-indicator::before {
+	content: attr( data-blockshifter-shifted-label );
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	padding: 2px 8px;
+	background-color: var( --blockshifter-shifted-color );
+	color: #fff;
+	font-size: 11px;
+	line-height: 1.6;
+	pointer-events: none;
+}
+
+.blockshifter-shifted-indicator::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-color: var( --blockshifter-shifted-color );
+	opacity: 0.12;
+	pointer-events: none;
+}

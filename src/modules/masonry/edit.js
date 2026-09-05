@@ -2,6 +2,7 @@ import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, RangeControl, ToggleControl } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import { MASONRY_LABEL } from '../../shared/modules-registry';
 import {
 	isMasonrySupported,
 	isMasonryEnabled,
@@ -40,7 +41,7 @@ export const withMasonryControls = createHigherOrderComponent(
 			<>
 				<BlockEdit { ...props } />
 				<InspectorControls>
-					<PanelBody title={ __( 'Blockshifter Masonry', 'blockshifter' ) }>
+					<PanelBody title={ MASONRY_LABEL }>
 						<ToggleControl
 							label={ __( 'Enable Masonry mode', 'blockshifter' ) }
 							checked={ enabled }
