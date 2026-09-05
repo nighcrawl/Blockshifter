@@ -2,6 +2,7 @@
  * Pure logic for the Masonry Module's Inspector Control — kept free of
  * React/@wordpress/block-editor so it can be unit tested without a DOM.
  */
+import { __ } from '@wordpress/i18n';
 
 export const MASONRY_SLUG = 'masonry';
 export const MASONRY_SUPPORTED_BLOCKS = [ 'core/gallery', 'core/group' ];
@@ -74,4 +75,15 @@ export function getMasonryColumns( attributes, blockName ) {
 	}
 
 	return Math.max( 1, getMasonryConfig( attributes ).columns );
+}
+
+/**
+ * A short, human-readable summary of the Masonry Module's current config,
+ * for the Shifted Block Indicator badge (see `shared/shifted-indicator/`) —
+ * mirrors `getCarouselSummary`.
+ */
+export function getMasonrySummary( attributes, blockName ) {
+	const columns = getMasonryColumns( attributes, blockName );
+
+	return `${ __( 'Columns', 'blockshifter' ) }: ${ columns }`;
 }

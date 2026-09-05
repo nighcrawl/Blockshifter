@@ -7,6 +7,7 @@ import {
 	getMasonryConfig,
 	setMasonryConfigValue,
 	getMasonryColumns,
+	getMasonrySummary,
 } from './logic';
 
 describe( 'isMasonrySupported', () => {
@@ -128,5 +129,17 @@ describe( 'getMasonryColumns', () => {
 
 	it( 'defaults core/group to 3 columns when no config is set', () => {
 		expect( getMasonryColumns( {}, 'core/group' ) ).toBe( 3 );
+	} );
+} );
+
+describe( 'getMasonrySummary', () => {
+	it( 'shows the effective column count for core/gallery', () => {
+		expect( getMasonrySummary( { columns: 4 }, 'core/gallery' ) ).toBe( 'Columns: 4' );
+	} );
+
+	it( 'shows the effective column count for core/group', () => {
+		expect(
+			getMasonrySummary( { blockshifterConfig: { masonry: { columns: 5 } } }, 'core/group' )
+		).toBe( 'Columns: 5' );
 	} );
 } );

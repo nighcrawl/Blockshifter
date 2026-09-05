@@ -4,6 +4,7 @@ import { withCarouselControls } from './modules/carousel/edit';
 import { withCarouselPreview } from './modules/carousel/preview';
 import { withMasonryControls } from './modules/masonry/edit';
 import { withMasonryPreview, withMasonryPreviewMount } from './modules/masonry/preview';
+import { withShiftedIndicator } from './shared/shifted-indicator/preview';
 
 addFilter(
 	'blocks.registerBlockType',
@@ -39,4 +40,10 @@ addFilter(
 	'editor.BlockListBlock',
 	'blockshifter/carousel-preview',
 	withCarouselPreview
+);
+
+addFilter(
+	'editor.BlockListBlock',
+	'blockshifter/shifted-indicator',
+	withShiftedIndicator
 );
