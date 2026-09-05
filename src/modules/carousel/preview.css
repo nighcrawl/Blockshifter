@@ -14,9 +14,16 @@
  * the block in its native `block`/`flow-root` display, disabling the
  * preview entirely — the exact conflict ADR-0009 documents for Masonry's
  * `display: grid`.
+ *
+ * `!important` on `flex-wrap` for the same reason: core/gallery's own
+ * `is-layout-flex` support sets `flex-wrap: wrap` at the same origin, and
+ * without `nowrap` winning here the row wraps back into a plain multi-row
+ * grid instead of one scrollable line — a `!important` on `display` alone
+ * isn't enough to fix that, since it doesn't touch `flex-wrap`.
  */
 .blockshifter-carousel-preview {
 	display: flex !important;
+	flex-wrap: nowrap !important;
 	overflow-x: auto;
 	scroll-snap-type: x mandatory;
 }
