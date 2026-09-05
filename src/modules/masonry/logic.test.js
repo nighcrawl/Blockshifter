@@ -6,6 +6,8 @@ import {
 	nextTransformOnToggle,
 	getMasonryConfig,
 	setMasonryConfigValue,
+	getMasonryColumns,
+	getMasonrySummary,
 } from './logic';
 
 describe( 'isMasonrySupported', () => {
@@ -103,5 +105,41 @@ describe( 'setMasonryConfigValue', () => {
 			carousel: { perPage: 2 },
 			masonry: { columns: 3, gap: 24 },
 		} );
+	} );
+} );
+
+describe( 'getMasonryColumns', () => {
+	it( 'reads the native columns attribute for core/gallery', () => {
+		expect( getMasonryColumns( { columns: 4 }, 'core/gallery' ) ).toBe( 4 );
+	} );
+
+	it( 'defaults core/gallery to 3 columns when its native attribute is unset', () => {
+		expect( getMasonryColumns( {}, 'core/gallery' ) ).toBe( 3 );
+	} );
+
+	it( 'never lets core/gallery columns go below 1', () => {
+		expect( getMasonryColumns( { columns: 0 }, 'core/gallery' ) ).toBe( 1 );
+	} );
+
+	it( 'reads the Blockshifter masonry config for core/group', () => {
+		expect(
+			getMasonryColumns( { blockshifterConfig: { masonry: { columns: 5 } } }, 'core/group' )
+		).toBe( 5 );
+	} );
+
+	it( 'defaults core/group to 3 columns when no config is set', () => {
+		expect( getMasonryColumns( {}, 'core/group' ) ).toBe( 3 );
+	} );
+} );
+
+describe( 'getMasonrySummary', () => {
+	it( 'shows the effective column count for core/gallery', () => {
+		expect( getMasonrySummary( { columns: 4 }, 'core/gallery' ) ).toBe( 'Columns: 4' );
+	} );
+
+	it( 'shows the effective column count for core/group', () => {
+		expect(
+			getMasonrySummary( { blockshifterConfig: { masonry: { columns: 5 } } }, 'core/group' )
+		).toBe( 'Columns: 5' );
 	} );
 } );

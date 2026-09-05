@@ -2,6 +2,7 @@
  * Pure logic for the Masonry Module's Inspector Control — kept free of
  * React/@wordpress/block-editor so it can be unit tested without a DOM.
  */
+import { __ } from '@wordpress/i18n';
 
 export const MASONRY_SLUG = 'masonry';
 export const MASONRY_SUPPORTED_BLOCKS = [ 'core/gallery', 'core/group' ];
@@ -57,4 +58,32 @@ export function setMasonryConfigValue( attributes, key, value ) {
 			[ key ]: value,
 		},
 	};
+}
+
+/**
+ * The Masonry Module's effective column count, mirroring
+ * Blockshifter_Masonry_Transform::get_columns() on the PHP side: `core/gallery`
+ * has no Blockshifter-specific control and reads its own native `columns`
+ * attribute (falling back to 3, its Gutenberg default), while `core/group`
+ * has no native equivalent and reads its own namespaced config.
+ */
+export function getMasonryColumns( attributes, blockName ) {
+	if ( 'core/gallery' === blockName ) {
+		const parsed = parseInt( attributes?.columns, 10 );
+
+		return Math.max( 1, Number.isNaN( parsed ) ? 3 : parsed );
+	}
+
+	return Math.max( 1, getMasonryConfig( attributes ).columns );
+}
+
+/**
+ * A short, human-readable summary of the Masonry Module's current config,
+ * for the Shifted Block Indicator badge (see `shared/shifted-indicator/`) —
+ * mirrors `getCarouselSummary`.
+ */
+export function getMasonrySummary( attributes, blockName ) {
+	const columns = getMasonryColumns( attributes, blockName );
+
+	return `${ __( 'Columns', 'blockshifter' ) }: ${ columns }`;
 }

@@ -1,0 +1,34 @@
+/**
+ * A CSS-only stand-in for the front end's real Splide carousel — see ADR
+ * "Carousel Editor Preview en CSS scroll-snap, pas de vrai Splide monté".
+ * Deliberately not a Splide behaviour clone: no loop, no autoplay, no
+ * arrows/dots. `scroll-snap` alone gets close enough to be legible while
+ * never touching the DOM Gutenberg owns, so it stays visible even while the
+ * block is selected and being edited.
+ */
+
+/*
+ * `!important` on `display`: Gutenberg's own native layout support (e.g.
+ * `is-layout-constrained`/`is-layout-flow`) has higher specificity than
+ * `.blockshifter-carousel-preview` alone and would otherwise silently keep
+ * the block in its native `block`/`flow-root` display, disabling the
+ * preview entirely — the exact conflict ADR-0009 documents for Masonry's
+ * `display: grid`.
+ *
+ * `!important` on `flex-wrap` for the same reason: core/gallery's own
+ * `is-layout-flex` support sets `flex-wrap: wrap` at the same origin, and
+ * without `nowrap` winning here the row wraps back into a plain multi-row
+ * grid instead of one scrollable line — a `!important` on `display` alone
+ * isn't enough to fix that, since it doesn't touch `flex-wrap`.
+ */
+.blockshifter-carousel-preview {
+	display: flex !important;
+	flex-wrap: nowrap !important;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+}
+
+.blockshifter-carousel-preview > * {
+	flex: 0 0 calc( 100% / var( --blockshifter-carousel-per-page, 1 ) );
+	scroll-snap-align: start;
+}

@@ -148,6 +148,41 @@ add_action(
 );
 
 /**
+ * Load the Editor Preview's own styles (Masonry's grid, Carousel's
+ * scroll-snap row). Deliberately on `enqueue_block_assets`, not
+ * `enqueue_block_editor_assets`: the block editor canvas runs in its own
+ * iframe, and Gutenberg only ever mirrors styles registered through
+ * `enqueue_block_assets` (or `block.json`) into that iframe — a style
+ * enqueued on `enqueue_block_editor_assets` only ever reaches the top-level
+ * admin document, never the canvas itself.
+ *
+ * Not gated on `is_admin()`: WordPress rebuilds the iframe's own asset list
+ * by re-running `enqueue_block_assets` in isolation (`_wp_get_iframed_editor_assets()`
+ * in wp-includes/block-editor.php) to capture only what a callback enqueues
+ * there — gating on `is_admin()` silently dropped the style from that pass.
+ * The trade-off: this now also loads on the front end (a few hundred bytes
+ * of CSS whose selectors never match anything there, since neither Preview
+ * class is ever applied outside the editor).
+ */
+add_action(
+	'enqueue_block_assets',
+	static function () {
+		$style_file = BLOCKSHIFTER_PLUGIN_DIR . 'build/index.css';
+
+		if ( ! file_exists( $style_file ) ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'blockshifter-editor',
+			BLOCKSHIFTER_PLUGIN_URL . 'build/index.css',
+			array(),
+			BLOCKSHIFTER_VERSION
+		);
+	}
+);
+
+/**
  * Enqueue each active Module's front-end assets, conditional on the
  * rendered content actually containing one of its allowed blocks.
  */

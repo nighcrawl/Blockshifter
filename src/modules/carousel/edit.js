@@ -2,6 +2,7 @@ import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, RangeControl, ToggleControl } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import { CAROUSEL_LABEL } from '../../shared/modules-registry';
 import {
 	isCarouselSupported,
 	isCarouselEnabled,
@@ -36,7 +37,7 @@ export const withCarouselControls = createHigherOrderComponent(
 			<>
 				<BlockEdit { ...props } />
 				<InspectorControls>
-					<PanelBody title={ __( 'Blockshifter Carousel', 'blockshifter' ) }>
+					<PanelBody title={ CAROUSEL_LABEL }>
 						<ToggleControl
 							label={ __( 'Enable Carousel mode', 'blockshifter' ) }
 							checked={ enabled }

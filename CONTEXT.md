@@ -27,3 +27,7 @@ _Avoid_: nested item, card (sauf lorsqu'il s'agit réellement d'une carte de con
 **Regular Grid Fallback**:
 Disposition Grid régulière et lisible affichée avant le calcul Masonry ou lorsque JavaScript n'est pas disponible. Elle conserve les colonnes et le Gap du Module sans promettre le compactage par hauteur.
 _Avoid_: broken masonry, no-JS masonry.
+
+**Editor Preview**:
+Transformation visuelle qu'un Module applique à un bloc natif directement dans l'éditeur Gutenberg, en miroir de sa transformation `render()` PHP côté front. Rattachée au Module (pas un concept séparé) : chaque Module peut avoir un Editor Preview, comme il peut avoir des Inspector Controls. Le bloc reste natif et éditable ; seul son affichage dans l'éditeur change.
+_Avoid_: live preview, front-end preview, block preview (trop générique — désigne ici précisément le rendu Module-spécifique dans l'éditeur).

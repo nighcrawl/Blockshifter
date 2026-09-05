@@ -6,6 +6,7 @@ import {
 	nextTransformOnToggle,
 	getCarouselConfig,
 	setCarouselConfigValue,
+	getCarouselSummary,
 } from './logic';
 
 describe( 'isCarouselSupported', () => {
@@ -105,5 +106,29 @@ describe( 'setCarouselConfigValue', () => {
 			accordion: { openFirst: true },
 			carousel: { perPage: 2, autoplay: true },
 		} );
+	} );
+} );
+
+describe( 'getCarouselSummary', () => {
+	it( 'always shows slides per view, even at the default', () => {
+		expect( getCarouselSummary( {} ) ).toBe( 'Slides per view: 1' );
+	} );
+
+	it( 'omits autoplay and loop when both are false', () => {
+		const attributes = { blockshifterConfig: { carousel: { perPage: 1, autoplay: false, loop: false } } };
+
+		expect( getCarouselSummary( attributes ) ).toBe( 'Slides per view: 1' );
+	} );
+
+	it( 'includes autoplay and loop, in that order, when both are true', () => {
+		const attributes = { blockshifterConfig: { carousel: { perPage: 3, autoplay: true, loop: true } } };
+
+		expect( getCarouselSummary( attributes ) ).toBe( 'Autoplay: true, Loop: true, Slides per view: 3' );
+	} );
+
+	it( 'includes only autoplay when loop is false', () => {
+		const attributes = { blockshifterConfig: { carousel: { perPage: 2, autoplay: true, loop: false } } };
+
+		expect( getCarouselSummary( attributes ) ).toBe( 'Autoplay: true, Slides per view: 2' );
 	} );
 } );
