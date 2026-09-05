@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Blockshifter
  * Description:       Transform native Gutenberg blocks into alternate display variants without leaving the editor.
- * Version:           0.3.99
+ * Version:           0.3.0
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            Ange Chierchia
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BLOCKSHIFTER_VERSION', '0.3.99' );
+define( 'BLOCKSHIFTER_VERSION', '0.3.0' );
 define( 'BLOCKSHIFTER_PLUGIN_FILE', __FILE__ );
 define( 'BLOCKSHIFTER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BLOCKSHIFTER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
