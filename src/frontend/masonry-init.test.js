@@ -73,6 +73,13 @@ class MockResizeObserver {
 	}
 
 	trigger( target ) {
+		// A real ResizeObserver never fires for a target it isn't currently
+		// observing (e.g. after `unobserve`) — matched here so tests can
+		// rely on `trigger` after unmount behaving like the real thing.
+		if ( ! this.observed.has( target ) ) {
+			return;
+		}
+
 		this.callback( [ { target } ] );
 	}
 }
@@ -101,6 +108,13 @@ class MockMutationObserver {
 	}
 
 	trigger( target ) {
+		// A disconnected MutationObserver never fires again — matched here
+		// so tests can rely on `trigger` after unmount behaving like the
+		// real thing.
+		if ( ! this.targets.has( target ) ) {
+			return;
+		}
+
 		this.callback( [ { target, type: 'childList' } ] );
 	}
 }
@@ -386,5 +400,135 @@ describe( 'mountGrid', () => {
 		mountGrid( grid );
 
 		expect( MockResizeObserver.instances[ 0 ].observeCalls ).toBe( 1 );
+	} );
+} );
+
+describe( 'unmountGrid', () => {
+	let mountGrid;
+	let unmountGrid;
+
+	beforeEach( () => {
+		document.body.innerHTML = '';
+		jest.useFakeTimers();
+
+		MockResizeObserver.instances = [];
+		MockMutationObserver.instances = [];
+		global.ResizeObserver = MockResizeObserver;
+		global.MutationObserver = MockMutationObserver;
+
+		jest.resetModules();
+		( { mountGrid, unmountGrid } = require( './masonry-init' ) );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+		delete global.ResizeObserver;
+		delete global.MutationObserver;
+	} );
+
+	it( 'removes the packed class and each item\'s inline layout styles', () => {
+		document.body.innerHTML = `
+			<div class="blockshifter-masonry">
+				<div style="height: 100px;"></div>
+			</div>
+		`;
+
+		const grid = document.querySelector( '.blockshifter-masonry' );
+		const item = grid.children[ 0 ];
+
+		mountGrid( grid );
+		expect( grid.classList.contains( 'is-masonry-packed' ) ).toBe( true );
+		expect( item.style.gridRowEnd ).toContain( 'span' );
+
+		unmountGrid( grid );
+
+		expect( grid.classList.contains( 'is-masonry-packed' ) ).toBe( false );
+		expect( grid.style.rowGap ).toBe( '' );
+		expect( grid.style.columnGap ).toBe( '' );
+		expect( item.style.gridRowEnd ).toBe( '' );
+		expect( item.style.alignSelf ).toBe( '' );
+		expect( item.style.marginBlockStart ).toBe( '' );
+	} );
+
+	it( 'is a no-op for a grid that was never mounted', () => {
+		document.body.innerHTML = '<div class="blockshifter-masonry"><div></div></div>';
+		const grid = document.querySelector( '.blockshifter-masonry' );
+
+		expect( () => unmountGrid( grid ) ).not.toThrow();
+		expect( grid.classList.contains( 'is-masonry-packed' ) ).toBe( false );
+	} );
+
+	it( 'stops reacting to resize and direct-child mutations on the unmounted grid', () => {
+		document.body.innerHTML = `
+			<div class="blockshifter-masonry">
+				<div style="height: 100px;"></div>
+			</div>
+		`;
+
+		const grid = document.querySelector( '.blockshifter-masonry' );
+		const item = grid.children[ 0 ];
+
+		mountGrid( grid );
+		unmountGrid( grid );
+
+		item.style.gridRowEnd = '';
+		MockResizeObserver.instances[ 0 ].trigger( grid );
+		jest.advanceTimersByTime( 150 );
+		expect( item.style.gridRowEnd ).toBe( '' );
+
+		const newItem = document.createElement( 'div' );
+		grid.appendChild( newItem );
+		MockMutationObserver.instances[ 0 ].trigger( grid );
+		jest.advanceTimersByTime( 150 );
+		expect( grid.classList.contains( 'is-masonry-packed' ) ).toBe( false );
+	} );
+
+	it( 'clears a pending debounced repack so it never fires after unmount', () => {
+		document.body.innerHTML = `
+			<div class="blockshifter-masonry">
+				<div style="height: 100px;"></div>
+			</div>
+		`;
+
+		const grid = document.querySelector( '.blockshifter-masonry' );
+		const item = grid.children[ 0 ];
+
+		mountGrid( grid );
+		MockResizeObserver.instances[ 0 ].trigger( grid ); // schedules a debounced repack
+		unmountGrid( grid );
+		item.style.gridRowEnd = '';
+
+		jest.advanceTimersByTime( 150 );
+
+		expect( item.style.gridRowEnd ).toBe( '' );
+	} );
+
+	it( 'allows a clean re-mount afterwards, without doubling observers', () => {
+		document.body.innerHTML = `
+			<div class="blockshifter-masonry">
+				<div style="height: 100px;"></div>
+			</div>
+		`;
+
+		const grid = document.querySelector( '.blockshifter-masonry' );
+		const item = grid.children[ 0 ];
+
+		mountGrid( grid );
+		unmountGrid( grid );
+		mountGrid( grid );
+
+		expect( grid.classList.contains( 'is-masonry-packed' ) ).toBe( true );
+		expect( item.style.gridRowEnd ).toContain( 'span' );
+
+		// `containerResizeObserver` is a single shared instance across every
+		// grid (see mountGrid/unmountGrid) — re-observed, not re-created.
+		expect( MockResizeObserver.instances ).toHaveLength( 1 );
+		expect( MockResizeObserver.instances[ 0 ].observeCalls ).toBe( 2 );
+
+		// The mutation observer is per-grid and disconnected on unmount, so
+		// re-mounting creates a fresh instance rather than reusing the old,
+		// already-disconnected one.
+		expect( MockMutationObserver.instances ).toHaveLength( 2 );
+		expect( MockMutationObserver.instances[ 1 ].observeCalls ).toBe( 1 );
 	} );
 } );

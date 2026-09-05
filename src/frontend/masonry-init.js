@@ -6,12 +6,15 @@ const DEFAULT_GAP = 16; // Safe fallback when no numeric gap can be resolved at 
 
 // Every mounted grid, resolved gap, observed image, and pending debounce
 // timer is tracked keyed by DOM node — never by index or a stored list —
-// so state never outlives the element itself and nothing needs manual
-// teardown when a grid is removed from the page.
+// so state never outlives the element itself once it's garbage-collected.
+// A grid that stays on the page but has masonry turned off (e.g. the
+// editor switching it to another Module) is a different case: `unmountGrid`
+// below is the explicit teardown for that, since nothing GCs a live node.
 const mountedGrids = new WeakSet();
 const gridRowGaps = new WeakMap();
 const observedImages = new WeakSet();
 const packTimers = new WeakMap();
+const gridMutationObservers = new WeakMap();
 
 /**
  * Pure function to calculate grid-row-end span based on item height.
@@ -220,21 +223,25 @@ const containerResizeObserver =
 /**
  * Recalculates when a direct-child Masonry Tile is inserted or removed
  * client-side (e.g. by another script). Scoped to the grid's own
- * `childList` only — descendants further down are never inspected. A
- * single observer instance is shared across every grid, each added to it
- * exactly once, in `mountGrid`.
+ * `childList` only — descendants further down are never inspected. Unlike
+ * `containerResizeObserver`, this one is a separate instance per grid
+ * (created in `mountGrid`, kept in `gridMutationObservers`) rather than a
+ * single shared one: `MutationObserver` has no `unobserve()` for a single
+ * target, only `disconnect()` for the whole instance, so a shared instance
+ * couldn't stop watching one grid at `unmountGrid` time without also
+ * dropping every other grid still mounted.
  */
-const directChildMutationObserver =
-	typeof MutationObserver === 'undefined'
-		? null
-		: new MutationObserver( ( mutations ) => {
-				mutations.forEach( ( mutation ) => {
-					const grid = mutation.target;
-					neutralizeFlowMargins( grid );
-					observeImages( grid );
-					schedulePack( grid );
-				} );
-		  } );
+function createDirectChildMutationObserver( grid ) {
+	if ( typeof MutationObserver === 'undefined' ) {
+		return null;
+	}
+
+	return new MutationObserver( () => {
+		neutralizeFlowMargins( grid );
+		observeImages( grid );
+		schedulePack( grid );
+	} );
+}
 
 /**
  * Mounts one grid: idempotent, so calling it again for a grid already
@@ -253,7 +260,47 @@ export function mountGrid( grid ) {
 	observeImages( grid );
 
 	containerResizeObserver?.observe( grid );
-	directChildMutationObserver?.observe( grid, { childList: true } );
+
+	const mutationObserver = createDirectChildMutationObserver( grid );
+	mutationObserver?.observe( grid, { childList: true } );
+	gridMutationObservers.set( grid, mutationObserver );
+}
+
+/**
+ * Reverses `mountGrid`: stops the grid's `ResizeObserver`/`MutationObserver`
+ * from repacking it again, clears any pending debounced repack, and undoes
+ * every DOM change `packGrid`/`setItemSpan`/`adoptNativeGap` made — the
+ * `is-masonry-packed` class, each item's inline `grid-row-end`/`align-self`,
+ * and the zeroed `row-gap`/`column-gap`/sibling margins — so a grid that
+ * stays on the page with Masonry turned off (e.g. switched to another
+ * Module in the editor) doesn't keep rendering as packed, or fight another
+ * Module's own layout on the same element. A no-op for a grid that was
+ * never mounted.
+ */
+export function unmountGrid( grid ) {
+	if ( ! mountedGrids.has( grid ) ) {
+		return;
+	}
+
+	mountedGrids.delete( grid );
+	gridRowGaps.delete( grid );
+
+	clearTimeout( packTimers.get( grid ) );
+	packTimers.delete( grid );
+
+	containerResizeObserver?.unobserve( grid );
+	gridMutationObservers.get( grid )?.disconnect();
+	gridMutationObservers.delete( grid );
+
+	grid.classList.remove( 'is-masonry-packed' );
+	grid.style.rowGap = '';
+	grid.style.columnGap = '';
+
+	Array.from( grid.children ).forEach( ( item ) => {
+		item.style.gridRowEnd = '';
+		item.style.alignSelf = '';
+		item.style.marginBlockStart = '';
+	} );
 }
 
 /**

@@ -4,10 +4,11 @@ import { withMasonryPreview, withMasonryPreviewMount } from './preview';
 
 jest.mock( '../../frontend/masonry-init', () => ( {
 	mountGrid: jest.fn(),
+	unmountGrid: jest.fn(),
 } ) );
 
 // eslint-disable-next-line no-unused-vars -- imported after the mock above
-import { mountGrid } from '../../frontend/masonry-init';
+import { mountGrid, unmountGrid } from '../../frontend/masonry-init';
 
 function DummyBlockListBlock( props ) {
 	return (
@@ -120,6 +121,7 @@ describe( 'withMasonryPreviewMount', () => {
 	beforeEach( () => {
 		document.body.innerHTML = '';
 		mountGrid.mockClear();
+		unmountGrid.mockClear();
 	} );
 
 	it( 'renders the original BlockEdit untouched', () => {
@@ -203,5 +205,48 @@ describe( 'withMasonryPreviewMount', () => {
 		).not.toThrow();
 
 		expect( mountGrid ).not.toHaveBeenCalled();
+	} );
+
+	it( 'calls unmountGrid with the same DOM node when masonry is toggled off', () => {
+		document.body.innerHTML = '<div id="block-abc"></div>';
+		const element = document.getElementById( 'block-abc' );
+
+		const { rerender } = render(
+			<WrappedBlockEdit
+				name="core/gallery"
+				attributes={ { blockshifterTransform: 'masonry' } }
+				clientId="abc"
+			/>
+		);
+
+		expect( mountGrid ).toHaveBeenCalledWith( element );
+		expect( unmountGrid ).not.toHaveBeenCalled();
+
+		rerender(
+			<WrappedBlockEdit
+				name="core/gallery"
+				attributes={ { blockshifterTransform: 'carousel' } }
+				clientId="abc"
+			/>
+		);
+
+		expect( unmountGrid ).toHaveBeenCalledWith( element );
+	} );
+
+	it( 'calls unmountGrid on unmount while still enabled', () => {
+		document.body.innerHTML = '<div id="block-abc"></div>';
+		const element = document.getElementById( 'block-abc' );
+
+		const { unmount } = render(
+			<WrappedBlockEdit
+				name="core/gallery"
+				attributes={ { blockshifterTransform: 'masonry' } }
+				clientId="abc"
+			/>
+		);
+
+		unmount();
+
+		expect( unmountGrid ).toHaveBeenCalledWith( element );
 	} );
 } );

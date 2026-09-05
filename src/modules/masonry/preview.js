@@ -1,7 +1,7 @@
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useEffect } from '@wordpress/element';
 import { isMasonrySupported, isMasonryEnabled, getMasonryColumns } from './logic';
-import { mountGrid } from '../../frontend/masonry-init';
+import { mountGrid, unmountGrid } from '../../frontend/masonry-init';
 
 /**
  * The block editor canvas runs inside its own iframe (`iframe[name=
@@ -59,11 +59,14 @@ export const withMasonryPreview = createHigherOrderComponent(
  * so this is a second, separate `editor.BlockEdit` filter rather than a
  * second responsibility bolted onto the first.
  *
- * Only the initial mount needs to happen here: `mountGrid()` attaches a
- * `ResizeObserver` that keeps repacking on its own for the lifetime of the
- * element, including the resize a class/style toggle itself causes — so
- * toggling Masonry off and back on for the same block never needs a second
- * explicit call.
+ * The initial mount happens here, and the matching `unmountGrid()` runs as
+ * this effect's own cleanup — on every re-run (Masonry toggled off, or the
+ * same clientId's block swapped for another DOM node) and on unmount. That
+ * reverses `mountGrid()`'s DOM mutations (the `is-masonry-packed` class,
+ * per-item inline styles, its observers) as soon as Masonry stops being
+ * enabled, so no stale masonry-packed state is left behind to conflict
+ * with another Module's own Editor Preview taking over the same block
+ * (e.g. switching to Carousel).
  */
 export const withMasonryPreviewMount = createHigherOrderComponent(
 	( BlockEdit ) => ( props ) => {
@@ -77,9 +80,13 @@ export const withMasonryPreviewMount = createHigherOrderComponent(
 
 			const element = getEditorDocument().getElementById( `block-${ clientId }` );
 
-			if ( element ) {
-				mountGrid( element );
+			if ( ! element ) {
+				return;
 			}
+
+			mountGrid( element );
+
+			return () => unmountGrid( element );
 		}, [ enabled, clientId ] );
 
 		return <BlockEdit { ...props } />;
