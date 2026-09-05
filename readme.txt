@@ -1,10 +1,10 @@
 === Blockshifter ===
 Contributors: nighcrawl
-Tags: slider, carousel, gutenberg, full site editing, block editor
+Tags: carousel, masonry, gallery, gutenberg, block editor
 Requires at least: 6.2
-Tested up to: 7.0.4
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -59,7 +59,7 @@ add_filter( 'blockshifter/masonry/allowed_blocks', function( $blocks ) {
 
 1. Upload the plugin files to `/wp-content/plugins/blockshifter`, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Select a Gallery or Group block in the editor, open the Inspector, and enable the "Blockshifter Carousel" panel.
+3. Select a Gallery or Group block in the editor, open the Inspector, and enable the "Blockshifter Carousel" or "Blockshifter Masonry" panel.
 
 == Frequently Asked Questions ==
 
@@ -75,6 +75,24 @@ Not yet — the current release ships with the Carousel and Masonry modules. Mor
 
 Yes, Blockshifter is completely free, with no premium tier at this time.
 
+= Does Blockshifter collect any data? =
+
+Blockshifter includes an optional, opt-in telemetry feature, disabled by default. If you choose to enable it from Settings > Blockshifter, it sends a small anonymous payload (installation UUID, Blockshifter/WordPress/PHP versions, and which modules are detected in use) to help prioritize development — no page content, URL, username, email or IP address is ever collected. See the Privacy section below for full details, and how to disable it.
+
+== Privacy ==
+
+Blockshifter includes a fully **opt-in** telemetry feature — disabled by default, and no data is ever sent before you explicitly enable it from Settings > Blockshifter.
+
+When enabled, once a week (and once immediately after you opt in), the plugin sends this anonymous payload to `https://api.blockshifter.dev/v1/telemetry`:
+
+* A random installation identifier (a UUID generated locally, not tied to your identity or your site's URL)
+* The Blockshifter, WordPress and PHP version numbers
+* Which Blockshifter modules (Carousel, Masonry...) are detected in your rendered content
+
+No page content, no URL, no username, no email address and no IP address is stored. You can disable telemetry at any time from Settings > Blockshifter, which also stops all further data collection.
+
+Full privacy policy: https://blockshifter.dev/privacy.html
+
 == Development ==
 
 Source code, build tools and issue tracker: https://github.com/nighcrawl/Blockshifter
@@ -83,12 +101,17 @@ The `src/` directory contains the human-readable, unminified source for everythi
 
 == Screenshots ==
 
-1. The Blockshifter Carousel panel in the Inspector of a Group block, with the Carousel mode enabled and its settings (slides per page, autoplay, infinite loop) visible.
-2. The same Blockshifter Carousel panel on a Gallery block.
-3. A Group block rendered as a full-width Carousel on the front end.
-4. A Gallery block rendered as a Carousel on the front end.
+1. The Editor Preview of a Gallery block with Carousel mode enabled, showing the Blockshifter Carousel panel and its settings (slides per page, autoplay, infinite loop) in the Inspector.
+2. The Editor Preview of a Group block with Masonry mode enabled, showing the Blockshifter Masonry panel and its Columns setting in the Inspector.
+3. A Gallery block rendered as a Carousel on the front end.
+4. A Group block rendered as a Masonry grid on the front end.
+5. The opt-in telemetry setting in Settings > Blockshifter.
 
 == Changelog ==
+
+= 0.3.0 =
+* Adds Editor Preview: the editor canvas now renders a live preview of the Carousel or Masonry front-end output while a Module is enabled, plus a "Shifted" badge on the block toolbar to indicate a Module is active.
+* Adds fully opt-in, anonymous usage telemetry — disabled by default. See the Privacy section below for details.
 
 = 0.2.0 =
 * Adds Masonry, a second Blockshifter module: turns a Gallery or Group block into a compact, variable-height CSS Grid layout, with the same "pick a block, flip a toggle" pattern as Carousel.
