@@ -1,28 +1,19 @@
 # Blockshifter
 
-Blockshifter is a growing toolbox of display modes for native Gutenberg blocks (`core/gallery`, `core/group`) — no new block types, no leaving the native editor, no learning curve.
+WordPress plugin adding alternate front-end display modes to native Gutenberg blocks (`core/gallery`, `core/group`) — no new block types, no custom editor UI beyond Inspector Controls.
 
-## Concept
+## Modules
 
-Pick a block you already use — Gallery, Group — flip a toggle in its Inspector, and its front-end output transforms. The block itself stays 100% native and editable; nothing changes about how you write content.
+- **Carousel** — renders the block as a carousel via [Splide.js](https://splidejs.com/). Settings: enable/disable, slides per page, autoplay, infinite loop.
+- **Masonry** — renders the block as a CSS Grid masonry layout, no third-party library. Settings: enable/disable, columns (Group only — Gallery keeps its own native Columns control). Gap comes from each block's native Gap setting.
 
-Blockshifter is a shape-shifter for your blocks: same content underneath, a different shape on the front end. Today it shifts into a Carousel or a Masonry grid; tomorrow more shapes will join the same toolbox, each just as simple to switch on.
-
-**Carousel, available today** — turns a Gallery or Group block into a clean, minimalist carousel (via [Splide.js](https://splidejs.com/)), with settings:
-- Enable/disable Carousel mode
-- Number of visible slides per page
-- Autoplay
-- Infinite loop
-
-**Masonry, available today** — turns a Gallery or Group block into a compact, varied-height masonry layout (CSS Grid, no third-party library). Every native Gutenberg setting stays in charge — Columns and Gap on Gallery, Gap on Group:
-- Enable/disable Masonry mode
-- Columns (Group only — Gallery keeps its own native Columns control)
-
-More shapes are coming: Accordion... is on the roadmap, each following the same pattern (pick a block, flip a toggle). See `CONTEXT.md` and `docs/adr/` for the project's vocabulary and architecture decisions.
+Both modules only affect front-end rendering (`render_block`); the block itself stays fully native in the editor. See `CONTEXT.md` and `docs/adr/` for vocabulary and architecture decisions.
 
 ## Installing in WordPress
 
-The plugin must be **built before** being installed — the `build/` folder (compiled JS/CSS assets) is not versioned in the git repo.
+The easiest way to install Blockshifter is from the WordPress plugin directory: https://wordpress.org/plugins/blockshifter/ — search for "Blockshifter" in **Plugins > Add New**, or upload the ZIP directly.
+
+The sections below are for installing from this repo instead, which requires a build step — the `build/` folder (compiled JS/CSS assets) is not versioned in the git repo.
 
 ### From this repo (development)
 
@@ -70,7 +61,13 @@ If you download the code via GitHub's "Code → Download ZIP" button, the `build
 3. Enable the "Enable Masonry mode" toggle
 4. On a Group, set the number of columns (Gallery keeps its own native Columns control); set spacing via the block's native **Gap** setting on either block
 
-Both Modules only change the front-end output — editing the block in the editor stays unchanged.
+### Editor Preview
+
+While a Module is enabled, the editor canvas renders a live preview of the front-end output (Carousel or Masonry layout) instead of the block's default appearance, plus a "Shifted" badge on the block toolbar to indicate a Module is active.
+
+## Telemetry
+
+Blockshifter includes fully opt-in, anonymous usage telemetry — disabled by default. See the Privacy section of `readme.txt` for what is (and isn't) collected, and how to enable/disable it from **Settings > Blockshifter**.
 
 ## Development
 
