@@ -29,8 +29,8 @@ final class CarouselAllowedBlocksFilterTest extends HtmlRenderingTestCase {
 	public function test_a_block_added_via_the_filter_is_treated_as_carousel(): void {
 		Filters\expectApplied( 'blockshifter/carousel/allowed_blocks' )
 			->once()
-			->with( array( 'core/gallery', 'core/group' ) )
-			->andReturn( array( 'core/gallery', 'core/group', 'core/columns' ) );
+			->with( array( 'core/gallery', 'core/group', 'core/post-template' ) )
+			->andReturn( array( 'core/gallery', 'core/group', 'core/post-template', 'core/columns' ) );
 
 		$result = Blockshifter_Render::dispatch(
 			'<div><div class="col">one</div></div>',

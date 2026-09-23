@@ -21,8 +21,8 @@ final class CarouselTransformTest extends HtmlRenderingTestCase {
 		$this->assertSame( 'carousel', $this->transform->get_slug() );
 	}
 
-	public function test_allowed_blocks_default_to_gallery_and_group(): void {
-		$this->assertSame( array( 'core/gallery', 'core/group' ), $this->transform->get_allowed_blocks() );
+	public function test_allowed_blocks_default_to_gallery_group_and_post_template(): void {
+		$this->assertSame( array( 'core/gallery', 'core/group', 'core/post-template' ), $this->transform->get_allowed_blocks() );
 	}
 
 	public function test_turns_the_blocks_own_wrapper_into_the_splide_root(): void {
@@ -134,6 +134,32 @@ final class CarouselTransformTest extends HtmlRenderingTestCase {
 		);
 
 		$this->assertMatchesRegularExpression( '/^<div [^>]*class="wp-block-group splide alignfull"/', $result );
+	}
+
+	public function test_turns_a_post_templates_own_list_into_the_splide_root(): void {
+		// core/post-template renders as <ul> + one <li class="wp-block-post ..."> per
+		// post (optionally with a data-wp-key for enhanced pagination) — the same
+		// root + direct-children shape as Gallery/Group, so no Module-specific case
+		// is needed, but it's asserted explicitly rather than left implicit.
+		$result = $this->transform->render(
+			'<ul class="wp-block-post-template">'
+			. '<li data-wp-key="post-template-item-1" class="wp-block-post post-1">one</li>'
+			. '<li data-wp-key="post-template-item-2" class="wp-block-post post-2">two</li>'
+			. '</ul>',
+			array( 'blockName' => 'core/post-template' )
+		);
+
+		$this->assertMatchesRegularExpression( '/^<ul [^>]*class="wp-block-post-template splide"/', $result );
+		$this->assertSame( 2, substr_count( $result, 'splide__slide' ) );
+		$this->assertStringContainsString( 'data-wp-key="post-template-item-1"', $result );
+		$this->assertStringContainsString( 'class="wp-block-post post-1 splide__slide"', $result );
+	}
+
+	public function test_degrades_gracefully_when_the_query_has_no_results(): void {
+		// render_block_core_post_template() returns '' when the query is empty.
+		$result = $this->transform->render( '', array( 'blockName' => 'core/post-template' ) );
+
+		$this->assertSame( '', $result );
 	}
 
 	public function test_asset_handles_are_scoped_to_the_carousel_frontend_bundle(): void {

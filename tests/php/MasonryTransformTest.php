@@ -21,8 +21,8 @@ final class MasonryTransformTest extends HtmlRenderingTestCase {
 		$this->assertSame( 'masonry', $this->transform->get_slug() );
 	}
 
-	public function test_allowed_blocks_default_to_gallery_and_group(): void {
-		$this->assertSame( array( 'core/gallery', 'core/group' ), $this->transform->get_allowed_blocks() );
+	public function test_allowed_blocks_default_to_gallery_group_and_post_template(): void {
+		$this->assertSame( array( 'core/gallery', 'core/group', 'core/post-template' ), $this->transform->get_allowed_blocks() );
 	}
 
 	public function test_adds_masonry_class_to_root_element(): void {
@@ -157,6 +157,33 @@ final class MasonryTransformTest extends HtmlRenderingTestCase {
 
 		$this->assertStringContainsString( 'wp-block-group', $result );
 		$this->assertStringContainsString( 'custom-class', $result );
+	}
+
+	public function test_post_template_uses_blockshifter_config_for_columns_never_native_grid_view(): void {
+		// ADR-0014: Query Loop + Masonry always uses its own config, even when the
+		// Query's native "Grid view" (displayLayout) is active — that layout data
+		// isn't in $block['attrs'] anyway (it lives in WP_Block::$context, not
+		// passed to render()), so there is no native value to read here.
+		$block = array(
+			'blockName' => 'core/post-template',
+			'attrs'     => array( 'blockshifterConfig' => array( 'masonry' => array( 'columns' => 5 ) ) ),
+		);
+
+		$result = $this->transform->render(
+			'<ul class="wp-block-post-template"><li class="wp-block-post">one</li></ul>',
+			$block
+		);
+
+		$this->assertStringContainsString( '--blockshifter-masonry-columns: 5;', $result );
+	}
+
+	public function test_post_template_defaults_to_three_columns_when_no_config(): void {
+		$result = $this->transform->render(
+			'<ul class="wp-block-post-template"><li class="wp-block-post">one</li></ul>',
+			array( 'blockName' => 'core/post-template' )
+		);
+
+		$this->assertStringContainsString( '--blockshifter-masonry-columns: 3;', $result );
 	}
 
 	public function test_asset_handles_are_scoped_to_the_masonry_frontend_bundle(): void {

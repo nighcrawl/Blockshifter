@@ -42,7 +42,7 @@ final class Blockshifter_Carousel_Transform implements Blockshifter_Transform {
 	}
 
 	public function get_allowed_blocks(): array {
-		return array( 'core/gallery', 'core/group' );
+		return array( 'core/gallery', 'core/group', 'core/post-template' );
 	}
 
 	public function get_asset_handles(): array {
