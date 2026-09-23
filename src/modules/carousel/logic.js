@@ -5,7 +5,7 @@
 import { __ } from '@wordpress/i18n';
 
 export const CAROUSEL_SLUG = 'carousel';
-export const CAROUSEL_SUPPORTED_BLOCKS = [ 'core/gallery', 'core/group' ];
+export const CAROUSEL_SUPPORTED_BLOCKS = [ 'core/gallery', 'core/group', 'core/post-template' ];
 
 export function isCarouselSupported( blockName ) {
 	return CAROUSEL_SUPPORTED_BLOCKS.includes( blockName );

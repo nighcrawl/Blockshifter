@@ -11,7 +11,7 @@ import {
 } from './logic';
 
 describe( 'isMasonrySupported', () => {
-	it.each( [ 'core/gallery', 'core/group' ] )( 'is true for %s', ( name ) => {
+	it.each( [ 'core/gallery', 'core/group', 'core/post-template' ] )( 'is true for %s', ( name ) => {
 		expect( isMasonrySupported( name ) ).toBe( true );
 	} );
 
@@ -129,6 +129,16 @@ describe( 'getMasonryColumns', () => {
 
 	it( 'defaults core/group to 3 columns when no config is set', () => {
 		expect( getMasonryColumns( {}, 'core/group' ) ).toBe( 3 );
+	} );
+
+	it( 'reads the Blockshifter masonry config for core/post-template, never a native value (ADR-0014)', () => {
+		expect(
+			getMasonryColumns( { blockshifterConfig: { masonry: { columns: 5 } } }, 'core/post-template' )
+		).toBe( 5 );
+	} );
+
+	it( 'defaults core/post-template to 3 columns when no config is set', () => {
+		expect( getMasonryColumns( {}, 'core/post-template' ) ).toBe( 3 );
 	} );
 } );
 
