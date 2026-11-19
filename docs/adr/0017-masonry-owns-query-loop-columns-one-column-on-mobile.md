@@ -1,0 +1,9 @@
+# Masonry impose ses colonnes en `!important` ; Query Loop passe à une colonne sous 600px
+
+Complète ADR-0014, dont la décision tient (Masonry sur Query Loop ne lit jamais les colonnes natives de la vue Grid) mais dont la mise en œuvre ne suffisait pas à garantir que « les deux systèmes de colonnes ne se superposent jamais ». Le test manuel a montré que les règles natives du Post Template gagnaient : dans l'éditeur, la règle `.wp-container-*` générée pour la vue Grid imposait ses 2 colonnes au lieu des 3 de Masonry (le front en affichait bien 3) ; sous 600px, la règle native `.wp-block-post-template-is-layout-grid[class*="columns-"]:not(.has-native-responsive-grid)` repassait à une colonne en vue Grid, alors que la vue liste restait à deux.
+
+Décision :
+- Toutes les déclarations `grid-template-columns` de `masonry-layout.css` sont en `!important` (même raisonnement que le `display: grid !important` déjà présent) : une fois actif, Masonry seul décide des colonnes, quel que soit le layout natif.
+- Sous 600px, un Query Loop en Masonry s'affiche sur **une colonne** (ses tuiles sont des articles entiers, pas des vignettes), alors que Gallery/Group gardent la convention mobile à deux colonnes de `core/gallery` (ADR-0009). C'est le seul endroit où le Module cible son Target Block par nom (`.blockshifter-masonry.wp-block-post-template`) : la forme rendue (racine + enfants directs) ne permet pas de distinguer une liste d'articles d'une galerie. Exception assumée au principe du glossaire (« un Module ne connaît jamais son Target Block par son nom »), limitée au CSS de présentation, la logique `render()` restant aveugle au nom du bloc.
+
+Alternative rejetée : garder deux colonnes partout sur mobile (cohérence avec Gallery) — illisible pour des articles complets sur un écran étroit. Autre alternative rejetée : un réglage « colonnes mobile » exposé dans l'Inspector — réglage supplémentaire sans demande, YAGNI.
