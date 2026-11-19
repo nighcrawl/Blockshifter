@@ -36,6 +36,7 @@ final class Blockshifter_Telemetry {
 		add_action( 'admin_notices', array( self::class, 'maybe_render_notice' ) );
 		add_action( 'admin_post_blockshifter_telemetry_update', array( self::class, 'handle_update' ) );
 		add_action( 'admin_init', array( self::class, 'add_privacy_policy_content' ) );
+		add_action( Blockshifter_Render::MODULE_RENDERED_ACTION, array( self::class, 'record_feature_usage' ) );
 	}
 
 	/**
@@ -299,36 +300,24 @@ final class Blockshifter_Telemetry {
 
 	/**
 	 * Piggyback on the render pass: mark a Module as "seen" the first time
-	 * one of its allowed blocks is found in rendered content. Cheap, but
-	 * only as fresh as real site traffic (ADR-0010) — no separate site scan.
+	 * it actually transforms a block, wherever that block lives (post
+	 * content or block template). Cheap, but only as fresh as real site
+	 * traffic (ADR-0010) — no separate site scan.
 	 */
-	public static function maybe_record_feature_usage( string $content ): void {
+	public static function record_feature_usage( Blockshifter_Transform $module ): void {
 		if ( ! self::is_enabled() ) {
 			return;
 		}
 
-		$seen    = self::feature_flags();
-		$changed = false;
+		$seen = self::feature_flags();
+		$slug = $module->get_slug();
 
-		foreach ( Blockshifter_Module_Registry::all() as $module ) {
-			$slug = $module->get_slug();
-
-			if ( ! empty( $seen[ $slug ] ) ) {
-				continue;
-			}
-
-			foreach ( Blockshifter_Module_Registry::allowed_blocks_for( $module ) as $block_name ) {
-				if ( has_block( $block_name, $content ) ) {
-					$seen[ $slug ] = time();
-					$changed       = true;
-					break;
-				}
-			}
+		if ( ! empty( $seen[ $slug ] ) ) {
+			return;
 		}
 
-		if ( $changed ) {
-			update_option( self::OPTION_FEATURES_SEEN, $seen, false );
-		}
+		$seen[ $slug ] = time();
+		update_option( self::OPTION_FEATURES_SEEN, $seen, false );
 	}
 
 	/**

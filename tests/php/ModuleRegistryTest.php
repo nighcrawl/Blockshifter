@@ -18,6 +18,7 @@ final class ModuleRegistryTest extends TestCase {
 
 	protected function tearDown(): void {
 		Blockshifter_Module_Registry::reset();
+		$this->addToAssertionCount( \Mockery::getContainer()->mockery_getExpectationCount() );
 		Monkey\tearDown();
 		parent::tearDown();
 	}

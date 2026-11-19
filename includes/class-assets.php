@@ -9,38 +9,29 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Generic conditional asset enqueue: a Module's assets are only enqueued
- * when the page content actually contains one of its allowed blocks.
+ * when that Module actually transforms a block during the render pass —
+ * wherever the block lives (post content, block template, template part,
+ * widget...). Detecting it from `$post->post_content` alone missed every
+ * Target Block rendered from a template, e.g. a Query Loop on the blog home.
  */
 final class Blockshifter_Assets {
 
 	/**
-	 * Enqueue every registered Module's assets that are active in $content.
+	 * Hook onto the render dispatcher's own "Module rendered" signal.
 	 */
-	public static function maybe_enqueue_for_content( string $content ): void {
-		foreach ( Blockshifter_Module_Registry::all() as $module ) {
-			if ( self::is_active_in( $module, $content ) ) {
-				self::enqueue( $module );
-			}
-		}
-	}
-
-	/**
-	 * Whether any of the Module's allowed blocks is present in $content.
-	 */
-	private static function is_active_in( Blockshifter_Transform $module, string $content ): bool {
-		foreach ( Blockshifter_Module_Registry::allowed_blocks_for( $module ) as $block_name ) {
-			if ( has_block( $block_name, $content ) ) {
-				return true;
-			}
-		}
-
-		return false;
+	public static function register(): void {
+		add_action( Blockshifter_Render::MODULE_RENDERED_ACTION, array( self::class, 'enqueue' ) );
 	}
 
 	/**
 	 * Enqueue a Module's declared asset handles.
+	 *
+	 * Safe even when called before the handles are registered (a block
+	 * theme renders its template before `wp_head`, hence before
+	 * `wp_enqueue_scripts`): WP_Dependencies keeps such handles queued and
+	 * enqueues them as soon as they get registered.
 	 */
-	private static function enqueue( Blockshifter_Transform $module ): void {
+	public static function enqueue( Blockshifter_Transform $module ): void {
 		$handles = $module->get_asset_handles();
 
 		foreach ( $handles['scripts'] ?? array() as $handle ) {
