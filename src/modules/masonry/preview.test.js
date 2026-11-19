@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { withMasonryPreview, withMasonryPreviewMount } from './preview';
 
 jest.mock( '../../frontend/masonry-init', () => ( {
@@ -248,5 +248,89 @@ describe( 'withMasonryPreviewMount', () => {
 		unmount();
 
 		expect( unmountGrid ).toHaveBeenCalledWith( element );
+	} );
+
+	it( 'mounts the block once its DOM node appears after the first render', async () => {
+		document.body.innerHTML = '';
+
+		render(
+			<WrappedBlockEdit
+				name="core/post-template"
+				attributes={ { blockshifterTransform: 'masonry' } }
+				clientId="abc"
+			/>
+		);
+
+		expect( mountGrid ).not.toHaveBeenCalled();
+
+		const element = document.createElement( 'ul' );
+		element.id = 'block-abc';
+		document.body.appendChild( element );
+
+		await waitFor( () => expect( mountGrid ).toHaveBeenCalledWith( element ) );
+	} );
+
+	it( 'moves the mount over when the block\'s DOM node is replaced (post-template spinner swap)', async () => {
+		document.body.innerHTML = '<p id="block-abc"></p>';
+		const spinner = document.getElementById( 'block-abc' );
+
+		render(
+			<WrappedBlockEdit
+				name="core/post-template"
+				attributes={ { blockshifterTransform: 'masonry' } }
+				clientId="abc"
+			/>
+		);
+
+		expect( mountGrid ).toHaveBeenCalledWith( spinner );
+
+		const list = document.createElement( 'ul' );
+		list.id = 'block-abc';
+		spinner.replaceWith( list );
+
+		await waitFor( () => expect( mountGrid ).toHaveBeenCalledWith( list ) );
+		expect( unmountGrid ).toHaveBeenCalledWith( spinner );
+	} );
+
+	it( 'does not remount when the same DOM node only gains children', async () => {
+		document.body.innerHTML = '<ul id="block-abc"></ul>';
+		const element = document.getElementById( 'block-abc' );
+
+		render(
+			<WrappedBlockEdit
+				name="core/post-template"
+				attributes={ { blockshifterTransform: 'masonry' } }
+				clientId="abc"
+			/>
+		);
+
+		element.appendChild( document.createElement( 'li' ) );
+		await new Promise( ( resolve ) => setTimeout( resolve, 0 ) );
+
+		expect( mountGrid ).toHaveBeenCalledTimes( 1 );
+		expect( unmountGrid ).not.toHaveBeenCalled();
+	} );
+
+	it( 'stops tracking the node once unmounted', async () => {
+		document.body.innerHTML = '<p id="block-abc"></p>';
+		const spinner = document.getElementById( 'block-abc' );
+
+		const { unmount } = render(
+			<WrappedBlockEdit
+				name="core/post-template"
+				attributes={ { blockshifterTransform: 'masonry' } }
+				clientId="abc"
+			/>
+		);
+
+		unmount();
+		mountGrid.mockClear();
+
+		const list = document.createElement( 'ul' );
+		list.id = 'block-abc';
+		spinner.replaceWith( list );
+		await new Promise( ( resolve ) => setTimeout( resolve, 0 ) );
+
+		expect( mountGrid ).not.toHaveBeenCalled();
 	} );
 } );
