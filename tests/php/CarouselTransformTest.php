@@ -26,26 +26,70 @@ final class CarouselTransformTest extends HtmlRenderingTestCase {
 	}
 
 	public function test_turns_the_blocks_own_wrapper_into_the_splide_root(): void {
-		$result = $this->transform->render( '<ul class="wp-block-gallery"><li>one</li></ul>', array() );
+		$result = $this->transform->render(
+			'<figure class="wp-block-gallery"><figure class="wp-block-image">one</figure></figure>',
+			array()
+		);
 
 		// The original wrapper tag gains the splide class — it is not
 		// nested inside a *new* wrapper — so its children end up as
 		// direct children of .splide__list, which Splide requires.
-		$this->assertMatchesRegularExpression( '/^<ul [^>]*class="wp-block-gallery splide"/', $result );
-		$this->assertStringContainsString( 'class="splide__track"', $result );
-		$this->assertStringContainsString( '<div class="splide__list"><li class="splide__slide">one</li></div>', $result );
-		$this->assertStringEndsWith( '</div></div></ul>', $result );
+		$this->assertSame(
+			'<figure data-splide="{"perPage":1}" class="wp-block-gallery splide">'
+			. '<div class="splide__track"><div class="splide__list">'
+			. '<figure class="wp-block-image splide__slide">one</figure>'
+			. '</div></div></figure>',
+			$result
+		);
 	}
 
 	public function test_marks_direct_children_as_slides(): void {
 		$result = $this->transform->render(
-			'<ul class="wp-block-gallery"><li class="item">one</li><li class="item">two</li></ul>',
+			'<figure class="wp-block-gallery"><figure class="wp-block-image item">one</figure><figure class="wp-block-image item">two</figure></figure>',
 			array()
 		);
 
 		$this->assertSame( 2, substr_count( $result, 'splide__slide' ) );
 		// Existing classes on the direct children must be preserved.
-		$this->assertStringContainsString( 'item', $result );
+		$this->assertStringContainsString( 'class="wp-block-image item splide__slide"', $result );
+	}
+
+	public function test_keeps_a_gallerys_own_caption_out_of_the_slides_as_the_last_child_of_its_figure(): void {
+		// core/gallery (WP >= 5.9) renders its caption as the *last* direct
+		// child of its root <figure>, after the images. It is not a slide,
+		// and a <figcaption> is only valid as the first or last child of
+		// its <figure> — so it stays there, after the track.
+		$result = $this->transform->render(
+			'<figure class="wp-block-gallery">'
+			. '<figure class="wp-block-image"><img src="a.jpg"/><figcaption class="wp-element-caption">image caption</figcaption></figure>'
+			. '<figure class="wp-block-image"><img src="b.jpg"/></figure>'
+			. '<figcaption class="blocks-gallery-caption wp-element-caption">gallery caption</figcaption>'
+			. '</figure>',
+			array()
+		);
+
+		$this->assertSame( 2, substr_count( $result, 'splide__slide' ) );
+		$this->assertStringContainsString(
+			'<figure class="wp-block-image splide__slide"><img src="a.jpg"/><figcaption class="wp-element-caption">image caption</figcaption></figure>',
+			$result
+		);
+		$this->assertStringEndsWith(
+			'</div></div><figcaption class="blocks-gallery-caption wp-element-caption">gallery caption</figcaption></figure>',
+			$result
+		);
+	}
+
+	public function test_keeps_a_leading_figcaption_before_the_track(): void {
+		$result = $this->transform->render(
+			'<figure class="wp-block-gallery"><figcaption>caption</figcaption><figure class="wp-block-image">one</figure></figure>',
+			array()
+		);
+
+		$this->assertSame( 1, substr_count( $result, 'splide__slide' ) );
+		$this->assertStringContainsString(
+			'class="wp-block-gallery splide"><figcaption>caption</figcaption><div class="splide__track"><div class="splide__list">',
+			$result
+		);
 	}
 
 	public function test_does_not_mark_grandchildren_as_slides(): void {
@@ -59,7 +103,7 @@ final class CarouselTransformTest extends HtmlRenderingTestCase {
 	}
 
 	public function test_degrades_gracefully_with_a_single_child(): void {
-		$result = $this->transform->render( '<ul class="wp-block-gallery"><li>only</li></ul>', array() );
+		$result = $this->transform->render( '<figure class="wp-block-gallery"><figure class="wp-block-image">only</figure></figure>', array() );
 
 		$this->assertSame( 1, substr_count( $result, 'splide__slide' ) );
 		$this->assertStringContainsString( 'only', $result );
@@ -136,11 +180,19 @@ final class CarouselTransformTest extends HtmlRenderingTestCase {
 		$this->assertMatchesRegularExpression( '/^<div [^>]*class="wp-block-group splide alignfull"/', $result );
 	}
 
-	public function test_turns_a_post_templates_own_list_into_the_splide_root(): void {
+	public function test_keeps_a_lone_figcaption_exactly_once(): void {
+		$result = $this->transform->render( '<figure class="wp-block-gallery"><figcaption>caption</figcaption></figure>', array() );
+
+		$this->assertSame( 1, substr_count( $result, '<figcaption>caption</figcaption>' ) );
+		$this->assertSame( 0, substr_count( $result, 'splide__slide' ) );
+	}
+
+	public function test_keeps_a_post_templates_list_intact_inside_new_splide_wrappers(): void {
 		// core/post-template renders as <ul> + one <li class="wp-block-post ..."> per
-		// post (optionally with a data-wp-key for enhanced pagination) — the same
-		// root + direct-children shape as Gallery/Group, so no Module-specific case
-		// is needed, but it's asserted explicitly rather than left implicit.
+		// post (optionally with a data-wp-key for enhanced pagination). A <ul> may
+		// only contain <li>, so the Splide wrappers can't go *inside* it the way
+		// they do for Gallery/Group: the native list itself becomes .splide__list,
+		// unchanged except for that class, and .splide/.splide__track wrap it.
 		$result = $this->transform->render(
 			'<ul class="wp-block-post-template">'
 			. '<li data-wp-key="post-template-item-1" class="wp-block-post post-1">one</li>'
@@ -149,10 +201,32 @@ final class CarouselTransformTest extends HtmlRenderingTestCase {
 			array( 'blockName' => 'core/post-template' )
 		);
 
-		$this->assertMatchesRegularExpression( '/^<ul [^>]*class="wp-block-post-template splide"/', $result );
-		$this->assertSame( 2, substr_count( $result, 'splide__slide' ) );
-		$this->assertStringContainsString( 'data-wp-key="post-template-item-1"', $result );
-		$this->assertStringContainsString( 'class="wp-block-post post-1 splide__slide"', $result );
+		$this->assertSame(
+			'<div class="splide" data-splide="{"perPage":1}"><div class="splide__track">'
+			. '<ul class="wp-block-post-template splide__list">'
+			. '<li data-wp-key="post-template-item-1" class="wp-block-post post-1 splide__slide">one</li>'
+			. '<li data-wp-key="post-template-item-2" class="wp-block-post post-2 splide__slide">two</li>'
+			. '</ul></div></div>',
+			$result
+		);
+	}
+
+	public function test_treats_an_ordered_list_root_like_an_unordered_one(): void {
+		$result = $this->transform->render( '<ol class="list"><li>one</li></ol>', array() );
+
+		$this->assertSame(
+			'<div class="splide" data-splide="{"perPage":1}"><div class="splide__track">'
+			. '<ol class="list splide__list"><li class="splide__slide">one</li></ol>'
+			. '</div></div>',
+			$result
+		);
+	}
+
+	public function test_propagates_a_slide_alignment_to_the_wrapper_of_a_list_root(): void {
+		$result = $this->transform->render( '<ul class="list"><li class="alignwide">one</li></ul>', array() );
+
+		$this->assertStringStartsWith( '<div class="splide alignwide" data-splide="{"perPage":1}">', $result );
+		$this->assertStringContainsString( '<ul class="list splide__list">', $result );
 	}
 
 	public function test_degrades_gracefully_when_the_query_has_no_results(): void {

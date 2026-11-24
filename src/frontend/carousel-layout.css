@@ -43,3 +43,30 @@
 	padding-left: 0;
 	padding-right: 0;
 }
+
+/*
+ * A `<ul>`/`<ol>` root (core/post-template) is not turned into the
+ * `.splide` root: it can only contain `<li>`, so the Carousel Transform
+ * keeps the native list intact and makes *it* the `.splide__list`, inside
+ * new `.splide`/`.splide__track` wrappers. The list keeps its native
+ * layout classes, though, which fight Splide's single sliding row:
+ *
+ * - a Grid layout (`body .is-layout-grid`, plus a generated
+ *   `.wp-container-*` rule) turns the row back into a multi-row grid;
+ * - every layout type's own `gap` would be added on top of the slide
+ *   widths Splide computes itself;
+ * - a Flow layout spaces its children with a sibling top margin, pushing
+ *   every slide but the first lower.
+ *
+ * Scoped to a `.splide__list` that carries a native `is-layout-*` class,
+ * so it never touches a carousel built some other way. The selector's own
+ * specificity already beats WP core's layout rules, no `!important`.
+ */
+.splide__track > .splide__list[class*="is-layout-"] {
+	display: flex;
+	gap: 0;
+}
+
+.splide__track > .splide__list[class*="is-layout-"] > .splide__slide {
+	margin-block-start: 0;
+}
