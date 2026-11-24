@@ -25,6 +25,7 @@ require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/class-module-registry.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/class-assets.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/class-render.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/class-telemetry.php';
+require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/modules/carousel/class-carousel-shape.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/modules/carousel/class-carousel-transform.php';
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/modules/masonry/class-masonry-transform.php';
 

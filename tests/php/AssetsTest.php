@@ -131,8 +131,12 @@ final class AssetsTest extends TestCase {
 		Functions\when( 'wp_json_encode' )->alias( 'json_encode' );
 		Blockshifter_Module_Registry::register( $this->make_fake_module() );
 
+		\Brain\Monkey\Filters\expectApplied( 'blockshifter/fake/allowed_blocks' )
+			->once()
+			->andReturn( array( 'blockshifter/test-transform-block', 'core/columns' ) );
+
 		$this->assertSame(
-			'window.blockshifterTargetBlocks = {"fake":["blockshifter\\/test-transform-block"]};',
+			'window.blockshifterTargetBlocks = {"fake":["blockshifter\\/test-transform-block","core\\/columns"]};',
 			Blockshifter_Assets::editor_target_blocks_script()
 		);
 	}

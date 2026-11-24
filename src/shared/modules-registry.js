@@ -9,9 +9,6 @@ import { masonryModule } from '../modules/masonry/logic';
 
 export const MODULES = [ carouselModule, masonryModule ];
 
-export const CAROUSEL_LABEL = carouselModule.label;
-export const MASONRY_LABEL = masonryModule.label;
-
 /**
  * Every block name targeted by at least one Module — the union of each
  * Module's own `supportedBlocks`. The single source of truth for which

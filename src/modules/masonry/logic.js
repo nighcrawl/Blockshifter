@@ -8,9 +8,9 @@ import { __ } from '@wordpress/i18n';
 import { defineModule } from '../../shared/define-module';
 import { getTargetBlocks } from '../../shared/target-blocks';
 
-export const MASONRY_SLUG = 'masonry';
+const MASONRY_SLUG = 'masonry';
 
-export const MASONRY_DEFAULT_CONFIG = {
+const MASONRY_DEFAULT_CONFIG = {
 	columns: 3,
 };
 
@@ -51,8 +51,3 @@ export const masonryModule = defineModule( {
 	getSummary: getMasonrySummary,
 } );
 
-export const isMasonrySupported = masonryModule.isSupported;
-export const isMasonryEnabled = masonryModule.isEnabled;
-export const nextTransformOnToggle = masonryModule.nextTransformOnToggle;
-export const getMasonryConfig = masonryModule.getConfig;
-export const setMasonryConfigValue = masonryModule.setConfigValue;

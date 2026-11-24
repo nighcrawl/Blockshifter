@@ -54,8 +54,14 @@ final class Blockshifter_Render {
 			return $block_content;
 		}
 
-		do_action( self::MODULE_RENDERED_ACTION, $module );
+		$rendered = $module->render( $block_content, $block );
 
-		return $module->render( $block_content, $block );
+		// Only a block the Module actually changed needs its assets and counts
+		// as usage — e.g. an empty block is handed back untouched.
+		if ( $rendered !== $block_content ) {
+			do_action( self::MODULE_RENDERED_ACTION, $module );
+		}
+
+		return $rendered;
 	}
 }

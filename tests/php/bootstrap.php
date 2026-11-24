@@ -58,5 +58,6 @@ require_once dirname( __DIR__, 2 ) . '/includes/class-module-registry.php';
 require_once dirname( __DIR__, 2 ) . '/includes/class-assets.php';
 require_once dirname( __DIR__, 2 ) . '/includes/class-render.php';
 require_once dirname( __DIR__, 2 ) . '/includes/class-telemetry.php';
+require_once dirname( __DIR__, 2 ) . '/includes/modules/carousel/class-carousel-shape.php';
 require_once dirname( __DIR__, 2 ) . '/includes/modules/carousel/class-carousel-transform.php';
 require_once dirname( __DIR__, 2 ) . '/includes/modules/masonry/class-masonry-transform.php';

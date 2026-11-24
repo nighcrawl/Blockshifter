@@ -8,9 +8,9 @@ import { __ } from '@wordpress/i18n';
 import { defineModule } from '../../shared/define-module';
 import { getTargetBlocks } from '../../shared/target-blocks';
 
-export const CAROUSEL_SLUG = 'carousel';
+const CAROUSEL_SLUG = 'carousel';
 
-export const CAROUSEL_DEFAULT_CONFIG = {
+const CAROUSEL_DEFAULT_CONFIG = {
 	perPage: 1,
 	autoplay: false,
 	loop: false,
@@ -51,8 +51,3 @@ export const carouselModule = defineModule( {
 	getSummary: getCarouselSummary,
 } );
 
-export const isCarouselSupported = carouselModule.isSupported;
-export const isCarouselEnabled = carouselModule.isEnabled;
-export const nextTransformOnToggle = carouselModule.nextTransformOnToggle;
-export const getCarouselConfig = carouselModule.getConfig;
-export const setCarouselConfigValue = carouselModule.setConfigValue;

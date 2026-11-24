@@ -44,7 +44,12 @@ final class Blockshifter_Module_Registry {
 	 * calling Blockshifter_Transform::get_allowed_blocks() directly.
 	 */
 	public static function allowed_blocks_for( Blockshifter_Transform $module ): array {
-		return apply_filters( "blockshifter/{$module->get_slug()}/allowed_blocks", $module->get_allowed_blocks() );
+		$defaults = $module->get_allowed_blocks();
+		$filtered = apply_filters( "blockshifter/{$module->get_slug()}/allowed_blocks", $defaults );
+
+		// A misbehaving third-party filter (e.g. one that forgot its
+		// `return`) must not fatal the render or the editor.
+		return is_array( $filtered ) ? $filtered : $defaults;
 	}
 
 	/**

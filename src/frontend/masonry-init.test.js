@@ -389,7 +389,7 @@ describe( 'mountMasonryGrids', () => {
 
 		expect( MockResizeObserver.instances ).toHaveLength( 1 );
 		expect( MockMutationObserver.instances ).toHaveLength( 1 );
-		// One observe() for the grid, one for its single item (see containerResizeObserver).
+		// One observe() for the grid, one for its single item (see gridAndTileResizeObserver).
 		expect( MockResizeObserver.instances[ 0 ].observeCalls ).toBe( 2 );
 		expect( MockMutationObserver.instances[ 0 ].observeCalls ).toBe( 1 );
 	} );
@@ -444,7 +444,7 @@ describe( 'mountGrid', () => {
 		mountGrid( grid );
 		mountGrid( grid );
 
-		// One observe() for the grid, one for its single item (see containerResizeObserver).
+		// One observe() for the grid, one for its single item (see gridAndTileResizeObserver).
 		expect( MockResizeObserver.instances[ 0 ].observeCalls ).toBe( 2 );
 	} );
 } );
@@ -566,7 +566,7 @@ describe( 'unmountGrid', () => {
 		expect( grid.classList.contains( 'is-masonry-packed' ) ).toBe( true );
 		expect( item.style.gridRowEnd ).toContain( 'span' );
 
-		// `containerResizeObserver` is a single shared instance across every
+		// `gridAndTileResizeObserver` is a single shared instance across every
 		// grid (see mountGrid/unmountGrid) — re-observed, not re-created.
 		expect( MockResizeObserver.instances ).toHaveLength( 1 );
 		// Grid + its single item, once per mount.
