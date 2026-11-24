@@ -1,3 +1,7 @@
+---
+status: partially superseded by ADR-0016
+---
+
 # Télémétrie opt-in, sans log réseau, UUID stable
 
 Blockshifter 0.3.0 embarque une télémétrie strictement opt-in vers `https://api.blockshifter.dev/v1/telemetry` (voir `blockshifter-telemetry-api.md`). Décisions retenues côté plugin :

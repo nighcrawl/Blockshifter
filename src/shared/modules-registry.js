@@ -9,12 +9,14 @@
 import { __ } from '@wordpress/i18n';
 import {
 	CAROUSEL_SLUG,
+	CAROUSEL_SUPPORTED_BLOCKS,
 	isCarouselSupported,
 	isCarouselEnabled,
 	getCarouselSummary,
 } from '../modules/carousel/logic';
 import {
 	MASONRY_SLUG,
+	MASONRY_SUPPORTED_BLOCKS,
 	isMasonrySupported,
 	isMasonryEnabled,
 	getMasonrySummary,
@@ -33,6 +35,7 @@ export const MODULES = [
 		slug: CAROUSEL_SLUG,
 		label: CAROUSEL_LABEL,
 		color: '#5b21b6',
+		supportedBlocks: CAROUSEL_SUPPORTED_BLOCKS,
 		isSupported: isCarouselSupported,
 		isEnabled: isCarouselEnabled,
 		// eslint-disable-next-line no-unused-vars -- keeps every Module's getSummary at the same (attributes, blockName) shape
@@ -42,11 +45,21 @@ export const MODULES = [
 		slug: MASONRY_SLUG,
 		label: MASONRY_LABEL,
 		color: '#0f766e',
+		supportedBlocks: MASONRY_SUPPORTED_BLOCKS,
 		isSupported: isMasonrySupported,
 		isEnabled: isMasonryEnabled,
 		getSummary: getMasonrySummary,
 	},
 ];
+
+/**
+ * Every block name targeted by at least one Module — the union of each
+ * Module's own `supportedBlocks`. The single source of truth for which
+ * blocks need the generic `blockshifterTransform`/`blockshifterConfig`
+ * attributes (see `core-attributes.js`), instead of a separately
+ * maintained list that drifts from the Modules' own.
+ */
+export const TARGET_BLOCKS = [ ...new Set( MODULES.flatMap( ( module ) => module.supportedBlocks ) ) ];
 
 /**
  * The Module currently active on a block, if any. `blockshifterTransform`

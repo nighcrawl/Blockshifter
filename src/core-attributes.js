@@ -3,8 +3,7 @@
  * (ADR-0002): `blockshifterTransform` (which Module is active) and
  * `blockshifterConfig` (namespaced-by-slug settings for the active Module).
  */
-
-export const TARGET_BLOCKS = [ 'core/gallery', 'core/group' ];
+import { TARGET_BLOCKS } from './shared/modules-registry';
 
 export function addCoreAttributes( settings, name ) {
 	if ( ! TARGET_BLOCKS.includes( name ) ) {

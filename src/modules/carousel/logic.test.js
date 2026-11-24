@@ -10,7 +10,7 @@ import {
 } from './logic';
 
 describe( 'isCarouselSupported', () => {
-	it.each( [ 'core/gallery', 'core/group' ] )( 'is true for %s', ( name ) => {
+	it.each( [ 'core/gallery', 'core/group', 'core/post-template' ] )( 'is true for %s', ( name ) => {
 		expect( isCarouselSupported( name ) ).toBe( true );
 	} );
 

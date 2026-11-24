@@ -4,9 +4,9 @@ namespace Blockshifter\Tests;
 
 use Blockshifter_Assets;
 use Blockshifter_Module_Registry;
+use Blockshifter_Render;
 use Blockshifter\Tests\Fakes\FakeTransform;
 use Brain\Monkey;
-use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 
@@ -20,6 +20,7 @@ final class AssetsTest extends TestCase {
 
 	protected function tearDown(): void {
 		Blockshifter_Module_Registry::reset();
+		$this->addToAssertionCount( \Mockery::getContainer()->mockery_getExpectationCount() );
 		Monkey\tearDown();
 		parent::tearDown();
 	}
@@ -35,41 +36,25 @@ final class AssetsTest extends TestCase {
 		);
 	}
 
-	public function test_enqueues_module_assets_when_has_block_finds_the_module_active(): void {
-		$module = $this->make_fake_module();
-		Blockshifter_Module_Registry::register( $module );
+	public function test_register_hooks_enqueue_onto_the_module_rendered_action(): void {
+		Blockshifter_Assets::register();
 
-		Filters\expectApplied( 'blockshifter/fake/allowed_blocks' )
-			->once()
-			->andReturn( array( 'blockshifter/test-transform-block' ) );
+		$this->assertNotFalse(
+			has_action( Blockshifter_Render::MODULE_RENDERED_ACTION, array( Blockshifter_Assets::class, 'enqueue' ) )
+		);
+	}
 
-		Functions\expect( 'has_block' )
-			->once()
-			->with( 'blockshifter/test-transform-block', 'CONTENT_WITH_THE_BLOCK' )
-			->andReturn( true );
-
+	public function test_enqueue_enqueues_every_declared_script_and_style_handle(): void {
 		Functions\expect( 'wp_enqueue_script' )->once()->with( 'blockshifter-fake-frontend' );
 		Functions\expect( 'wp_enqueue_style' )->once()->with( 'blockshifter-fake-frontend' );
 
-		Blockshifter_Assets::maybe_enqueue_for_content( 'CONTENT_WITH_THE_BLOCK' );
+		Blockshifter_Assets::enqueue( $this->make_fake_module() );
 	}
 
-	public function test_enqueues_nothing_when_has_block_finds_no_match(): void {
-		$module = $this->make_fake_module();
-		Blockshifter_Module_Registry::register( $module );
-
-		Filters\expectApplied( 'blockshifter/fake/allowed_blocks' )
-			->once()
-			->andReturn( array( 'blockshifter/test-transform-block' ) );
-
-		Functions\expect( 'has_block' )
-			->once()
-			->with( 'blockshifter/test-transform-block', 'CONTENT_WITHOUT_THE_BLOCK' )
-			->andReturn( false );
-
+	public function test_enqueue_does_nothing_for_a_module_without_assets(): void {
 		Functions\expect( 'wp_enqueue_script' )->never();
 		Functions\expect( 'wp_enqueue_style' )->never();
 
-		Blockshifter_Assets::maybe_enqueue_for_content( 'CONTENT_WITHOUT_THE_BLOCK' );
+		Blockshifter_Assets::enqueue( new FakeTransform( 'bare' ) );
 	}
 }

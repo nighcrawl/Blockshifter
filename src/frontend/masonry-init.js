@@ -208,17 +208,46 @@ function observeImages( grid ) {
 /**
  * Recalculates when a grid's own rendered size changes for any reason —
  * a parent's width changing, a sidebar collapsing, not just a window
- * resize. This is the primary recalculation mechanism; the window `resize`
+ * resize — *or* when one of its Masonry Tiles changes size on its own.
+ * The latter matters because a packed grid's height comes from the spans
+ * this module assigns, not from its items: an item growing (text
+ * reflowing, late content, the editor swapping a Query Loop post between
+ * its editable and preview renderings) leaves the grid itself the same
+ * size, so watching the grid alone would leave that item's span stale and
+ * overlapping the next one. Repacking can't feed back into another
+ * resize: items are `align-self: start` (see `setItemSpan`), so their own
+ * box never depends on the span written to them.
+ *
+ * This is the primary recalculation mechanism; the window `resize`
  * listener (see bottom of file) is only a fallback for browsers without
  * `ResizeObserver`. A single observer instance is shared across every
- * grid — each is added to it exactly once, in `mountGrid`.
+ * grid and item — an entry's target is either a mounted grid or a direct
+ * child of one.
  */
 const containerResizeObserver =
 	typeof ResizeObserver === 'undefined'
 		? null
 		: new ResizeObserver( ( entries ) => {
-				entries.forEach( ( entry ) => schedulePack( entry.target ) );
+				entries.forEach( ( { target } ) => {
+					const grid = mountedGrids.has( target ) ? target : target.parentElement;
+
+					if ( grid && mountedGrids.has( grid ) ) {
+						schedulePack( grid );
+					}
+				} );
 		  } );
+
+function observeItemSizes( items ) {
+	Array.from( items ).forEach( ( item ) => {
+		if ( 1 === item.nodeType ) {
+			containerResizeObserver?.observe( item );
+		}
+	} );
+}
+
+function unobserveItemSizes( items ) {
+	Array.from( items ).forEach( ( item ) => containerResizeObserver?.unobserve( item ) );
+}
 
 /**
  * Recalculates when a direct-child Masonry Tile is inserted or removed
@@ -236,7 +265,11 @@ function createDirectChildMutationObserver( grid ) {
 		return null;
 	}
 
-	return new MutationObserver( () => {
+	return new MutationObserver( ( records ) => {
+		records.forEach( ( { addedNodes = [], removedNodes = [] } ) => {
+			unobserveItemSizes( removedNodes );
+			observeItemSizes( addedNodes );
+		} );
 		neutralizeFlowMargins( grid );
 		observeImages( grid );
 		schedulePack( grid );
@@ -260,6 +293,7 @@ export function mountGrid( grid ) {
 	observeImages( grid );
 
 	containerResizeObserver?.observe( grid );
+	observeItemSizes( grid.children );
 
 	const mutationObserver = createDirectChildMutationObserver( grid );
 	mutationObserver?.observe( grid, { childList: true } );
@@ -289,6 +323,7 @@ export function unmountGrid( grid ) {
 	packTimers.delete( grid );
 
 	containerResizeObserver?.unobserve( grid );
+	unobserveItemSizes( grid.children );
 	gridMutationObservers.get( grid )?.disconnect();
 	gridMutationObservers.delete( grid );
 

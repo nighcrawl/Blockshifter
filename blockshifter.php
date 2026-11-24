@@ -29,6 +29,7 @@ require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/modules/carousel/class-carousel
 require_once BLOCKSHIFTER_PLUGIN_DIR . 'includes/modules/masonry/class-masonry-transform.php';
 
 Blockshifter_Render::register();
+Blockshifter_Assets::register();
 Blockshifter_Telemetry::register();
 
 register_deactivation_hook( BLOCKSHIFTER_PLUGIN_FILE, array( 'Blockshifter_Telemetry', 'on_deactivation' ) );
@@ -182,18 +183,3 @@ add_action(
 	}
 );
 
-/**
- * Enqueue each active Module's front-end assets, conditional on the
- * rendered content actually containing one of its allowed blocks.
- */
-add_action(
-	'wp_enqueue_scripts',
-	static function () {
-		global $post;
-
-		if ( $post instanceof WP_Post ) {
-			Blockshifter_Assets::maybe_enqueue_for_content( $post->post_content );
-			Blockshifter_Telemetry::maybe_record_feature_usage( $post->post_content );
-		}
-	}
-);
