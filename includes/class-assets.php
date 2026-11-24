@@ -8,7 +8,10 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Generic conditional asset enqueue: a Module's assets are only enqueued
+ * Generic Module asset handling. Registration follows the slug convention
+ * of ADR-0020 (`blockshifter-{slug}-frontend` <- `build/frontend/{slug}-init.*`),
+ * so no Module needs its own registration code. Enqueue is conditional: a
+ * Module's assets are only enqueued
  * when that Module actually transforms a block during the render pass —
  * wherever the block lives (post content, block template, template part,
  * widget...). Detecting it from `$post->post_content` alone missed every
@@ -17,10 +20,66 @@ defined( 'ABSPATH' ) || exit;
 final class Blockshifter_Assets {
 
 	/**
-	 * Hook onto the render dispatcher's own "Module rendered" signal.
+	 * Register every Module's front-end assets early on `wp_enqueue_scripts`
+	 * (before themes/plugins at the default priority), and enqueue them on
+	 * the render dispatcher's own "Module rendered" signal.
 	 */
 	public static function register(): void {
+		add_action( 'wp_enqueue_scripts', array( self::class, 'register_module_assets' ), 5 );
 		add_action( Blockshifter_Render::MODULE_RENDERED_ACTION, array( self::class, 'enqueue' ) );
+	}
+
+	/**
+	 * The script/style handle a Module's front-end assets are registered
+	 * under. A Module's get_asset_handles() must return this same handle.
+	 */
+	public static function frontend_handle( string $slug ): string {
+		return "blockshifter-{$slug}-frontend";
+	}
+
+	/**
+	 * `wp_enqueue_scripts` callback: registers against the real plugin
+	 * location.
+	 */
+	public static function register_module_assets(): void {
+		self::register_frontend_assets( BLOCKSHIFTER_PLUGIN_DIR, BLOCKSHIFTER_PLUGIN_URL );
+	}
+
+	/**
+	 * Register (but don't enqueue) each registered Module's front-end
+	 * script and style, found by slug convention under
+	 * `build/frontend/{slug}-init.*`. A Module whose front-end entry was
+	 * never built is skipped; its CSS is optional.
+	 */
+	public static function register_frontend_assets( string $plugin_dir, string $plugin_url ): void {
+		foreach ( Blockshifter_Module_Registry::all() as $slug => $module ) {
+			$base       = "build/frontend/{$slug}-init";
+			$asset_file = "{$plugin_dir}{$base}.asset.php";
+
+			if ( ! file_exists( $asset_file ) ) {
+				continue;
+			}
+
+			$asset  = require $asset_file;
+			$handle = self::frontend_handle( $slug );
+
+			wp_register_script(
+				$handle,
+				"{$plugin_url}{$base}.js",
+				$asset['dependencies'],
+				$asset['version'],
+				true
+			);
+
+			if ( file_exists( "{$plugin_dir}{$base}.css" ) ) {
+				wp_register_style(
+					$handle,
+					"{$plugin_url}{$base}.css",
+					array(),
+					BLOCKSHIFTER_VERSION
+				);
+			}
+		}
 	}
 
 	/**
