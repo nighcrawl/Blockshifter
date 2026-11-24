@@ -6,9 +6,9 @@
  */
 import { __ } from '@wordpress/i18n';
 import { defineModule } from '../../shared/define-module';
+import { getTargetBlocks } from '../../shared/target-blocks';
 
 export const MASONRY_SLUG = 'masonry';
-export const MASONRY_SUPPORTED_BLOCKS = [ 'core/gallery', 'core/group', 'core/post-template' ];
 
 export const MASONRY_DEFAULT_CONFIG = {
 	columns: 3,
@@ -46,7 +46,7 @@ export const masonryModule = defineModule( {
 	slug: MASONRY_SLUG,
 	label: __( 'Blockshifter Masonry', 'blockshifter' ),
 	color: '#0f766e',
-	supportedBlocks: MASONRY_SUPPORTED_BLOCKS,
+	supportedBlocks: getTargetBlocks( MASONRY_SLUG ),
 	defaultConfig: MASONRY_DEFAULT_CONFIG,
 	getSummary: getMasonrySummary,
 } );

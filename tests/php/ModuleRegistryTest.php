@@ -74,4 +74,38 @@ final class ModuleRegistryTest extends TestCase {
 
 		$this->assertSame( array( 'core/gallery', 'core/group', 'core/columns' ), $result );
 	}
+
+	public function test_target_blocks_by_slug_lists_every_module_with_the_filter_applied(): void {
+		Blockshifter_Module_Registry::register( new FakeTransform( 'carousel', array( 'core/gallery' ) ) );
+		Blockshifter_Module_Registry::register( new FakeTransform( 'masonry', array( 'core/group' ) ) );
+
+		Filters\expectApplied( 'blockshifter/carousel/allowed_blocks' )
+			->once()
+			->andReturn( array( 'core/gallery', 'core/columns' ) );
+
+		$this->assertSame(
+			array(
+				'carousel' => array( 'core/gallery', 'core/columns' ),
+				'masonry'  => array( 'core/group' ),
+			),
+			Blockshifter_Module_Registry::target_blocks_by_slug()
+		);
+	}
+
+	/**
+	 * A filter returning a keyed or gappy array (e.g. after array_filter())
+	 * must still reach the editor as a JSON list, not a JSON object.
+	 */
+	public function test_target_blocks_by_slug_reindexes_a_filtered_list(): void {
+		Blockshifter_Module_Registry::register( new FakeTransform( 'carousel', array( 'core/gallery', 'core/group' ) ) );
+
+		Filters\expectApplied( 'blockshifter/carousel/allowed_blocks' )
+			->once()
+			->andReturn( array( 1 => 'core/group' ) );
+
+		$this->assertSame(
+			array( 'carousel' => array( 'core/group' ) ),
+			Blockshifter_Module_Registry::target_blocks_by_slug()
+		);
+	}
 }

@@ -83,6 +83,19 @@ final class Blockshifter_Assets {
 	}
 
 	/**
+	 * Inline JS run before the editor script: exposes each Module's
+	 * filtered Target Blocks as `window.blockshifterTargetBlocks`
+	 * (`{ slug: [ blockName, ... ] }`). Needed synchronously, before core
+	 * blocks register, since the editor adds the Blockshifter attributes on
+	 * `blocks.registerBlockType` (ADR-0021).
+	 */
+	public static function editor_target_blocks_script(): string {
+		return 'window.blockshifterTargetBlocks = '
+			. wp_json_encode( (object) Blockshifter_Module_Registry::target_blocks_by_slug() )
+			. ';';
+	}
+
+	/**
 	 * Enqueue a Module's declared asset handles.
 	 *
 	 * Safe even when called before the handles are registered (a block
