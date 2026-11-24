@@ -108,4 +108,17 @@ final class ModuleRegistryTest extends TestCase {
 			Blockshifter_Module_Registry::target_blocks_by_slug()
 		);
 	}
+
+	/**
+	 * A third-party filter returning something other than an array (e.g. a
+	 * callback that forgot its `return`) must not fatal the editor or the
+	 * front end: the Module falls back to its own default Target Blocks.
+	 */
+	public function test_allowed_blocks_for_falls_back_to_the_defaults_when_the_filter_returns_a_non_array(): void {
+		$module = new FakeTransform( 'carousel', array( 'core/gallery', 'core/group' ) );
+
+		Filters\expectApplied( 'blockshifter/carousel/allowed_blocks' )->once()->andReturn( null );
+
+		$this->assertSame( array( 'core/gallery', 'core/group' ), Blockshifter_Module_Registry::allowed_blocks_for( $module ) );
+	}
 }
