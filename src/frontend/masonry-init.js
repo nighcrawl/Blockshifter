@@ -208,23 +208,52 @@ function observeImages( grid ) {
 /**
  * Recalculates when a grid's own rendered size changes for any reason —
  * a parent's width changing, a sidebar collapsing, not just a window
- * resize. This is the primary recalculation mechanism; the window `resize`
+ * resize — *or* when one of its Masonry Tiles changes size on its own.
+ * The latter matters because a packed grid's height comes from the spans
+ * this module assigns, not from its items: an item growing (text
+ * reflowing, late content, the editor swapping a Query Loop post between
+ * its editable and preview renderings) leaves the grid itself the same
+ * size, so watching the grid alone would leave that item's span stale and
+ * overlapping the next one. Repacking can't feed back into another
+ * resize: items are `align-self: start` (see `setItemSpan`), so their own
+ * box never depends on the span written to them.
+ *
+ * This is the primary recalculation mechanism; the window `resize`
  * listener (see bottom of file) is only a fallback for browsers without
  * `ResizeObserver`. A single observer instance is shared across every
- * grid — each is added to it exactly once, in `mountGrid`.
+ * grid and item — an entry's target is either a mounted grid or a direct
+ * child of one.
  */
-const containerResizeObserver =
+const gridAndTileResizeObserver =
 	typeof ResizeObserver === 'undefined'
 		? null
 		: new ResizeObserver( ( entries ) => {
-				entries.forEach( ( entry ) => schedulePack( entry.target ) );
+				entries.forEach( ( { target } ) => {
+					const grid = mountedGrids.has( target ) ? target : target.parentElement;
+
+					if ( grid && mountedGrids.has( grid ) ) {
+						schedulePack( grid );
+					}
+				} );
 		  } );
+
+function observeItemSizes( items ) {
+	Array.from( items ).forEach( ( item ) => {
+		if ( 1 === item.nodeType ) {
+			gridAndTileResizeObserver?.observe( item );
+		}
+	} );
+}
+
+function unobserveItemSizes( items ) {
+	Array.from( items ).forEach( ( item ) => gridAndTileResizeObserver?.unobserve( item ) );
+}
 
 /**
  * Recalculates when a direct-child Masonry Tile is inserted or removed
  * client-side (e.g. by another script). Scoped to the grid's own
  * `childList` only — descendants further down are never inspected. Unlike
- * `containerResizeObserver`, this one is a separate instance per grid
+ * `gridAndTileResizeObserver`, this one is a separate instance per grid
  * (created in `mountGrid`, kept in `gridMutationObservers`) rather than a
  * single shared one: `MutationObserver` has no `unobserve()` for a single
  * target, only `disconnect()` for the whole instance, so a shared instance
@@ -236,7 +265,11 @@ function createDirectChildMutationObserver( grid ) {
 		return null;
 	}
 
-	return new MutationObserver( () => {
+	return new MutationObserver( ( records ) => {
+		records.forEach( ( { addedNodes = [], removedNodes = [] } ) => {
+			unobserveItemSizes( removedNodes );
+			observeItemSizes( addedNodes );
+		} );
 		neutralizeFlowMargins( grid );
 		observeImages( grid );
 		schedulePack( grid );
@@ -259,7 +292,8 @@ export function mountGrid( grid ) {
 	packGrid( grid );
 	observeImages( grid );
 
-	containerResizeObserver?.observe( grid );
+	gridAndTileResizeObserver?.observe( grid );
+	observeItemSizes( grid.children );
 
 	const mutationObserver = createDirectChildMutationObserver( grid );
 	mutationObserver?.observe( grid, { childList: true } );
@@ -288,7 +322,8 @@ export function unmountGrid( grid ) {
 	clearTimeout( packTimers.get( grid ) );
 	packTimers.delete( grid );
 
-	containerResizeObserver?.unobserve( grid );
+	gridAndTileResizeObserver?.unobserve( grid );
+	unobserveItemSizes( grid.children );
 	gridMutationObservers.get( grid )?.disconnect();
 	gridMutationObservers.delete( grid );
 
@@ -327,7 +362,7 @@ if ( typeof document !== 'undefined' ) {
 	document.addEventListener( 'DOMContentLoaded', () => {
 		mountMasonryGrids();
 
-		if ( ! containerResizeObserver ) {
+		if ( ! gridAndTileResizeObserver ) {
 			window.addEventListener( 'resize', handleResizeFallback );
 		}
 	} );

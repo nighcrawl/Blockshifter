@@ -1,52 +1,22 @@
 /**
- * The one place that knows about every Module at once. Each Module's own
- * `logic.js` stays the source of truth for its slug/support/enabled checks —
- * this file only aggregates them, plus the two things no single Module can
- * own on its own: the human label shared between its Inspector Control panel
- * and the Shifted Block Indicator (see `shifted-indicator/`), and that
- * indicator's per-Module color.
+ * The one place that knows about every Module at once. Each Module declares
+ * its own JS half in its `logic.js` (via `defineModule()` — slug, label,
+ * color, supported blocks, config, summary); this file only lists them and
+ * answers the questions that span all Modules.
  */
-import { __ } from '@wordpress/i18n';
-import {
-	CAROUSEL_SLUG,
-	isCarouselSupported,
-	isCarouselEnabled,
-	getCarouselSummary,
-} from '../modules/carousel/logic';
-import {
-	MASONRY_SLUG,
-	isMasonrySupported,
-	isMasonryEnabled,
-	getMasonrySummary,
-} from '../modules/masonry/logic';
+import { carouselModule } from '../modules/carousel/logic';
+import { masonryModule } from '../modules/masonry/logic';
 
-export const CAROUSEL_LABEL = __( 'Blockshifter Carousel', 'blockshifter' );
-export const MASONRY_LABEL = __( 'Blockshifter Masonry', 'blockshifter' );
+export const MODULES = [ carouselModule, masonryModule ];
 
 /**
- * Colors are hand-picked per Module rather than derived from registration
- * order, so a Module's color stays stable even if the order it's listed in
- * here changes later.
+ * Every block name targeted by at least one Module — the union of each
+ * Module's own `supportedBlocks`. The single source of truth for which
+ * blocks need the generic `blockshifterTransform`/`blockshifterConfig`
+ * attributes (see `core-attributes.js`), instead of a separately
+ * maintained list that drifts from the Modules' own.
  */
-export const MODULES = [
-	{
-		slug: CAROUSEL_SLUG,
-		label: CAROUSEL_LABEL,
-		color: '#5b21b6',
-		isSupported: isCarouselSupported,
-		isEnabled: isCarouselEnabled,
-		// eslint-disable-next-line no-unused-vars -- keeps every Module's getSummary at the same (attributes, blockName) shape
-		getSummary: ( attributes, blockName ) => getCarouselSummary( attributes ),
-	},
-	{
-		slug: MASONRY_SLUG,
-		label: MASONRY_LABEL,
-		color: '#0f766e',
-		isSupported: isMasonrySupported,
-		isEnabled: isMasonryEnabled,
-		getSummary: getMasonrySummary,
-	},
-];
+export const TARGET_BLOCKS = [ ...new Set( MODULES.flatMap( ( module ) => module.supportedBlocks ) ) ];
 
 /**
  * The Module currently active on a block, if any. `blockshifterTransform`

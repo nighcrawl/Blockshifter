@@ -1,66 +1,20 @@
 /**
- * Pure logic for the Carousel Module's Inspector Control — kept free of
+ * Pure logic for the Carousel Module's JS half — kept free of
  * React/@wordpress/block-editor so it can be unit tested without a DOM.
+ * The shared behaviour comes from `defineModule()`; only what is specific
+ * to Carousel lives here.
  */
 import { __ } from '@wordpress/i18n';
+import { defineModule } from '../../shared/define-module';
+import { getTargetBlocks } from '../../shared/target-blocks';
 
-export const CAROUSEL_SLUG = 'carousel';
-export const CAROUSEL_SUPPORTED_BLOCKS = [ 'core/gallery', 'core/group' ];
+const CAROUSEL_SLUG = 'carousel';
 
-export function isCarouselSupported( blockName ) {
-	return CAROUSEL_SUPPORTED_BLOCKS.includes( blockName );
-}
-
-export function isCarouselEnabled( attributes ) {
-	return attributes?.blockshifterTransform === CAROUSEL_SLUG;
-}
-
-/**
- * What `blockshifterTransform` should become when the toggle changes.
- * Only clears the attribute if this Module was the one that owned it.
- */
-export function nextTransformOnToggle( enabled, currentTransform ) {
-	if ( enabled ) {
-		return CAROUSEL_SLUG;
-	}
-
-	return currentTransform === CAROUSEL_SLUG ? '' : currentTransform;
-}
-
-export const CAROUSEL_DEFAULT_CONFIG = {
+const CAROUSEL_DEFAULT_CONFIG = {
 	perPage: 1,
 	autoplay: false,
 	loop: false,
 };
-
-/**
- * The Carousel Module's own config, with defaults applied — reads only
- * from its own namespaced key, never touching other Modules' config.
- */
-export function getCarouselConfig( attributes ) {
-	return {
-		...CAROUSEL_DEFAULT_CONFIG,
-		...( attributes?.blockshifterConfig?.carousel ?? {} ),
-	};
-}
-
-/**
- * The next `blockshifterConfig` attribute value after changing one Carousel
- * setting. Preserves every other Module's namespaced config, and every
- * other Carousel setting, untouched.
- */
-export function setCarouselConfigValue( attributes, key, value ) {
-	const blockshifterConfig = attributes?.blockshifterConfig ?? {};
-	const carousel = blockshifterConfig.carousel ?? {};
-
-	return {
-		...blockshifterConfig,
-		carousel: {
-			...carousel,
-			[ key ]: value,
-		},
-	};
-}
 
 /**
  * A short, human-readable summary of the Carousel Module's current config,
@@ -72,7 +26,7 @@ export function setCarouselConfigValue( attributes, key, value ) {
  * setting every Carousel has an opinion on.
  */
 export function getCarouselSummary( attributes ) {
-	const { perPage, autoplay, loop } = getCarouselConfig( attributes );
+	const { perPage, autoplay, loop } = carouselModule.getConfig( attributes );
 	const parts = [];
 
 	if ( autoplay ) {
@@ -87,3 +41,13 @@ export function getCarouselSummary( attributes ) {
 
 	return parts.join( ', ' );
 }
+
+export const carouselModule = defineModule( {
+	slug: CAROUSEL_SLUG,
+	label: __( 'Blockshifter Carousel', 'blockshifter' ),
+	color: '#5b21b6',
+	supportedBlocks: getTargetBlocks( CAROUSEL_SLUG ),
+	defaultConfig: CAROUSEL_DEFAULT_CONFIG,
+	getSummary: getCarouselSummary,
+} );
+

@@ -44,7 +44,29 @@ final class Blockshifter_Module_Registry {
 	 * calling Blockshifter_Transform::get_allowed_blocks() directly.
 	 */
 	public static function allowed_blocks_for( Blockshifter_Transform $module ): array {
-		return apply_filters( "blockshifter/{$module->get_slug()}/allowed_blocks", $module->get_allowed_blocks() );
+		$defaults = $module->get_allowed_blocks();
+		$filtered = apply_filters( "blockshifter/{$module->get_slug()}/allowed_blocks", $defaults );
+
+		// A misbehaving third-party filter (e.g. one that forgot its
+		// `return`) must not fatal the render or the editor.
+		return is_array( $filtered ) ? $filtered : $defaults;
+	}
+
+	/**
+	 * Every registered Module's Target Blocks, filter applied, keyed by
+	 * slug — the single source the block editor reads too (ADR-0021), so a
+	 * block added through the filter is editable, not only rendered.
+	 *
+	 * @return array<string, string[]>
+	 */
+	public static function target_blocks_by_slug(): array {
+		$target_blocks = array();
+
+		foreach ( self::$modules as $slug => $module ) {
+			$target_blocks[ $slug ] = array_values( self::allowed_blocks_for( $module ) );
+		}
+
+		return $target_blocks;
 	}
 
 	/**

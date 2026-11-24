@@ -31,3 +31,7 @@ _Avoid_: broken masonry, no-JS masonry.
 **Editor Preview**:
 Transformation visuelle qu'un Module applique à un bloc natif directement dans l'éditeur Gutenberg, en miroir de sa transformation `render()` PHP côté front. Rattachée au Module (pas un concept séparé) : chaque Module peut avoir un Editor Preview, comme il peut avoir des Inspector Controls. Le bloc reste natif et éditable ; seul son affichage dans l'éditeur change.
 _Avoid_: live preview, front-end preview, block preview (trop générique — désigne ici précisément le rendu Module-spécifique dans l'éditeur).
+
+**Target Block**:
+Le bloc core sur lequel un Module est actif — celui qui porte `blockshifterTransform`/`blockshifterConfig` et dont `render_block` transforme la sortie. Un Module ne connaît jamais son Target Block par son nom (`core/gallery`, `core/group`, `core/post-template`...) dans sa logique de rendu, seulement par sa forme rendue (racine + enfants directs). Pour Query Loop, le Target Block est `core/post-template`, jamais `core/query` lui-même (voir ADR-0013).
+_Avoid_: content source, collection adapter (vocabulaire écarté — voir ADR-0013, le contrat Transform existant suffit, pas de couche d'abstraction séparée entre "origine de la collection" et "mode d'affichage").

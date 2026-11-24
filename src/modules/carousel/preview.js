@@ -1,5 +1,5 @@
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { isCarouselSupported, isCarouselEnabled, getCarouselConfig } from './logic';
+import { carouselModule } from './logic';
 import './preview.css';
 
 /**
@@ -14,11 +14,11 @@ export const withCarouselPreview = createHigherOrderComponent(
 	( BlockListBlock ) => ( props ) => {
 		const { name, attributes, wrapperProps } = props;
 
-		if ( ! isCarouselSupported( name ) || ! isCarouselEnabled( attributes ) ) {
+		if ( ! carouselModule.isSupported( name ) || ! carouselModule.isEnabled( attributes ) ) {
 			return <BlockListBlock { ...props } />;
 		}
 
-		const { perPage } = getCarouselConfig( attributes );
+		const { perPage } = carouselModule.getConfig( attributes );
 
 		return (
 			<BlockListBlock

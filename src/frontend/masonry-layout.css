@@ -11,8 +11,21 @@
 	/* Below 600px, mirror core/gallery's own native mobile convention: two
 	 * columns regardless of the configured desktop column count (ADR 0009).
 	 * The configured `--blockshifter-masonry-columns` only takes over at
-	 * gallery's own 600px breakpoint. */
-	grid-template-columns: repeat( 2, 1fr );
+	 * gallery's own 600px breakpoint.
+	 *
+	 * !important on every `grid-template-columns` here: Masonry alone owns
+	 * the column count once active (ADR 0017). Without it, core's own
+	 * layout rules win — a Query Loop's Grid view sets its native column
+	 * count through a generated `.wp-container-*` rule (the editor showed 2
+	 * columns where the front showed 3) and collapses to one column below
+	 * 600px with a higher-specificity selector.
+	 *
+	 * `minmax( 0, 1fr )` rather than a bare `1fr` on every track: a bare
+	 * `1fr` floors each track at its items' min-content width, so a single
+	 * wide item widens its own column at the others' expense. Seen on a
+	 * Query Loop in the editor, where the post being edited carries the
+	 * editor's own UI and rendered one column ~4x wider than the rest. */
+	grid-template-columns: repeat( 2, minmax( 0, 1fr ) ) !important;
 	/* No `gap` declared here: the JS resolves it from Gutenberg's own
 	 * native spacing (Gap) support and sets it inline, for both
 	 * core/gallery and core/group (masonry-init.js). */
@@ -22,9 +35,18 @@
 	grid-auto-rows: auto;
 }
 
+/* A Query Loop's tiles are whole posts, not thumbnails: below 600px they
+ * stack in a single column instead of gallery's two (ADR 0017). The only
+ * place the Module styles its Target Block by name — a rendered-shape
+ * signal (root + direct children) can't tell a post list from a gallery. */
+.blockshifter-masonry.wp-block-post-template {
+	grid-template-columns: minmax( 0, 1fr ) !important;
+}
+
 @media ( min-width: 600px ) {
-	.blockshifter-masonry {
-		grid-template-columns: repeat( var( --blockshifter-masonry-columns, 3 ), 1fr );
+	.blockshifter-masonry,
+	.blockshifter-masonry.wp-block-post-template {
+		grid-template-columns: repeat( var( --blockshifter-masonry-columns, 3 ), minmax( 0, 1fr ) ) !important;
 	}
 }
 

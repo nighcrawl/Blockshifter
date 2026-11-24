@@ -15,6 +15,14 @@ defined( 'ABSPATH' ) || exit;
 final class Blockshifter_Render {
 
 	/**
+	 * Fired each time a Module actually transforms a block, with the Module
+	 * as its only argument. Assets and telemetry hook here instead of
+	 * guessing from `$post->post_content`, which never sees blocks rendered
+	 * from a template.
+	 */
+	const MODULE_RENDERED_ACTION = 'blockshifter/module_rendered';
+
+	/**
 	 * Hook the dispatcher onto `render_block`.
 	 */
 	public static function register(): void {
@@ -46,6 +54,14 @@ final class Blockshifter_Render {
 			return $block_content;
 		}
 
-		return $module->render( $block_content, $block );
+		$rendered = $module->render( $block_content, $block );
+
+		// Only a block the Module actually changed needs its assets and counts
+		// as usage — e.g. an empty block is handed back untouched.
+		if ( $rendered !== $block_content ) {
+			do_action( self::MODULE_RENDERED_ACTION, $module );
+		}
+
+		return $rendered;
 	}
 }

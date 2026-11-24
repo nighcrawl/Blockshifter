@@ -4,7 +4,7 @@ Tags: carousel, masonry, gallery, gutenberg, block editor
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.3.0
+Stable tag: 0.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,13 +14,13 @@ Transform native Gutenberg blocks into alternate display variants without leavin
 
 Blockshifter is a growing toolbox of display modes for native Gutenberg blocks — no new block types, no leaving the block editor, no learning curve.
 
-Pick a block you already use — Gallery, Group — flip a toggle in its Inspector, and its front-end output transforms. The block itself stays 100% native and editable; nothing about how you write content changes.
+Pick a block you already use — Gallery, Group, Query Loop — flip a toggle in its Inspector, and its front-end output transforms. The block itself stays 100% native and editable; nothing about how you write content changes.
 
 Think of Blockshifter as a shape-shifter for your blocks: same content underneath, a different shape on the front end. Today it shifts into a Carousel or a Masonry grid; tomorrow more shapes join the same toolbox, each just as simple to switch on.
 
 = Carousel, live today =
 
-A clean, minimalist carousel for Gallery and Group blocks, powered by [Splide.js](https://splidejs.com/) — lightweight, accessible, dependency-free. Arrows and pagination are styled to sit quietly on top of your content, in any color, on any background.
+A clean, minimalist carousel for Gallery, Group and Query Loop blocks, powered by [Splide.js](https://splidejs.com/) — lightweight, accessible, dependency-free. Arrows and pagination are styled to sit quietly on top of your content, in any color, on any background.
 
 * One toggle to turn a block into a carousel
 * Slides per page
@@ -30,11 +30,11 @@ A clean, minimalist carousel for Gallery and Group blocks, powered by [Splide.js
 
 = Masonry, live today =
 
-A compact, variable-height masonry grid for Gallery and Group blocks, built with native CSS Grid — no third-party library. Every native Gutenberg setting stays in charge: Columns and Gap on Gallery, Gap on Group.
+A compact, variable-height masonry grid for Gallery, Group and Query Loop blocks, built with native CSS Grid — no third-party library. Native Gutenberg settings stay in charge wherever they exist: Columns and Gap on Gallery, Gap on Group and Query Loop.
 
 * One toggle to turn a block into a masonry grid
-* Columns (Group only — Gallery keeps its own native Columns control)
-* Respects each block's native Gap and responsive behavior
+* Columns (Group and Query Loop — Gallery keeps its own native Columns control)
+* Respects each block's native Gap and responsive behavior; Query Loop posts stack in a single column on small screens
 * Degrades gracefully to a regular grid without JavaScript
 
 = More shapes are coming =
@@ -59,13 +59,13 @@ add_filter( 'blockshifter/masonry/allowed_blocks', function( $blocks ) {
 
 1. Upload the plugin files to `/wp-content/plugins/blockshifter`, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Select a Gallery or Group block in the editor, open the Inspector, and enable the "Blockshifter Carousel" or "Blockshifter Masonry" panel.
+3. Select a Gallery, Group or Query Loop's Post Template block in the editor, open the Inspector, and enable the "Blockshifter Carousel" or "Blockshifter Masonry" panel.
 
 == Frequently Asked Questions ==
 
-= Can I use this on blocks other than Gallery and Group? =
+= Which blocks are supported? =
 
-Not out of the box yet, but developers can extend any module's target blocks via its `blockshifter/<module>/allowed_blocks` filter — see the Description above.
+Gallery, Group and Query Loop (through its Post Template block) out of the box. Developers can extend any module to other core blocks via its `blockshifter/<module>/allowed_blocks` filter — see the Description above. The filter applies both on the front end and in the block editor.
 
 = Are other display modes (Accordion...) available? =
 
@@ -108,6 +108,18 @@ The `src/` directory contains the human-readable, unminified source for everythi
 5. The opt-in telemetry setting in Settings > Blockshifter.
 
 == Changelog ==
+
+= 0.4.0 =
+* Adds Query Loop support: Carousel and Masonry can now be enabled on a Query Loop's Post Template, with the same Inspector controls and Editor Preview as Gallery and Group.
+* Masonry on a Query Loop uses its own Columns setting, overriding the Query Loop's native grid columns, and stacks posts in a single column on screens narrower than 600px.
+* Carousel and Masonry scripts and styles now load wherever a block is actually transformed — including blocks rendered from a template (a Query Loop on the blog home, archives, template parts) — and only there, instead of on any page that merely contains a Gallery, Group or Post Template.
+* Opt-in usage telemetry now also counts modules used in templates, not only in post content. Nothing is collected unless telemetry is enabled.
+* The `blockshifter/<module>/allowed_blocks` filter now also applies in the block editor: blocks added through it get the Inspector controls and Editor Preview, instead of only being transformed on the front end. A filter that does not return an array no longer causes a fatal error; the module falls back to its default blocks.
+* Fixes Carousel producing invalid HTML on list-based blocks, and moving a Gallery's caption into the slides: the caption now stays under the carousel, in the editor too.
+* Fixes uneven slide widths and vertical alignment in the Carousel Editor Preview.
+* Fixes Masonry columns of unequal width, and Masonry not repacking when a single tile changes size.
+* Fixes the Masonry Editor Preview staying unpacked on a Query Loop until Masonry was toggled off and on again.
+* Fixes the plugin's settings not being removed when the plugin is deleted: the uninstall routine was missing from the 0.3.0 package.
 
 = 0.3.0 =
 * Adds Editor Preview: the editor canvas now renders a live preview of the Carousel or Masonry front-end output while a Module is enabled, plus a "Shifted" badge on the block toolbar to indicate a Module is active.

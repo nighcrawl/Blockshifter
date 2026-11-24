@@ -45,6 +45,7 @@ final class TelemetryTest extends TestCase {
 
 	protected function tearDown(): void {
 		Blockshifter_Module_Registry::reset();
+		$this->addToAssertionCount( \Mockery::getContainer()->mockery_getExpectationCount() );
 		Monkey\tearDown();
 		parent::tearDown();
 	}
@@ -54,61 +55,39 @@ final class TelemetryTest extends TestCase {
 		$this->options[ Blockshifter_Telemetry::OPTION_ID ]      = $installation_id;
 	}
 
-	// -- maybe_record_feature_usage() --------------------------------------
+	// -- record_feature_usage() -------------------------------------------
 
 	public function test_does_not_record_feature_usage_when_telemetry_is_disabled(): void {
-		Blockshifter_Module_Registry::register( new FakeTransform( 'carousel', array( 'core/gallery' ) ) );
-
-		Functions\expect( 'has_block' )->never();
-
-		Blockshifter_Telemetry::maybe_record_feature_usage( 'CONTENT' );
+		Blockshifter_Telemetry::record_feature_usage( new FakeTransform( 'carousel', array( 'core/gallery' ) ) );
 
 		$this->assertArrayNotHasKey( Blockshifter_Telemetry::OPTION_FEATURES_SEEN, $this->options );
 	}
 
-	public function test_records_a_module_as_seen_the_first_time_its_block_is_found(): void {
+	public function test_records_a_module_as_seen_the_first_time_it_renders(): void {
 		$this->enable_telemetry();
-		Blockshifter_Module_Registry::register( new FakeTransform( 'carousel', array( 'core/gallery' ) ) );
 
-		Filters\expectApplied( 'blockshifter/carousel/allowed_blocks' )->once()->andReturnFirstArg();
-
-		Functions\expect( 'has_block' )
-			->once()
-			->with( 'core/gallery', 'CONTENT_WITH_GALLERY' )
-			->andReturn( true );
-
-		Blockshifter_Telemetry::maybe_record_feature_usage( 'CONTENT_WITH_GALLERY' );
+		Blockshifter_Telemetry::record_feature_usage( new FakeTransform( 'carousel', array( 'core/post-template' ) ) );
 
 		$this->assertArrayHasKey( 'carousel', $this->options[ Blockshifter_Telemetry::OPTION_FEATURES_SEEN ] );
 	}
 
-	public function test_does_not_record_a_module_whose_block_is_absent(): void {
-		$this->enable_telemetry();
-		Blockshifter_Module_Registry::register( new FakeTransform( 'carousel', array( 'core/gallery' ) ) );
-
-		Filters\expectApplied( 'blockshifter/carousel/allowed_blocks' )->once()->andReturnFirstArg();
-
-		Functions\expect( 'has_block' )
-			->once()
-			->with( 'core/gallery', 'CONTENT_WITHOUT_GALLERY' )
-			->andReturn( false );
-
-		Blockshifter_Telemetry::maybe_record_feature_usage( 'CONTENT_WITHOUT_GALLERY' );
-
-		$this->assertArrayNotHasKey( Blockshifter_Telemetry::OPTION_FEATURES_SEEN, $this->options );
-	}
-
-	public function test_does_not_re_check_a_module_already_seen(): void {
+	public function test_does_not_overwrite_the_first_seen_timestamp_of_a_module_already_seen(): void {
 		$this->enable_telemetry();
 		$this->options[ Blockshifter_Telemetry::OPTION_FEATURES_SEEN ] = array( 'carousel' => 12345 );
 
-		Blockshifter_Module_Registry::register( new FakeTransform( 'carousel', array( 'core/gallery' ) ) );
-
-		Functions\expect( 'has_block' )->never();
-
-		Blockshifter_Telemetry::maybe_record_feature_usage( 'CONTENT' );
+		Blockshifter_Telemetry::record_feature_usage( new FakeTransform( 'carousel', array( 'core/gallery' ) ) );
 
 		$this->assertSame( 12345, $this->options[ Blockshifter_Telemetry::OPTION_FEATURES_SEEN ]['carousel'] );
+	}
+
+	public function test_records_each_module_independently(): void {
+		$this->enable_telemetry();
+		$this->options[ Blockshifter_Telemetry::OPTION_FEATURES_SEEN ] = array( 'carousel' => 12345 );
+
+		Blockshifter_Telemetry::record_feature_usage( new FakeTransform( 'masonry', array( 'core/gallery' ) ) );
+
+		$this->assertSame( 12345, $this->options[ Blockshifter_Telemetry::OPTION_FEATURES_SEEN ]['carousel'] );
+		$this->assertArrayHasKey( 'masonry', $this->options[ Blockshifter_Telemetry::OPTION_FEATURES_SEEN ] );
 	}
 
 	// -- send() --------------------------------------------------------------

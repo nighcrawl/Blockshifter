@@ -1,4 +1,5 @@
-import { addCoreAttributes, TARGET_BLOCKS } from './core-attributes';
+import { addCoreAttributes } from './core-attributes';
+import { TARGET_BLOCKS } from './shared/modules-registry';
 
 describe( 'addCoreAttributes', () => {
 	it.each( TARGET_BLOCKS )(

@@ -276,6 +276,50 @@ describe( 'mountMasonryGrids', () => {
 		expect( item.style.gridRowEnd ).toContain( 'span' );
 	} );
 
+	it( 'recalculates when a single item changes size while the grid itself does not', () => {
+		document.body.innerHTML = `
+			<div class="blockshifter-masonry">
+				<div></div>
+				<div></div>
+			</div>
+		`;
+
+		mountMasonryGrids();
+
+		const grid = document.querySelector( '.blockshifter-masonry' );
+		const item = grid.children[ 0 ];
+
+		expect( MockResizeObserver.instances[ 0 ].observed.has( item ) ).toBe( true );
+
+		mockOffsetHeight( item, 300 );
+		MockResizeObserver.instances[ 0 ].trigger( item );
+		jest.advanceTimersByTime( 150 );
+
+		expect( item.style.gridRowEnd ).toBe( `span ${ 300 + 16 }` );
+	} );
+
+	it( 'observes the size of an item inserted after mount, and stops observing a removed one', () => {
+		document.body.innerHTML = `
+			<div class="blockshifter-masonry">
+				<div></div>
+			</div>
+		`;
+
+		mountMasonryGrids();
+
+		const grid = document.querySelector( '.blockshifter-masonry' );
+		const removed = grid.children[ 0 ];
+		const added = document.createElement( 'div' );
+
+		grid.replaceChild( added, removed );
+		MockMutationObserver.instances[ 0 ].callback( [
+			{ target: grid, type: 'childList', addedNodes: [ added ], removedNodes: [ removed ] },
+		] );
+
+		expect( MockResizeObserver.instances[ 0 ].observed.has( added ) ).toBe( true );
+		expect( MockResizeObserver.instances[ 0 ].observed.has( removed ) ).toBe( false );
+	} );
+
 	it( 'recalculates via MutationObserver when a direct child is inserted', () => {
 		document.body.innerHTML = `
 			<div class="blockshifter-masonry" style="--blockshifter-masonry-columns: 3;">
@@ -345,7 +389,8 @@ describe( 'mountMasonryGrids', () => {
 
 		expect( MockResizeObserver.instances ).toHaveLength( 1 );
 		expect( MockMutationObserver.instances ).toHaveLength( 1 );
-		expect( MockResizeObserver.instances[ 0 ].observeCalls ).toBe( 1 );
+		// One observe() for the grid, one for its single item (see gridAndTileResizeObserver).
+		expect( MockResizeObserver.instances[ 0 ].observeCalls ).toBe( 2 );
 		expect( MockMutationObserver.instances[ 0 ].observeCalls ).toBe( 1 );
 	} );
 } );
@@ -399,7 +444,8 @@ describe( 'mountGrid', () => {
 		mountGrid( grid );
 		mountGrid( grid );
 
-		expect( MockResizeObserver.instances[ 0 ].observeCalls ).toBe( 1 );
+		// One observe() for the grid, one for its single item (see gridAndTileResizeObserver).
+		expect( MockResizeObserver.instances[ 0 ].observeCalls ).toBe( 2 );
 	} );
 } );
 
@@ -520,10 +566,11 @@ describe( 'unmountGrid', () => {
 		expect( grid.classList.contains( 'is-masonry-packed' ) ).toBe( true );
 		expect( item.style.gridRowEnd ).toContain( 'span' );
 
-		// `containerResizeObserver` is a single shared instance across every
+		// `gridAndTileResizeObserver` is a single shared instance across every
 		// grid (see mountGrid/unmountGrid) — re-observed, not re-created.
 		expect( MockResizeObserver.instances ).toHaveLength( 1 );
-		expect( MockResizeObserver.instances[ 0 ].observeCalls ).toBe( 2 );
+		// Grid + its single item, once per mount.
+		expect( MockResizeObserver.instances[ 0 ].observeCalls ).toBe( 4 );
 
 		// The mutation observer is per-grid and disconnected on unmount, so
 		// re-mounting creates a fresh instance rather than reusing the old,
