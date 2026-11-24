@@ -1,64 +1,18 @@
 /**
- * Pure logic for the Masonry Module's Inspector Control — kept free of
+ * Pure logic for the Masonry Module's JS half — kept free of
  * React/@wordpress/block-editor so it can be unit tested without a DOM.
+ * The shared behaviour comes from `defineModule()`; only what is specific
+ * to Masonry lives here.
  */
 import { __ } from '@wordpress/i18n';
+import { defineModule } from '../../shared/define-module';
 
 export const MASONRY_SLUG = 'masonry';
 export const MASONRY_SUPPORTED_BLOCKS = [ 'core/gallery', 'core/group', 'core/post-template' ];
 
-export function isMasonrySupported( blockName ) {
-	return MASONRY_SUPPORTED_BLOCKS.includes( blockName );
-}
-
-export function isMasonryEnabled( attributes ) {
-	return attributes?.blockshifterTransform === MASONRY_SLUG;
-}
-
-/**
- * What `blockshifterTransform` should become when the toggle changes.
- * Only clears the attribute if this Module was the one that owned it.
- */
-export function nextTransformOnToggle( enabled, currentTransform ) {
-	if ( enabled ) {
-		return MASONRY_SLUG;
-	}
-
-	return currentTransform === MASONRY_SLUG ? '' : currentTransform;
-}
-
 export const MASONRY_DEFAULT_CONFIG = {
 	columns: 3,
 };
-
-/**
- * The Masonry Module's own config, with defaults applied — reads only
- * from its own namespaced key, never touching other Modules' config.
- */
-export function getMasonryConfig( attributes ) {
-	return {
-		...MASONRY_DEFAULT_CONFIG,
-		...( attributes?.blockshifterConfig?.masonry ?? {} ),
-	};
-}
-
-/**
- * The next `blockshifterConfig` attribute value after changing one Masonry
- * setting. Preserves every other Module's namespaced config, and every
- * other Masonry setting, untouched.
- */
-export function setMasonryConfigValue( attributes, key, value ) {
-	const blockshifterConfig = attributes?.blockshifterConfig ?? {};
-	const masonry = blockshifterConfig.masonry ?? {};
-
-	return {
-		...blockshifterConfig,
-		masonry: {
-			...masonry,
-			[ key ]: value,
-		},
-	};
-}
 
 /**
  * The Masonry Module's effective column count, mirroring
@@ -74,7 +28,7 @@ export function getMasonryColumns( attributes, blockName ) {
 		return Math.max( 1, Number.isNaN( parsed ) ? 3 : parsed );
 	}
 
-	return Math.max( 1, getMasonryConfig( attributes ).columns );
+	return Math.max( 1, masonryModule.getConfig( attributes ).columns );
 }
 
 /**
@@ -87,3 +41,18 @@ export function getMasonrySummary( attributes, blockName ) {
 
 	return `${ __( 'Columns', 'blockshifter' ) }: ${ columns }`;
 }
+
+export const masonryModule = defineModule( {
+	slug: MASONRY_SLUG,
+	label: __( 'Blockshifter Masonry', 'blockshifter' ),
+	color: '#0f766e',
+	supportedBlocks: MASONRY_SUPPORTED_BLOCKS,
+	defaultConfig: MASONRY_DEFAULT_CONFIG,
+	getSummary: getMasonrySummary,
+} );
+
+export const isMasonrySupported = masonryModule.isSupported;
+export const isMasonryEnabled = masonryModule.isEnabled;
+export const nextTransformOnToggle = masonryModule.nextTransformOnToggle;
+export const getMasonryConfig = masonryModule.getConfig;
+export const setMasonryConfigValue = masonryModule.setConfigValue;
