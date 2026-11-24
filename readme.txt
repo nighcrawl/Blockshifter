@@ -113,6 +113,8 @@ The `src/` directory contains the human-readable, unminified source for everythi
 * Adds Query Loop support: Carousel and Masonry can now be enabled on a Query Loop's Post Template, with the same Inspector controls and Editor Preview as Gallery and Group.
 * Masonry on a Query Loop always uses its own Columns setting, overriding the Query Loop's native grid columns, and shows posts in a single column on screens narrower than 600px.
 * Fixes Carousel and Masonry scripts and styles not loading when the block is rendered from a template (e.g. a Query Loop on the blog home, archives or a template part).
+* Carousel and Masonry scripts and styles now load only on pages where a block is actually transformed, instead of on any page containing a Gallery, Group or Post Template.
+* Opt-in usage telemetry now also counts Modules used in templates (e.g. a Query Loop on the blog home), not only in post content. Nothing is collected unless telemetry is enabled.
 * Fixes Carousel producing invalid HTML on list-based blocks and moving a Gallery's caption into the slides; the caption now stays under the carousel, in the editor too.
 * Fixes uneven slide widths and vertical alignment in the Carousel Editor Preview.
 * Fixes Masonry columns of unequal width, and Masonry not repacking when a single tile changes size.
