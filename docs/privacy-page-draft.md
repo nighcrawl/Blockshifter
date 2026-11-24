@@ -16,7 +16,7 @@ Once a week, and immediately after you enable it, your site sends a small anonym
 | Field | Example | Detail |
 |---|---|---|
 | `installation_id` | `550e8400-e29b-...` | A randomly generated UUID, not tied to your identity or your site's URL |
-| `plugin_version` | `0.3.0` | Installed Blockshifter version |
+| `plugin_version` | `0.4.0` | Installed Blockshifter version |
 | `wordpress_version` | `6.9` | WordPress version |
 | `php_version` | `8.3` | PHP version |
 | `features` | `{ "carousel": true, "masonry": false }` | Which Blockshifter modules are detected in use on your site |
