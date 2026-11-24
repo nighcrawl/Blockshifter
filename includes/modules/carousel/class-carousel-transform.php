@@ -20,8 +20,6 @@ final class Blockshifter_Carousel_Transform implements Blockshifter_Transform {
 	 *
 	 * @var string[]
 	 */
-	private const LIST_ELEMENTS = array( 'UL', 'OL' );
-
 	private const VOID_ELEMENTS = array(
 		'AREA',
 		'BASE',
@@ -63,7 +61,7 @@ final class Blockshifter_Carousel_Transform implements Blockshifter_Transform {
 		$options = $this->build_splide_options( $config );
 		$shape   = $this->mark_slides( $block_content );
 
-		if ( in_array( $shape['root_tag'], self::LIST_ELEMENTS, true ) ) {
+		if ( $shape->is_list_root() ) {
 			return $this->wrap_list_root( $shape, $options );
 		}
 
@@ -87,10 +85,8 @@ final class Blockshifter_Carousel_Transform implements Blockshifter_Transform {
 	 * the slides themselves. Slides can't each bleed independently — they
 	 * must share one width to slide correctly — so the carousel as a whole
 	 * takes on the alignment instead (see mark_root()/wrap_list_root()).
-	 *
-	 * @return array{html: string, root_tag: string, align: string, leading_caption: bool, trailing_caption: bool}
 	 */
-	private function mark_slides( string $html ): array {
+	private function mark_slides( string $html ): Blockshifter_Carousel_Shape {
 		$processor          = new WP_HTML_Tag_Processor( $html );
 		$depth              = 0;
 		$root_tag           = '';
@@ -139,13 +135,13 @@ final class Blockshifter_Carousel_Transform implements Blockshifter_Transform {
 		$is_figure       = 'FIGURE' === $root_tag;
 		$leading_caption = $is_figure && 'FIGCAPTION' === $first_child_tag;
 
-		return array(
-			'html'             => $processor->get_updated_html(),
-			'root_tag'         => $root_tag,
-			'align'            => $widest_slide_align,
-			'leading_caption'  => $leading_caption,
+		return new Blockshifter_Carousel_Shape(
+			$processor->get_updated_html(),
+			$root_tag,
+			$widest_slide_align,
+			$leading_caption,
 			// A lone caption is already handled as the leading one.
-			'trailing_caption' => $is_figure && 'FIGCAPTION' === $last_child_tag && ! ( $leading_caption && 1 === $child_count ),
+			$is_figure && 'FIGCAPTION' === $last_child_tag && ! ( $leading_caption && 1 === $child_count )
 		);
 	}
 
@@ -156,12 +152,11 @@ final class Blockshifter_Carousel_Transform implements Blockshifter_Transform {
 	 * direct children of the `.splide__list` that insert_splide_track()
 	 * inserts inside it.
 	 *
-	 * @param array{html: string, align: string} $shape
 	 */
-	private function mark_root( array $shape, array $options ): string {
-		$processor = new WP_HTML_Tag_Processor( $shape['html'] );
+	private function mark_root( Blockshifter_Carousel_Shape $shape, array $options ): string {
+		$processor = new WP_HTML_Tag_Processor( $shape->html );
 		$processor->next_tag();
-		$this->add_splide_root_attributes( $processor, $shape['align'], $options );
+		$this->add_splide_root_attributes( $processor, $shape->align, $options );
 
 		return $processor->get_updated_html();
 	}
@@ -174,16 +169,15 @@ final class Blockshifter_Carousel_Transform implements Blockshifter_Transform {
 	 * `.splide__track` are added *around* it: the minimum Splide needs,
 	 * without breaking the list's own semantics.
 	 *
-	 * @param array{html: string, align: string} $shape
 	 */
-	private function wrap_list_root( array $shape, array $options ): string {
-		$list = new WP_HTML_Tag_Processor( $shape['html'] );
+	private function wrap_list_root( Blockshifter_Carousel_Shape $shape, array $options ): string {
+		$list = new WP_HTML_Tag_Processor( $shape->html );
 		$list->next_tag();
 		$list->add_class( 'splide__list' );
 
 		$wrapper = new WP_HTML_Tag_Processor( '<div><div class="splide__track">' );
 		$wrapper->next_tag();
-		$this->add_splide_root_attributes( $wrapper, $shape['align'], $options );
+		$this->add_splide_root_attributes( $wrapper, $shape->align, $options );
 
 		return $wrapper->get_updated_html() . $list->get_updated_html() . '</div></div>';
 	}
@@ -232,9 +226,8 @@ final class Blockshifter_Carousel_Transform implements Blockshifter_Transform {
 	 * at the inner HTML's first `</figcaption>`, and the trailing one starts
 	 * at its last `<figcaption`.
 	 *
-	 * @param array{leading_caption: bool, trailing_caption: bool} $shape
 	 */
-	private function insert_splide_track( string $html, array $shape ): string {
+	private function insert_splide_track( string $html, Blockshifter_Carousel_Shape $shape ): string {
 		$root_tag_ends_at = strpos( $html, '>' );
 
 		if ( false === $root_tag_ends_at ) {
@@ -251,13 +244,13 @@ final class Blockshifter_Carousel_Transform implements Blockshifter_Transform {
 		$leading  = '';
 		$trailing = '';
 
-		if ( $shape['leading_caption'] ) {
+		if ( $shape->leading_caption ) {
 			$caption_ends_at = strpos( $inner, '</figcaption>' ) + strlen( '</figcaption>' );
 			$leading         = substr( $inner, 0, $caption_ends_at );
 			$inner           = substr( $inner, $caption_ends_at );
 		}
 
-		if ( $shape['trailing_caption'] ) {
+		if ( $shape->trailing_caption ) {
 			$caption_starts_at = strrpos( $inner, '<figcaption' );
 			$trailing          = substr( $inner, $caption_starts_at );
 			$inner             = substr( $inner, 0, $caption_starts_at );

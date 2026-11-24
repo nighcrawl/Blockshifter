@@ -224,7 +224,7 @@ function observeImages( grid ) {
  * grid and item — an entry's target is either a mounted grid or a direct
  * child of one.
  */
-const containerResizeObserver =
+const gridAndTileResizeObserver =
 	typeof ResizeObserver === 'undefined'
 		? null
 		: new ResizeObserver( ( entries ) => {
@@ -240,20 +240,20 @@ const containerResizeObserver =
 function observeItemSizes( items ) {
 	Array.from( items ).forEach( ( item ) => {
 		if ( 1 === item.nodeType ) {
-			containerResizeObserver?.observe( item );
+			gridAndTileResizeObserver?.observe( item );
 		}
 	} );
 }
 
 function unobserveItemSizes( items ) {
-	Array.from( items ).forEach( ( item ) => containerResizeObserver?.unobserve( item ) );
+	Array.from( items ).forEach( ( item ) => gridAndTileResizeObserver?.unobserve( item ) );
 }
 
 /**
  * Recalculates when a direct-child Masonry Tile is inserted or removed
  * client-side (e.g. by another script). Scoped to the grid's own
  * `childList` only — descendants further down are never inspected. Unlike
- * `containerResizeObserver`, this one is a separate instance per grid
+ * `gridAndTileResizeObserver`, this one is a separate instance per grid
  * (created in `mountGrid`, kept in `gridMutationObservers`) rather than a
  * single shared one: `MutationObserver` has no `unobserve()` for a single
  * target, only `disconnect()` for the whole instance, so a shared instance
@@ -292,7 +292,7 @@ export function mountGrid( grid ) {
 	packGrid( grid );
 	observeImages( grid );
 
-	containerResizeObserver?.observe( grid );
+	gridAndTileResizeObserver?.observe( grid );
 	observeItemSizes( grid.children );
 
 	const mutationObserver = createDirectChildMutationObserver( grid );
@@ -322,7 +322,7 @@ export function unmountGrid( grid ) {
 	clearTimeout( packTimers.get( grid ) );
 	packTimers.delete( grid );
 
-	containerResizeObserver?.unobserve( grid );
+	gridAndTileResizeObserver?.unobserve( grid );
 	unobserveItemSizes( grid.children );
 	gridMutationObservers.get( grid )?.disconnect();
 	gridMutationObservers.delete( grid );
@@ -362,7 +362,7 @@ if ( typeof document !== 'undefined' ) {
 	document.addEventListener( 'DOMContentLoaded', () => {
 		mountMasonryGrids();
 
-		if ( ! containerResizeObserver ) {
+		if ( ! gridAndTileResizeObserver ) {
 			window.addEventListener( 'resize', handleResizeFallback );
 		}
 	} );
