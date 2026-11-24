@@ -109,6 +109,9 @@ The `src/` directory contains the human-readable, unminified source for everythi
 
 == Changelog ==
 
+= 0.4.0 =
+* Fixes the plugin's settings not being removed when the plugin is deleted: the uninstall routine was missing from the 0.3.0 package.
+
 = 0.3.0 =
 * Adds Editor Preview: the editor canvas now renders a live preview of the Carousel or Masonry front-end output while a Module is enabled, plus a "Shifted" badge on the block toolbar to indicate a Module is active.
 * Adds fully opt-in, anonymous usage telemetry — disabled by default. See the Privacy section below for details.

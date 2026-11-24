@@ -24,6 +24,7 @@ rm -rf "$PACKAGE_DIR"
 mkdir -p "$PACKAGE_DIR"
 
 cp blockshifter.php "$PACKAGE_DIR/"
+cp uninstall.php "$PACKAGE_DIR/"
 cp readme.txt "$PACKAGE_DIR/"
 cp -R includes "$PACKAGE_DIR/includes"
 cp -R build "$PACKAGE_DIR/build"
