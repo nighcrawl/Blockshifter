@@ -1,6 +1,6 @@
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useEffect } from '@wordpress/element';
-import { isMasonrySupported, isMasonryEnabled, getMasonryColumns } from './logic';
+import { masonryModule, getMasonryColumns } from './logic';
 import { mountGrid, unmountGrid } from '../../frontend/masonry-init';
 
 /**
@@ -28,7 +28,7 @@ export const withMasonryPreview = createHigherOrderComponent(
 	( BlockListBlock ) => ( props ) => {
 		const { name, attributes, wrapperProps } = props;
 
-		if ( ! isMasonrySupported( name ) || ! isMasonryEnabled( attributes ) ) {
+		if ( ! masonryModule.isSupported( name ) || ! masonryModule.isEnabled( attributes ) ) {
 			return <BlockListBlock { ...props } />;
 		}
 
@@ -122,7 +122,7 @@ function trackBlockElement( doc, id ) {
 export const withMasonryPreviewMount = createHigherOrderComponent(
 	( BlockEdit ) => ( props ) => {
 		const { name, attributes, clientId } = props;
-		const enabled = isMasonrySupported( name ) && isMasonryEnabled( attributes );
+		const enabled = masonryModule.isSupported( name ) && masonryModule.isEnabled( attributes );
 
 		useEffect( () => {
 			if ( ! enabled ) {
