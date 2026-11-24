@@ -28,7 +28,22 @@
 	scroll-snap-type: x mandatory;
 }
 
+/*
+ * `min-width: 0`: a flex item's automatic minimum size is its min-content
+ * width, which overrides `flex-basis` — a slide holding one long unbroken
+ * string (e.g. a URL in a Query Loop post) grew past its per-page share
+ * and pushed the next slide out of view. The front end isn't affected:
+ * Splide sets each slide's width itself.
+ *
+ * `margin-block-start: 0 !important`: a Flow layout (core/post-template's
+ * default) spaces its children with a sibling top margin, which in a
+ * single row only pushes every slide but the first lower. WP core's rule
+ * (`:root :where(.is-layout-flow) > *`) ties on specificity and loads
+ * later in the editor canvas, so it only loses to `!important`.
+ */
 .blockshifter-carousel-preview > * {
 	flex: 0 0 calc( 100% / var( --blockshifter-carousel-per-page, 1 ) );
+	min-width: 0;
+	margin-block-start: 0 !important;
 	scroll-snap-align: start;
 }
