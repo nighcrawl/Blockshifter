@@ -110,6 +110,13 @@ The `src/` directory contains the human-readable, unminified source for everythi
 == Changelog ==
 
 = 0.4.0 =
+* Adds Query Loop support: Carousel and Masonry can now be enabled on a Query Loop's Post Template, with the same Inspector controls and Editor Preview as Gallery and Group.
+* Masonry on a Query Loop always uses its own Columns setting, overriding the Query Loop's native grid columns, and shows posts in a single column on screens narrower than 600px.
+* Fixes Carousel and Masonry scripts and styles not loading when the block is rendered from a template (e.g. a Query Loop on the blog home, archives or a template part).
+* Fixes Carousel producing invalid HTML on list-based blocks and moving a Gallery's caption into the slides; the caption now stays under the carousel, in the editor too.
+* Fixes uneven slide widths and vertical alignment in the Carousel Editor Preview.
+* Fixes Masonry columns of unequal width, and Masonry not repacking when a single tile changes size.
+* Fixes the Masonry Editor Preview staying unpacked on a Query Loop until Masonry was toggled off and on again.
 * Fixes the plugin's settings not being removed when the plugin is deleted: the uninstall routine was missing from the 0.3.0 package.
 
 = 0.3.0 =
