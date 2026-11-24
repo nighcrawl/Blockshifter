@@ -117,6 +117,7 @@ The `src/` directory contains the human-readable, unminified source for everythi
 * Fixes uneven slide widths and vertical alignment in the Carousel Editor Preview.
 * Fixes Masonry columns of unequal width, and Masonry not repacking when a single tile changes size.
 * Fixes the Masonry Editor Preview staying unpacked on a Query Loop until Masonry was toggled off and on again.
+* Fixes blocks added through the `blockshifter/{slug}/allowed_blocks` filter not being editable: the filter now also applies in the block editor (attributes, Inspector controls and Editor Preview), not only on the front end.
 * Fixes the plugin's settings not being removed when the plugin is deleted: the uninstall routine was missing from the 0.3.0 package.
 
 = 0.3.0 =

@@ -69,6 +69,8 @@ add_action(
 			$asset['version'],
 			true
 		);
+
+		wp_add_inline_script( 'blockshifter-editor', Blockshifter_Assets::editor_target_blocks_script(), 'before' );
 	}
 );
 

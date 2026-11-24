@@ -127,6 +127,25 @@ final class AssetsTest extends TestCase {
 		}
 	}
 
+	public function test_editor_target_blocks_script_exposes_each_module_s_filtered_target_blocks(): void {
+		Functions\when( 'wp_json_encode' )->alias( 'json_encode' );
+		Blockshifter_Module_Registry::register( $this->make_fake_module() );
+
+		$this->assertSame(
+			'window.blockshifterTargetBlocks = {"fake":["blockshifter\\/test-transform-block"]};',
+			Blockshifter_Assets::editor_target_blocks_script()
+		);
+	}
+
+	public function test_editor_target_blocks_script_is_an_empty_object_without_modules(): void {
+		Functions\when( 'wp_json_encode' )->alias( 'json_encode' );
+
+		$this->assertSame(
+			'window.blockshifterTargetBlocks = {};',
+			Blockshifter_Assets::editor_target_blocks_script()
+		);
+	}
+
 	/**
 	 * A throwaway plugin directory holding `build/frontend/{slug}-init.*`
 	 * for each given slug.

@@ -6,9 +6,9 @@
  */
 import { __ } from '@wordpress/i18n';
 import { defineModule } from '../../shared/define-module';
+import { getTargetBlocks } from '../../shared/target-blocks';
 
 export const CAROUSEL_SLUG = 'carousel';
-export const CAROUSEL_SUPPORTED_BLOCKS = [ 'core/gallery', 'core/group', 'core/post-template' ];
 
 export const CAROUSEL_DEFAULT_CONFIG = {
 	perPage: 1,
@@ -46,7 +46,7 @@ export const carouselModule = defineModule( {
 	slug: CAROUSEL_SLUG,
 	label: __( 'Blockshifter Carousel', 'blockshifter' ),
 	color: '#5b21b6',
-	supportedBlocks: CAROUSEL_SUPPORTED_BLOCKS,
+	supportedBlocks: getTargetBlocks( CAROUSEL_SLUG ),
 	defaultConfig: CAROUSEL_DEFAULT_CONFIG,
 	getSummary: getCarouselSummary,
 } );
