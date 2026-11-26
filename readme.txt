@@ -1,6 +1,6 @@
 === Blockshifter ===
 Contributors: nighcrawl
-Tags: carousel, masonry, gallery, gutenberg, block editor
+Tags: carousel, slider, masonry, query loop, gallery
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -8,38 +8,37 @@ Stable tag: 0.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Transform native Gutenberg blocks into alternate display variants without leaving the editor.
+Turn the Gallery, Group and Query Loop blocks you already use into a carousel or a masonry grid. One toggle. No new block, no lock-in.
 
 == Description ==
 
-Blockshifter is a growing toolbox of display modes for native Gutenberg blocks — no new block types, no leaving the block editor, no learning curve.
+You want a carousel of photos, a slider of your latest posts, or a masonry grid. Usually that means installing a slider plugin with its own block, its own settings screen and its own way of storing your content. Remove that plugin later and your sliders are gone.
 
-Pick a block you already use — Gallery, Group, Query Loop — flip a toggle in its Inspector, and its front-end output transforms. The block itself stays 100% native and editable; nothing about how you write content changes.
+**Blockshifter works the other way around.** Select a block you already use (Gallery, Group or Query Loop), open its sidebar, flip the **Carousel** or **Masonry** toggle, publish. The block stays a 100% native WordPress block: you keep editing it exactly as before, and the editor shows a live preview of the result.
 
-Think of Blockshifter as a shape-shifter for your blocks: same content underneath, a different shape on the front end. Today it shifts into a Carousel or a Masonry grid; tomorrow more shapes join the same toolbox, each just as simple to switch on.
+**Try it in your browser first:** click **Live Preview** at the top of this page. A demo site opens with a Gallery carousel, a Gallery masonry grid and a carousel of latest posts, ready to edit.
 
-= Carousel, live today =
+= What you can build =
 
-A clean, minimalist carousel for Gallery, Group and Query Loop blocks, powered by [Splide.js](https://splidejs.com/) — lightweight, accessible, dependency-free. Arrows and pagination are styled to sit quietly on top of your content, in any color, on any background.
+* **A photo carousel** from a Gallery block: slides per page, autoplay, infinite loop.
+* **A "latest posts" slider** from a Query Loop: any post type, any query, same toggle.
+* **A masonry photo wall** from a Gallery block, using its own native Columns and Gap settings.
+* **A masonry grid of cards, testimonials or posts** from a Group or a Query Loop.
 
-* One toggle to turn a block into a carousel
-* Slides per page
-* Autoplay
-* Infinite loop
-* Fully responsive, keyboard and screen-reader friendly out of the box
+= No lock-in =
 
-= Masonry, live today =
+Blockshifter never creates its own block type and never rewrites your content. It only changes how the block is displayed on the front end. Deactivate it, and your Gallery is a regular Gallery again, your Query Loop a regular list of posts. Nothing to migrate, nothing broken.
 
-A compact, variable-height masonry grid for Gallery, Group and Query Loop blocks, built with native CSS Grid — no third-party library. Native Gutenberg settings stay in charge wherever they exist: Columns and Gap on Gallery, Gap on Group and Query Loop.
+= Light and accessible =
 
-* One toggle to turn a block into a masonry grid
-* Columns (Group and Query Loop — Gallery keeps its own native Columns control)
-* Respects each block's native Gap and responsive behavior; Query Loop posts stack in a single column on small screens
-* Degrades gracefully to a regular grid without JavaScript
+* Scripts and styles load only on pages where a block is actually shifted, nowhere else.
+* Carousel is powered by [Splide.js](https://splidejs.com/): lightweight, dependency-free, keyboard and screen-reader friendly.
+* Masonry is native CSS Grid, no third-party library, and falls back to a regular grid without JavaScript.
+* Works with block themes and classic themes, on any background color.
 
 = More shapes are coming =
 
-Accordion and other display modes are on the roadmap. Every future module follows the exact same pattern you already know: pick a block, flip a toggle, done.
+Accordion and other display modes are on the roadmap. Each one follows the same pattern: pick a block, flip a toggle, done. Tell us which one you need on the [support forum](https://wordpress.org/support/plugin/blockshifter/).
 
 = For developers =
 
@@ -62,6 +61,26 @@ add_filter( 'blockshifter/masonry/allowed_blocks', function( $blocks ) {
 3. Select a Gallery, Group or Query Loop's Post Template block in the editor, open the Inspector, and enable the "Blockshifter Carousel" or "Blockshifter Masonry" panel.
 
 == Frequently Asked Questions ==
+
+= What happens to my content if I deactivate Blockshifter? =
+
+Nothing breaks. Blockshifter only changes the front-end display of native blocks; it never creates its own block type. Once deactivated, a shifted Gallery is displayed as a regular Gallery, a shifted Query Loop as a regular list of posts.
+
+= Do I need to learn a new block or page builder? =
+
+No. You keep using the Gallery, Group and Query Loop blocks. Blockshifter only adds a "Blockshifter Carousel" and a "Blockshifter Masonry" panel to their sidebar.
+
+= Can I make a slider of my latest posts? =
+
+Yes, for posts and any post type a Query Loop can list: enable Carousel on the Query Loop's Post Template. Masonry works the same way.
+
+= Does it slow down my site? =
+
+Carousel and Masonry assets load only on pages where a block is actually shifted, including blocks coming from a template (blog home, archives, template parts). Other pages load nothing from Blockshifter.
+
+= Does it work with my theme? =
+
+Blockshifter works with block themes and classic themes, as long as you build the content with the block editor. If something looks wrong with your theme, please open a thread on the support forum with the theme name.
 
 = Which blocks are supported? =
 
